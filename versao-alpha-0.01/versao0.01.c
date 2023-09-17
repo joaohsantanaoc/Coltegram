@@ -83,12 +83,6 @@ void cadastro_perfil(perfil_t ** ponteiro_perfil, int * num_perfis){
         printf ("Digite o nome do seu usuario:\n");
         fgets (perfis.nome_usuario, NUM_MAX_CARACTERES_NOME_USUARIO, stdin);
         util_removeQuebraLinhaFinal (perfis.nome_usuario);
-        //Verifica se existe um usuario com o mesmo nome:
-        if (usuario_existente(*ponteiro_perfil, *num_perfis, perfis.nome_usuario)){
-            printf ("Ja existe um usuario com o mesmo nome. Digite novamente o nome do seu usuario:\n");
-            fgets (perfis.nome_usuario, NUM_MAX_CARACTERES_NOME_USUARIO, stdin);
-            util_removeQuebraLinhaFinal (perfis.nome_usuario);
-        }
         //Se o nome do usuario possuir espaços em branco, o programa pedirá para digitar novamente
         for (i=0;perfis.nome_usuario[i] != '\0';i++){
             if (perfis.nome_usuario[i] == ' '){
@@ -97,6 +91,12 @@ void cadastro_perfil(perfil_t ** ponteiro_perfil, int * num_perfis){
         }
         if (contador_espaco > 0){
             printf ("O nome do usuario nao pode conter espacos!!!\n");
+        }
+        //Verifica se existe um usuario com o mesmo nome:
+        if (usuario_existente(*ponteiro_perfil, *num_perfis, perfis.nome_usuario)){
+            printf ("Ja existe um usuario com o mesmo nome. Digite novamente o nome do seu usuario:\n");
+            fgets (perfis.nome_usuario, NUM_MAX_CARACTERES_NOME_USUARIO, stdin);
+            util_removeQuebraLinhaFinal (perfis.nome_usuario);
         }
     }while (contador_espaco > 0);
     do{
