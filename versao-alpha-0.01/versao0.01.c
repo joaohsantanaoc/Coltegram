@@ -74,7 +74,7 @@ void cadastro_perfil(perfil_t ** ponteiro_perfil, int * num_perfis){
     scanf ("%d", &perfis.ID);
     //Verifica se existe um mesmo ID em outra conta
     if (id_existente(*ponteiro_perfil,*num_perfis,perfis.ID)){
-        printf ("ID já existe!!!\n");
+        printf ("ID ja existe!!!\n");
         printf ("Digite um ID valido:\n");
         scanf ("%d", &perfis.ID);
     }
