@@ -23,6 +23,14 @@ typedef struct perfil_s{
     char senha_confirmada[NUM_MAX_CARACTERES_SENHA];
 
 }perfil_t;
+//Estrutura para fazer login
+typedef struct login_s{
+    //Variáveis presentes no login
+    char ID_login[NUM_MAX_CARACTERES_ID];
+    char nome_usuario_login[NUM_MAX_CARACTERES_NOME_USUARIO];
+    char email_login[NUM_MAX_CARACTERES_EMAIL];
+    char senha_login[NUM_MAX_CARACTERES_SENHA];
+}login_t;
 
 //Função para tirar quebra linha das strings
 void util_removeQuebraLinhaFinal(char dados[]) {
@@ -71,7 +79,7 @@ void cadastro_perfil(perfil_t ** ponteiro_perfil, int * num_perfis){
     perfil_t perfis;
     int i;
     int contador_espaco = 0; 
-     bool contador_arroba = false ,contador_ponto = false;
+    bool contador_arroba = false ,contador_ponto = false;
 
     printf ("\t\tBem vindo ao cadastro do seu perfil!!!\t\t\n");
     do {
@@ -179,12 +187,41 @@ void cadastro_perfil(perfil_t ** ponteiro_perfil, int * num_perfis){
 
 
 }
+void login(perfil_t * ponteiro_perfil, int num_perfis,login_t * ponteiro_login){
+    int i;
+    if (num_perfis < 1){
+        printf ("Nao ha perfis cadastrados nesse instagram!\n");
+        return;
+    }
+    printf ("\t\tLOGIN:\n");
+    printf ("ID do usuario:\n");
+    for (i=0;i<num_perfis;i++){
+        printf ("%-51s\n", ponteiro_perfil[i].ID);
+    }
+    printf ("Qual perfil voce deseja fazer login:\n");
+    fgets (ponteiro_login->ID_login, NUM_MAX_CARACTERES_ID, stdin);
+    util_removeQuebraLinhaFinal (ponteiro_login->ID_login);
+    printf ("Agora digite sua senha para esse perfil:\n");
+    fgets (ponteiro_login->senha_login, NUM_MAX_CARACTERES_SENHA, stdin);
+    util_removeQuebraLinhaFinal (ponteiro_login->senha_login);
+    for (i=0;i<num_perfis;i++){
+        if (strcmp(ponteiro_perfil[i].ID, ponteiro_login->ID_login) == 0 && (strcmp(ponteiro_perfil[i].senha,ponteiro_login->senha_login) == 0)){
+            printf ("Perfil Acessado!\n");
+            printf ("Login realizado!!!\n");
+        }else {
+            printf ("Perfil incorreto!!!\n");
+        }
+    }
 
-    //Função principal
+
+}
+
+//Função principal
 
 int main (int argc,char ** argv){
     int opcao;
     perfil_t *ponteiro_perfil = NULL;
+    login_t login_info;
     int num_perfis = 0;
 
     printf ("Bem vindo ao Coltegram!\n");
@@ -192,13 +229,16 @@ int main (int argc,char ** argv){
     do{
         printf ("Bem vindo ao Coltegram!!!\n");
         printf ("Digite sua opcao:\n");
-        printf ("<Cadastar> (1)\n<Sair> (0)\n");
+        printf ("<Cadastar> (1)\n<Login> (2)\n<Sair> (0)\n");
         scanf ("%d", &opcao);
         getchar();
 
         switch (opcao){
             case 1:
             cadastro_perfil (&ponteiro_perfil, &num_perfis);
+            break;
+            case 2:
+            login (ponteiro_perfil,num_perfis,&login_info);
             break;
             case 0:
             printf ("Volte sempre!!!\n");
