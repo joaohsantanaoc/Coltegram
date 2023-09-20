@@ -11,11 +11,12 @@
 #define NUM_MAX_CARACTERES_NOME_USUARIO (99+1)
 #define NUM_MAX_CARACTERES_EMAIL (50+1)
 #define NUM_MAX_CARACTERES_SENHA (50+1)
+#define NUM_MAX_CARACTERES_ID (50+1)
 
 //Estrutura do perfil
 typedef struct perfil_s{
     //Variáveis presentes no perfil
-    int ID;
+    char ID[NUM_MAX_CARACTERES_ID];
     char nome_usuario[NUM_MAX_CARACTERES_NOME_USUARIO];
     char email[NUM_MAX_CARACTERES_EMAIL];
     char senha[NUM_MAX_CARACTERES_SENHA];
@@ -44,10 +45,10 @@ int usuario_existente(perfil_t * perfis, int num_perfis,char * nome){
 }
 
     //Função que verifica se existe um mesmo ID
-int id_existente(perfil_t * perfis, int num_perfis, int ID){
+int id_existente(perfil_t * perfis, int num_perfis, char* ID){
     int i;
     for (i=0;i<num_perfis;i++){
-        if (perfis[i].ID  == ID){
+        if (strcmp(perfis[i].ID, ID) == 0){
             return 1;   //ID já existente
         }
     }
@@ -69,32 +70,23 @@ int email_existente(perfil_t *perfis, int num_perfis, char * email){
 void cadastro_perfil(perfil_t ** ponteiro_perfil, int * num_perfis){
     perfil_t perfis;
     int i;
-    int contador_arroba = 0, contador_espaco = 0;
+    int contador_espaco = 0; 
+     bool contador_arroba = false ,contador_ponto = false;
 
     printf ("\t\tBem vindo ao cadastro do seu perfil!!!\t\t\n");
-    printf ("Digite o ID do seu usuario: (somente em numeros)\n");
-    scanf ("%d", &perfis.ID);
+    do {
 
-    //Verifica se existe um mesmo ID em outra conta
-
-    if (id_existente(*ponteiro_perfil,*num_perfis,perfis.ID)){
-        printf ("ID ja existe!!!\n");
-        printf ("Digite um ID valido:\n");
-        scanf ("%d", &perfis.ID);
-    }
-
-    getchar();
-    do{
-        printf ("Digite o nome do seu usuario:\n");
-        fgets (perfis.nome_usuario, NUM_MAX_CARACTERES_NOME_USUARIO, stdin);
-        util_removeQuebraLinhaFinal (perfis.nome_usuario);
+    
+        printf ("Digite o ID do seu usuario: (o @ do seu usuario)\n");
+        fgets (perfis.ID,NUM_MAX_CARACTERES_ID, stdin);
+        util_removeQuebraLinhaFinal (perfis.ID);
 
         contador_espaco = 0;
 
-            //Se o nome do usuario possuir espaços em branco, o programa pedirá para digitar novamente
+        //Se o nome do usuario possuir espaços em branco, o programa pedirá para digitar novamente
 
-        for (i=0;perfis.nome_usuario[i] != '\0';i++){
-            if (perfis.nome_usuario[i] == ' '){
+        for (i=0;perfis.ID[i] != '\0';i++){
+            if (perfis.ID[i] == ' '){
                 contador_espaco++;
             }
         }
@@ -103,28 +95,51 @@ void cadastro_perfil(perfil_t ** ponteiro_perfil, int * num_perfis){
             printf ("O nome do usuario nao pode conter espacos!!!\n");
         }
 
-        //Verifica se existe um usuario com o mesmo nome:
 
-        if (usuario_existente(*ponteiro_perfil, *num_perfis, perfis.nome_usuario)){
-            printf ("Ja existe um usuario com o mesmo nome. Digite novamente o nome do seu usuario:\n");
+
+        //Verifica se existe um mesmo ID em outra conta
+
+        if (id_existente(*ponteiro_perfil,*num_perfis,perfis.ID)){
+            printf ("ID ja existe!!!\n");
         }
+    }while (contador_espaco>0 || id_existente(*ponteiro_perfil,*num_perfis,perfis.ID));
 
-    }while (contador_espaco > 0 || usuario_existente(*ponteiro_perfil,*num_perfis,perfis.nome_usuario));
+    
+    printf ("Digite o nome do seu usuario:\n");
+    fgets (perfis.nome_usuario, NUM_MAX_CARACTERES_NOME_USUARIO, stdin);
+    util_removeQuebraLinhaFinal (perfis.nome_usuario);
+
+
+    //Verifica se existe um usuario com o mesmo nome:
+
+    if (usuario_existente(*ponteiro_perfil, *num_perfis, perfis.nome_usuario)){
+        printf ("Ja existe um usuario com o mesmo nome. Digite novamente o nome do seu usuario:\n");
+        fgets (perfis.nome_usuario, NUM_MAX_CARACTERES_NOME_USUARIO, stdin);
+        util_removeQuebraLinhaFinal (perfis.nome_usuario);
+    }
 
     do{
         printf ("Agora digite o seu e-mail:\n");
         fgets (perfis.email, NUM_MAX_CARACTERES_EMAIL, stdin);
         util_removeQuebraLinhaFinal (perfis.email);
 
-        //Se o email nao possuir @, pedirá para digita-lo novamente
+        //Se o email nao possuir '@' ou '.' , pedirá para digita-lo novamente
 
         for (i=0;perfis.email[i] != '\0';i++){
             if (perfis.email[i] == '@'){
-                contador_arroba++;
+                contador_arroba = true;
+            }
+            if (perfis.email[i] == '.'){
+                contador_ponto = true;
             }
         }
-        if (contador_arroba < 1){
+        if (contador_arroba == false){
             printf ("E-mail invalido ou inexistente!!!\n");
+            contador_ponto = false;
+        }
+        if (contador_ponto == false){
+            printf ("E-mail invalido ou inexistente!!!\n");
+            contador_arroba= false;
         }
 
         //Verifica se existe um mesmo endereço de email existente
@@ -135,8 +150,9 @@ void cadastro_perfil(perfil_t ** ponteiro_perfil, int * num_perfis){
             fgets (perfis.email, NUM_MAX_CARACTERES_EMAIL, stdin);
             util_removeQuebraLinhaFinal (perfis.email);
         }
+        
 
-    }while (contador_arroba < 1);
+    }while ((contador_arroba == false) || (contador_ponto == false));
     printf ("Digite sua senha:\n");
     fgets (perfis.senha, NUM_MAX_CARACTERES_SENHA, stdin);
     util_removeQuebraLinhaFinal (perfis.senha);
@@ -178,6 +194,7 @@ int main (int argc,char ** argv){
         printf ("Digite sua opcao:\n");
         printf ("<Cadastar> (1)\n<Sair> (0)\n");
         scanf ("%d", &opcao);
+        getchar();
 
         switch (opcao){
             case 1:
