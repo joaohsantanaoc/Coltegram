@@ -184,11 +184,9 @@ void cadastro_perfil(perfil_t ** ponteiro_perfil, int * num_perfis){
     *ponteiro_perfil = realloc (*ponteiro_perfil,(*num_perfis) * sizeof (perfil_t));
     (*ponteiro_perfil)[*num_perfis -1] = perfis;
     printf ("Cadastro concluido!!!\n");
-
-
 }
 void login(perfil_t * ponteiro_perfil, int num_perfis,login_t * ponteiro_login){
-    int i;
+    int i, escolha;
     if (num_perfis < 1){
         printf ("Nao ha perfis cadastrados nesse instagram!\n");
         return;
@@ -196,24 +194,29 @@ void login(perfil_t * ponteiro_perfil, int num_perfis,login_t * ponteiro_login){
     printf ("\t\tLOGIN:\n");
     printf ("ID do usuario:\n");
     for (i=0;i<num_perfis;i++){
-        printf ("%-51s\n", ponteiro_perfil[i].ID);
+        printf ("%d.%-51s\n", i+1,ponteiro_perfil[i].ID);
     }
-    printf ("Qual perfil voce deseja fazer login:\n");
-    fgets (ponteiro_login->ID_login, NUM_MAX_CARACTERES_ID, stdin);
-    util_removeQuebraLinhaFinal (ponteiro_login->ID_login);
+    printf ("Qual perfil voce deseja fazer login (digite o numero corrrespondente):\n");
+    scanf ("%d", &escolha);
+    getchar();
+    escolha--;
+    if (escolha < 0 || escolha >= num_perfis){
+        printf ("Opcao invalida!\n");
+        return;
+    }
+    printf("Digite seu email para esse perfil:\n");
+    fgets(ponteiro_login->email_login, NUM_MAX_CARACTERES_EMAIL, stdin);
+    util_removeQuebraLinhaFinal (ponteiro_login->email_login);
     printf ("Agora digite sua senha para esse perfil:\n");
     fgets (ponteiro_login->senha_login, NUM_MAX_CARACTERES_SENHA, stdin);
     util_removeQuebraLinhaFinal (ponteiro_login->senha_login);
-    for (i=0;i<num_perfis;i++){
-        if (strcmp(ponteiro_perfil[i].ID, ponteiro_login->ID_login) == 0 && (strcmp(ponteiro_perfil[i].senha,ponteiro_login->senha_login) == 0)){
-            printf ("Perfil Acessado!\n");
-            printf ("Login realizado!!!\n");
-        }else {
-            printf ("Perfil incorreto!!!\n");
-        }
+    
+    if ((strcmp(ponteiro_perfil[escolha].senha,ponteiro_login->senha_login) == 0 &&(strcmp(ponteiro_perfil[escolha].email,ponteiro_login->email_login))) == 0){
+        printf ("Perfil Acessado!\n");
+        printf ("Login realizado!!!\n");
+    }else {
+        printf ("Perfil incorreto!!!\n");
     }
-
-
 }
 
 //Função principal
@@ -249,6 +252,7 @@ int main (int argc,char ** argv){
 
     }while (opcao != 0);
 
+    //Libera o espaço da memória alocado
     free (ponteiro_perfil);
 
     //Se chegou até aqui é porque ocorreu tudo bem!!!
