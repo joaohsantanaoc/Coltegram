@@ -185,6 +185,8 @@ void cadastro_perfil(perfil_t ** ponteiro_perfil, int * num_perfis){
     (*ponteiro_perfil)[*num_perfis -1] = perfis;
     printf ("Cadastro concluido!!!\n");
 }
+
+
 void login(perfil_t * ponteiro_perfil, int num_perfis,login_t * ponteiro_login){
     int i, escolha;
     if (num_perfis < 1){
