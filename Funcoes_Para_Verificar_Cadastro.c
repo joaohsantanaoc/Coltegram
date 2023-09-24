@@ -46,7 +46,7 @@ typedef struct postagem
 
 typedef struct perfil
 {
-    int ID;
+    char ID[Tamanho_Maximo];
     char nome[Tamanho_Maximo];
     char email [Tamanho_Maximo];
     char senha [Tamanho_Maximo];
@@ -62,7 +62,6 @@ void util_removeQuebraLinhaFinal(char dados[]) {
         dados[tamanho - 1] = '\0';
     }
 }
-
 
 int verificarEspacoEmBranco(char string[]){
 
