@@ -200,7 +200,7 @@ void login(perfil_t * ponteiro_perfil, int num_perfis,login_t * ponteiro_login, 
     scanf ("%d", &escolha);
     getchar();
     escolha--;
-    if (escolha < 0 || escolha >= num_perfis){
+    if (escolha <= 0 || escolha >= num_perfis){
         printf ("Opcao invalida!\n");
         return;
     }
@@ -211,7 +211,7 @@ void login(perfil_t * ponteiro_perfil, int num_perfis,login_t * ponteiro_login, 
     fgets (ponteiro_login->senha_login, NUM_MAX_CARACTERES_SENHA, stdin);
     util_removeQuebraLinhaFinal (ponteiro_login->senha_login);
     
-    if ((strcmp(ponteiro_perfil[escolha].senha,ponteiro_login->senha_login) == 0 &&(strcmp(ponteiro_perfil[escolha].email,ponteiro_login->email_login))) == 0){
+    if ((strcmp(ponteiro_perfil[escolha].senha,ponteiro_login->senha_login) == 0  && (strcmp(ponteiro_perfil[escolha].email,ponteiro_login->email_login))) == 0){
         printf ("Perfil Acessado!\n");
         printf ("Login realizado!!!\n");
         printf ("Bem vindo ao Coltegram %-51s\n", ponteiro_perfil[escolha].ID);
@@ -226,7 +226,7 @@ void login(perfil_t * ponteiro_perfil, int num_perfis,login_t * ponteiro_login, 
 //Função principal
 
 int main (int argc,char ** argv){
-    int opcao;
+    int opcao, escolha, escolha2;
     perfil_t *ponteiro_perfil = NULL;
     login_t login_info;
     int num_perfis = 0;
@@ -247,6 +247,61 @@ int main (int argc,char ** argv){
             break;
             case 2:
             login (ponteiro_perfil,num_perfis,&login_info, &logado);
+            //Após o usuario logar, terá acesso a uma serie de informações
+            
+            do {
+                printf ("Quais acoes voce deseja executar:\n");
+                printf ("(1) <Buscar perfis>\n(2) <Visitar perfis>\n(3) <Listar perfis cadastrados>\n(4) <Acoes do usuario>\n(0) <Sair>\n");
+                scanf ("%d", &escolha);
+                getchar();
+
+                switch (escolha){
+                    case 1:
+                    break;
+                    case 2:
+                    break;
+                    case 3:
+                    break;
+                    case 4:
+                    //Ações do perfil
+                    do {
+                        printf ("Acoes do usuario:\n");
+                        printf ("(1) <Postar Posts>\n(2) <Editar Posts>\n(3) <Listar Posts>\n(4) <Detalhar Posts>\n(5) <Apagar posts>\n(6) <Deslogar>\n(0) <Sair>\n");
+                        printf ("O que voce deseja fazer?\n");
+                        scanf ("%d", &escolha2);
+                        getchar();
+
+                        switch (escolha2){
+                            case 1:
+                            break;
+                            case 2:
+                            break;
+                            case 3:
+                            break;
+                            case 4:
+                            break;
+                            case 5:
+                            break;
+                            case 6:
+                            printf ("Saindo do perfil...\n");
+                            //Quando o usuario digita a opção para deslogar, a variável booleana que faz o loop funcionar quando ela é verdadeira, se torna falsa e o usuario volta ao menu principal
+                            logado = false; 
+                            break;
+                            case 0:
+                            printf ("Voltando ao menu principal!!!\n");
+                            break;
+                            default:
+                            printf ("Opcao invalida!!!\n");
+                        }
+
+                    }while (escolha2 != 0 && logado);
+                    break;
+                    case 0:
+                    break;
+                    default:
+                    printf ("Opcao invalida!\n");
+                }
+            }while (logado);
             break;
             case 0:
             printf ("Volte sempre!!!\n");
