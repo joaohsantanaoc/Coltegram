@@ -185,7 +185,7 @@ void cadastro_perfil(perfil_t ** ponteiro_perfil, int * num_perfis){
     (*ponteiro_perfil)[*num_perfis -1] = perfis;
     printf ("Cadastro concluido!!!\n");
 }
-void login(perfil_t * ponteiro_perfil, int num_perfis,login_t * ponteiro_login){
+void login(perfil_t * ponteiro_perfil, int num_perfis,login_t * ponteiro_login, bool *logado){
     int i, escolha;
     if (num_perfis < 1){
         printf ("Nao ha perfis cadastrados nesse instagram!\n");
@@ -214,6 +214,10 @@ void login(perfil_t * ponteiro_perfil, int num_perfis,login_t * ponteiro_login){
     if ((strcmp(ponteiro_perfil[escolha].senha,ponteiro_login->senha_login) == 0 &&(strcmp(ponteiro_perfil[escolha].email,ponteiro_login->email_login))) == 0){
         printf ("Perfil Acessado!\n");
         printf ("Login realizado!!!\n");
+        printf ("Bem vindo ao Coltegram %-51s\n", ponteiro_perfil[escolha].ID);
+        //Caso o usuario digite a senha e email correto, há uma variável booleana que indica verdadeiro
+        *logado = true; 
+
     }else {
         printf ("Perfil incorreto!!!\n");
     }
@@ -226,6 +230,7 @@ int main (int argc,char ** argv){
     perfil_t *ponteiro_perfil = NULL;
     login_t login_info;
     int num_perfis = 0;
+    bool logado = false; 
 
     printf ("Bem vindo ao Coltegram!\n");
     printf ("Instagram feito por:\nIcaro Cardoso Nascimento\nJoao Henrique Santana Oliveira Campos\nMatheus Fernandes de Oliveira Brandemburg\n");
@@ -241,7 +246,7 @@ int main (int argc,char ** argv){
             cadastro_perfil (&ponteiro_perfil, &num_perfis);
             break;
             case 2:
-            login (ponteiro_perfil,num_perfis,&login_info);
+            login (ponteiro_perfil,num_perfis,&login_info, &logado);
             break;
             case 0:
             printf ("Volte sempre!!!\n");
