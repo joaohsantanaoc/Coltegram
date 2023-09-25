@@ -1,15 +1,18 @@
+//Bibliotecas presentes no programa
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdbool.h>
 
+//Constantes presntes
 #define SUCESSO 0
 #define NUM_MAX_CARACTERES_NOME_USUARIO (99 + 1)
 #define NUM_MAX_CARACTERES_EMAIL (50 + 1)
 #define NUM_MAX_CARACTERES_SENHA (50 + 1)
 #define NUM_MAX_CARACTERES_ID (50 + 1)
 
+//Estrutura para o perfil
 typedef struct perfil_s {
     char ID[NUM_MAX_CARACTERES_ID];
     char nome_usuario[NUM_MAX_CARACTERES_NOME_USUARIO];
@@ -18,6 +21,7 @@ typedef struct perfil_s {
     char senha_confirmada[NUM_MAX_CARACTERES_SENHA];
 } perfil_t;
 
+//Estrutura para login
 typedef struct login_s {
     char ID_login[NUM_MAX_CARACTERES_ID];
     char nome_usuario_login[NUM_MAX_CARACTERES_NOME_USUARIO];
@@ -25,6 +29,7 @@ typedef struct login_s {
     char senha_login[NUM_MAX_CARACTERES_SENHA];
 } login_t;
 
+//Função para tirar o '\n' das strings
 void util_removeQuebraLinhaFinal(char dados[]) {
     int tamanho;
     tamanho = strlen(dados);
@@ -33,6 +38,7 @@ void util_removeQuebraLinhaFinal(char dados[]) {
     }
 }
 
+//Função para verificar se já existe um mesmo ID de usuário no programa
 int usuario_existente(perfil_t *perfis, int num_perfis, char *nome) {
     int i;
     for (i = 0; i < num_perfis; i++) {
@@ -43,6 +49,7 @@ int usuario_existente(perfil_t *perfis, int num_perfis, char *nome) {
     return 0;
 }
 
+//Função para verificar se já existe um mesmo nome de usuário no programa
 int id_existente(perfil_t *perfis, int num_perfis, char *ID) {
     int i;
     for (i = 0; i < num_perfis; i++) {
@@ -53,6 +60,7 @@ int id_existente(perfil_t *perfis, int num_perfis, char *ID) {
     return 0;
 }
 
+//Função para verificar se já existe um mesmo e-mail no programa
 int email_existente(perfil_t *perfis, int num_perfis, char *email) {
     int i;
     for (i = 0; i < num_perfis; i++) {
@@ -63,6 +71,7 @@ int email_existente(perfil_t *perfis, int num_perfis, char *email) {
     return 0;
 }
 
+//Função para o cadastro do perfil
 void cadastro_perfil(perfil_t **ponteiro_perfil, int *num_perfis) {
     perfil_t perfis;
     int i;
@@ -153,6 +162,7 @@ void cadastro_perfil(perfil_t **ponteiro_perfil, int *num_perfis) {
     printf("Cadastro concluido!!!\n");
 }
 
+//Função para fazer login no sistema
 void login(perfil_t *ponteiro_perfil, int num_perfis, login_t *ponteiro_login, bool *logado) {
     int i, escolha;
     if (num_perfis < 1) {
@@ -190,8 +200,41 @@ void login(perfil_t *ponteiro_perfil, int num_perfis, login_t *ponteiro_login, b
     }
 }
 
+//Função bubble sort para ordenar as strings dos IDs
+void listar_IDs_cadastrados(perfil_t * ponteiro_perfil, int num_perfis){
+    int i, j;
+    char * tmp; 
+
+    //Listar Ids de forma ordenada
+    for (i = 0; i < (num_perfis - 1); i++) {
+        for (j = 0; j < (num_perfis - 1); j++) {
+        // Se estiver fora de ordem...
+           if (strcmp(ponteiro_perfil->ID[j], ponteiro_perfil->ID[j + 1]) > 0) {
+               // ... troca de posicao
+               tmp = ponteiro_perfil->ID[j];
+               ponteiro_perfil->ID[j] = ponteiro_perfil->ID[j + 1];
+               ponteiro_perfil->ID[j + 1] = tmp;
+            }
+        }
+    }
+}
+
+//Função que imprime os IDs em ordem alfabética e formato de tabela
+void imprimir_IDs_cadastrados(perfil_t * ponteiro_perfil, int num_perfis){
+    int i;
+    //Chamar a função bubble sort para ordenar os Ids
+    listar_IDs_cadastrados(ponteiro_perfil, num_perfis);
+
+    printf ("Ids\n");
+    for (i=0;i<num_perfis;i++){
+        printf ("@%-51s\n", ponteiro_perfil[i].ID);
+    }
+
+}
+
+//Função principal
 int main(int argc, char **argv) {
-    int opcao, escolha, escolha2;
+    int opcao, escolha, escolha2,escolha3;
     perfil_t *ponteiro_perfil = NULL;
     login_t login_info;
     int num_perfis = 0;
@@ -227,6 +270,31 @@ int main(int argc, char **argv) {
                         break;
                         case 3:
                         //Listar perfis cadastrados
+                        do {
+                            printf ("\t\tLISTAR PERFIS CADASTRADOS NO SISTEMA:\n");
+                            printf ("(1) <Listar IDs>\n(2) <Listar e-mails>\n(3) <Listar nome dos usuarios>\n(0) <Parar>\n");
+                            printf ("O que voce deseja realizar:\n");
+                            scanf ("%d", &escolha3);
+                            getchar();
+
+                            switch (escolha3){
+                                case 1:
+                                //Listar Ids em ordem alfabetica
+                                imprimir_IDs_cadastrados (ponteiro_perfil, num_perfis);
+                                break;
+                                case 2:
+                                //Listar e-mails em ordem alfabetica
+                                break;
+                                case 3:
+                                //Listar nome dos usuarios em ordem alfabetica
+                                break;
+                                case 0:
+                                printf ("Saindo...\n");
+                                break;
+                                default:
+                                printf ("Opcao invalida!!!\n");
+                            }
+                        } while (escolha3 != 0);
                         break;
                         case 4:
                         do {
@@ -266,6 +334,7 @@ int main(int argc, char **argv) {
                         } while (escolha2 != 0 && logado);
                         break;
                         case 0:
+                        printf ("Saindo...\n");
                         break;
                         default:
                         printf("Opcao invalida!\n");
