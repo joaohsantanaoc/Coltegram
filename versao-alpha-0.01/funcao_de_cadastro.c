@@ -251,6 +251,7 @@ int main(int argc, char **argv) {
                                 break;
                                 case 5:
                                 //Apagar posts
+                                printf("Piroca");
                                 break;
                                 case 6:
                                 printf("Saindo do perfil...\n");
