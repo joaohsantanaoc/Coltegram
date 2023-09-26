@@ -203,17 +203,17 @@ void login(perfil_t *ponteiro_perfil, int num_perfis, login_t *ponteiro_login, b
 //Função bubble sort para ordenar as strings dos IDs
 void listar_IDs_cadastrados(perfil_t * ponteiro_perfil, int num_perfis){
     int i, j;
-    char * tmp; 
+    perfil_t tmp; 
 
     //Listar Ids de forma ordenada
     for (i = 0; i < (num_perfis - 1); i++) {
         for (j = 0; j < (num_perfis - 1); j++) {
         // Se estiver fora de ordem...
-           if (strcmp(ponteiro_perfil->ID[j], ponteiro_perfil->ID[j + 1]) > 0) {
+           if (strcmp(ponteiro_perfil[j].ID, ponteiro_perfil[j + 1].ID) > 0) {
                // ... troca de posicao
-               tmp = ponteiro_perfil->ID[j];
-               ponteiro_perfil->ID[j] = ponteiro_perfil->ID[j + 1];
-               ponteiro_perfil->ID[j + 1] = tmp;
+               tmp = ponteiro_perfil[j];
+               ponteiro_perfil[j] = ponteiro_perfil[j + 1];
+               ponteiro_perfil[j + 1] = tmp;
             }
         }
     }
@@ -228,6 +228,83 @@ void imprimir_IDs_cadastrados(perfil_t * ponteiro_perfil, int num_perfis){
     printf ("Ids\n");
     for (i=0;i<num_perfis;i++){
         printf ("@%-51s\n", ponteiro_perfil[i].ID);
+    }
+
+}
+//Função bubble sort que ordena os nomes de usuários cadastrados em ordem alfabética
+void listar_nomes_cadastrados(perfil_t * ponteiro_perfil, int num_perfis){
+    int i, j;
+    perfil_t tmp; 
+
+    //Listar Ids de forma ordenada
+    for (i = 0; i < (num_perfis - 1); i++) {
+        for (j = 0; j < (num_perfis - 1); j++) {
+        // Se estiver fora de ordem...
+           if (strcmp(ponteiro_perfil[j].nome_usuario, ponteiro_perfil[j + 1].nome_usuario) > 0) {
+               // ... troca de posicao
+               tmp = ponteiro_perfil[j];
+               ponteiro_perfil[j] = ponteiro_perfil[j + 1];
+               ponteiro_perfil[j + 1] = tmp;
+            }
+        }
+    }
+}
+
+//Função que imprime os nomes de usuario em ordem alfabética e formato de tabela
+void imprimir_nomes_cadastrados(perfil_t * ponteiro_perfil, int num_perfis){
+    int i;
+    //Chamar a função bubble sort para ordenar os nomes de usuario
+    listar_nomes_cadastrados(ponteiro_perfil, num_perfis);
+
+    printf ("Nomes de Usuario\n");
+    for (i=0;i<num_perfis;i++){
+        printf ("@%-51s\n", ponteiro_perfil[i].nome_usuario);
+    }
+
+}
+//Função Bubble sort que ordena os e-mails cadastrados em ordem alfabetica
+void listar_emails_cadastrados(perfil_t * ponteiro_perfil, int num_perfis){
+    int i, j;
+    perfil_t tmp; 
+
+    //Listar Ids de forma ordenada
+    for (i = 0; i < (num_perfis - 1); i++) {
+        for (j = 0; j < (num_perfis - 1); j++) {
+        // Se estiver fora de ordem...
+           if (strcmp(ponteiro_perfil[j].email, ponteiro_perfil[j + 1].email) > 0) {
+               // ... troca de posicao
+               tmp = ponteiro_perfil[j];
+               ponteiro_perfil[j] = ponteiro_perfil[j + 1];
+               ponteiro_perfil[j + 1] = tmp;
+            }
+        }
+    }
+}
+//Função que imprime os e-mails em ordem alfabética e formato de tabela
+void imprimir_emails_cadastrados(perfil_t * ponteiro_perfil, int num_perfis){
+    int i;
+    //Chamar a função bubble sort para ordenar os e-mails
+    listar_emails_cadastrados(ponteiro_perfil, num_perfis);
+
+    printf ("Emails\n");
+    for (i=0;i<num_perfis;i++){
+        printf ("@%-51s\n", ponteiro_perfil[i].email);
+    }
+
+}
+//Função que imprime tudo em ordem alfabética e formato de tabela
+void imprimir_tudo_cadastrado(perfil_t * ponteiro_perfil, int num_perfis){
+    int i;
+    //Chamar a função bubble sort para ordenar os Ids
+    listar_IDs_cadastrados(ponteiro_perfil, num_perfis);
+    //Chamar a função bubble sort para ordenar os e-mails
+    listar_emails_cadastrados(ponteiro_perfil,num_perfis);
+    //Chamar a função bubble sort para ordenar os nomes dos usuários
+    listar_nomes_cadastrados(ponteiro_perfil,num_perfis);
+
+    printf ("Ids                                              E-mails                                             Nomes de usuarios\n");
+    for (i=0;i<num_perfis;i++){
+        printf ("@%-51s %-51s %-51s\n", ponteiro_perfil[i].ID, ponteiro_perfil[i].email, ponteiro_perfil[i].nome_usuario);
     }
 
 }
@@ -250,10 +327,11 @@ int main(int argc, char **argv) {
         getchar();
 
         switch (opcao) {
-            case 1:
+            case 1:{
                 cadastro_perfil(&ponteiro_perfil, &num_perfis);
                 break;
-            case 2:
+            }    
+            case 2:{
                 login(ponteiro_perfil, num_perfis, &login_info, &logado);
                 while (logado) {
                     printf("Quais acoes voce deseja executar:\n");
@@ -262,89 +340,119 @@ int main(int argc, char **argv) {
                     getchar();
 
                     switch (escolha) {
-                        case 1:
-                        //Buscar perfis
-                        break;
-                        case 2:
-                        //Visitar perfis
-                        break;
-                        case 3:
-                        //Listar perfis cadastrados
-                        do {
-                            printf ("\t\tLISTAR PERFIS CADASTRADOS NO SISTEMA:\n");
-                            printf ("(1) <Listar IDs>\n(2) <Listar e-mails>\n(3) <Listar nome dos usuarios>\n(0) <Parar>\n");
-                            printf ("O que voce deseja realizar:\n");
-                            scanf ("%d", &escolha3);
-                            getchar();
+                        case 1:{
+                            //Buscar perfis
+                            break;
+                        }
+                        case 2:{
+                            //Visitar perfis
+                            break;
+                        }
+                        case 3:{
+                            //Listar perfis cadastrados
+                            do {
+                                printf ("\t\tLISTAR PERFIS CADASTRADOS NO SISTEMA:\n");
+                                printf ("(1) <Listar IDs>\n(2) <Listar e-mails>\n(3) <Listar nome dos usuarios>\n(4) <Listar todas as informacoes>\n(0) <Parar>\n");
+                                printf ("O que voce deseja realizar:\n");
+                                scanf ("%d", &escolha3);
+                                getchar();
 
-                            switch (escolha3){
-                                case 1:
-                                //Listar Ids em ordem alfabetica
-                                imprimir_IDs_cadastrados (ponteiro_perfil, num_perfis);
-                                break;
-                                case 2:
-                                //Listar e-mails em ordem alfabetica
-                                break;
-                                case 3:
-                                //Listar nome dos usuarios em ordem alfabetica
-                                break;
-                                case 0:
-                                printf ("Saindo...\n");
-                                break;
-                                default:
-                                printf ("Opcao invalida!!!\n");
-                            }
-                        } while (escolha3 != 0);
-                        break;
-                        case 4:
-                        do {
-                            printf("Acoes do usuario:\n");
-                            printf("(1) <Postar Posts>\n(2) <Editar Posts>\n(3) <Listar Posts>\n(4) <Detalhar Posts>\n(5) <Apagar posts>\n(6) <Deslogar>\n(0) <Sair>\n");
-                            printf("O que voce deseja fazer?\n");
-                            scanf("%d", &escolha2);
-                            getchar();
+                                switch (escolha3){
+                                    case 1:{
+                                        //Listar Ids em ordem alfabetica
+                                        imprimir_IDs_cadastrados (ponteiro_perfil, num_perfis);
+                                        break;
+                                    }
+                                    case 2:{
+                                        //Listar e-mails em ordem alfabetica
+                                        imprimir_emails_cadastrados(ponteiro_perfil,num_perfis);
+                                        break;
+                                    }
+                                    case 3:{
+                                        //Listar nome dos usuarios em ordem alfabetica
+                                        imprimir_nomes_cadastrados(ponteiro_perfil,num_perfis);
+                                        break;
+                                    }
+                                    case 4:{
+                                        //Imprime todas as informações juntas
+                                        imprimir_tudo_cadastrado(ponteiro_perfil,num_perfis);
+                                        break;
+                                    }
+                                    case 0:{
+                                        printf ("Saindo...\n");
+                                        break;
+                                    }
+                                    default:{
+                                        printf ("Opcao invalida!!!\n");
+                                    }
+                                }
+                            } while (escolha3 != 0);
+                            break;
+                        }
+                        case 4:{
+                            do {
+                                printf("Acoes do usuario:\n");
+                                printf("(1) <Postar Posts>\n(2) <Editar Posts>\n(3) <Listar Posts>\n(4) <Detalhar Posts>\n(5) <Apagar posts>\n(6) <Deslogar>\n(0) <Sair>\n");
+                                printf("O que voce deseja fazer?\n");
+                                scanf("%d", &escolha2);
+                                getchar();
 
-                            switch (escolha2) {
-                                case 1:
-                                //Postar posts
-                                break;
-                                case 2:
-                                //Editar posts
-                                break;
-                                case 3:
-                                //Listar posts
-                                break;
-                                case 4:
-                                //Detalhar posts
-                                break;
-                                case 5:
-                                //Apagar posts
-                                break;
-                                case 6:
-                                printf("Saindo do perfil...\n");
-                                logado = false;
-                                break;
-                                case 0:
-                                printf("Voltando ao menu principal!!!\n");
-                                break;
-                                default:
-                                printf("Opcao invalida!!!\n");
-                            }
-                        } while (escolha2 != 0 && logado);
-                        break;
-                        case 0:
-                        printf ("Saindo...\n");
-                        break;
-                        default:
-                        printf("Opcao invalida!\n");
+                                switch (escolha2) {
+                                    case 1:{
+                                        //Postar posts
+                                        break;
+                                    }
+                                    case 2:{
+                                        //Editar posts
+                                        break;
+                                    }
+                                    case 3:{
+                                        //Listar posts
+                                        break;
+                                    }
+                                    case 4:{
+                                        //Detalhar posts
+                                        break;
+                                    }
+                                    case 5:{
+                                        //Apagar posts
+                                        break;
+                                    }
+                                    case 6:{
+                                        printf("Saindo do perfil...\n");
+                                        logado = false;
+                                        break;
+                                    }
+                                    case 0:{
+                                        printf("Voltando ao menu principal!!!\n");
+                                        break;
+                                    }
+                                    default:{
+                                        printf("Opcao invalida!!!\n");
+                                    }
+                                }
+                            } while (escolha2 != 0 && logado);
+                            break;
+                        }
+                        case 0:{
+                            printf ("Saindo...\n");
+                            return;
+                            break;
+                        }
+                        default:{
+                            printf("Opcao invalida!\n");
+                        }
                 }
             }
-            break;
-            case 0:
-            printf("Volte sempre!!!\n");
-            break;
-            default:
-            printf("Opcao invalida!!!\n");
+                break;
+            }
+            case 0:{
+                printf("Volte sempre!!!\n");
+                break;
+            }
+            default:{
+                printf("Opcao invalida!!!\n");
+            }
         }
 
     } while (opcao != 0);
