@@ -258,7 +258,7 @@ void imprimir_nomes_cadastrados(perfil_t * ponteiro_perfil, int num_perfis){
 
     printf ("Nomes de Usuario\n");
     for (i=0;i<num_perfis;i++){
-        printf ("@%-51s\n", ponteiro_perfil[i].nome_usuario);
+        printf ("%-51s\n", ponteiro_perfil[i].nome_usuario);
     }
 
 }
@@ -288,7 +288,7 @@ void imprimir_emails_cadastrados(perfil_t * ponteiro_perfil, int num_perfis){
 
     printf ("Emails\n");
     for (i=0;i<num_perfis;i++){
-        printf ("@%-51s\n", ponteiro_perfil[i].email);
+        printf ("%-51s\n", ponteiro_perfil[i].email);
     }
 
 }
@@ -333,7 +333,7 @@ int main(int argc, char **argv) {
             }    
             case 2:{
                 login(ponteiro_perfil, num_perfis, &login_info, &logado);
-                while (logado) {
+                while (logado && escolha != 0) {
                     printf("Quais acoes voce deseja executar:\n");
                     printf("(1) <Buscar perfis>\n(2) <Visitar perfis>\n(3) <Listar perfis cadastrados>\n(4) <Acoes do usuario>\n(0) <Sair>\n");
                     scanf("%d", &escolha);
@@ -436,7 +436,6 @@ int main(int argc, char **argv) {
                         }
                         case 0:{
                             printf ("Saindo...\n");
-                            return;
                             break;
                         }
                         default:{
