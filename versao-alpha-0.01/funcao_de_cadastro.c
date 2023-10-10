@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include <ctype.h>
 #include <stdbool.h>
 
@@ -11,7 +12,65 @@
 #define NUM_MAX_CARACTERES_EMAIL (50 + 1)
 #define NUM_MAX_CARACTERES_SENHA (50 + 1)
 #define NUM_MAX_CARACTERES_ID (50 + 1)
+#define NUM_MAX_CARACTERES_LEGENDA (299+1)
+#define NUM_MAX_CARACTERES_COMENTARIO (299+1)
+// Tamanho do buffer para cada linha da imagem
+#define BUFFER_TAMANHO  50000
 
+// Tamanho m�ximo da linha de comando
+#define LINHA_COMANDO   10000
+
+// Limiar inferior que considera o download com sucesso
+#define LIMIAR_INFERIOR_TAMANHO_IMAGEM  500
+
+// Nome do execut�vel da ferramenta de download e convers�o da imagem
+#ifdef __unix__ 
+#define FERRAMENTA_IMAGEM   "./ascii-image-converter.bin"
+#else
+#define FERRAMENTA_IMAGEM   "ascii-image-converter.exe"
+#endif
+
+// Nome do arquivo de sa�da tempor�rio da imagem
+#define ARQUIVO_IMAGEM_TMP  "ascii_art.txt"
+// Falha ao carregar a imagem fornecida
+#define ERRO_CARREGAR_IMAGEM 1
+
+/* Constantes */
+
+// N�mero de colunas da imagem
+#define IMAGEM_NUMERO_COLUNAS     120
+
+// Defini��o de imagem colorida
+#define IMAGEM_COLORIDA           true
+// Defini��o de imagem preto/branco
+#define IMAGEM_PRETO_BRANCO      false
+// Defini��o de imagem utilizada
+#define MODO_IMAGEM               IMAGEM_COLORIDA
+
+/**
+ *  \brief Fun��o principal.
+ *  
+ *  \param [in] argc N�mero de argumentos.
+ *  \param [in] argv Valores dos argumentos.
+ *  \return C�digo de erro indicando o que aconteceu com o programa.
+ */
+/**
+ *  \brief Fun��o que carrega uma imagem informada na URL.
+ *  
+ *  \param [in] colorido Define se a imagem ser� colorida.
+ *  \param [in] largura Define a largura da imagem gerada.
+ *  \return Endere�o da estrutura com a imagem. 
+ *          Caso a imagem n�o tenha sido carregada corretamente, a fun��o
+ *          retornar� NULL.
+ */
+
+/// Estrutura que representa uma imagem em Ascii
+struct asciiImg_s {
+  uint8_t * bytes;
+  int nBytes;
+};
+/// Tipo "Imagem ASCII"
+typedef struct asciiImg_s asciiImg_t;
 //Estrutura para o perfil
 typedef struct perfil_s {
     char ID[NUM_MAX_CARACTERES_ID];
@@ -28,6 +87,28 @@ typedef struct login_s {
     char email_login[NUM_MAX_CARACTERES_EMAIL];
     char senha_login[NUM_MAX_CARACTERES_SENHA];
 } login_t;
+
+//Estrutura para comentarios
+typedef struct comentario_s{
+    char id_comentario[NUM_MAX_CARACTERES_ID];
+    char perfil_que_comentou[NUM_MAX_CARACTERES_ID];
+    char mensagem[NUM_MAX_CARACTERES_COMENTARIO];
+}comentario_t;
+
+//Estrutura para curtidas
+typedef struct curtida_s{
+    char id_curtida[NUM_MAX_CARACTERES_ID];
+    bool curtida;
+}curtida_t;
+
+//Estrutura para posts
+typedef struct posts_s{
+    char ID_post[NUM_MAX_CARACTERES_ID];
+    asciiImg_t **img;
+    char legenda[NUM_MAX_CARACTERES_LEGENDA];
+    comentario_t comentario;
+    curtida_t curtidas;
+}posts_t;
 
 //Função para tirar o '\n' das strings
 void util_removeQuebraLinhaFinal(char dados[]) {
@@ -309,12 +390,124 @@ void imprimir_tudo_cadastrado(perfil_t * ponteiro_perfil, int num_perfis){
 
 }
 
+asciiImg_t * insta_carregaImagem(char url[], bool colorido, int largura) {
+  
+  FILE * arquivo;
+  char buffer[BUFFER_TAMANHO];
+  int nBytes, nBytesTotal = 0;
+  char linhaComando[LINHA_COMANDO];
+
+  asciiImg_t * img;
+  
+  // Aloca espa�o para uma imagem
+  img = malloc(sizeof(asciiImg_t));
+  if (img == NULL) return NULL;
+  
+  // Inicializa a estrutura
+  img->bytes = NULL;
+  img->nBytes = 0;
+  
+  // Monta a linha de comando
+  (void)sprintf(linhaComando, "%s %s %s -W %d -c > %s", FERRAMENTA_IMAGEM, url, (colorido ? "-C" : ""), largura, ARQUIVO_IMAGEM_TMP);
+  
+  // Chama o programa para fazer o download da imagem
+  (void)system(linhaComando);
+
+  // Tenta abrir o arquivo recem criado
+  arquivo = fopen(ARQUIVO_IMAGEM_TMP, "r");
+  if (arquivo != NULL) {
+    
+    while(!feof(arquivo)) {
+      
+      // Limpa a linha
+      (void)memset(buffer, 0, sizeof(buffer));
+      
+      // Tenta ler uma linha
+      if (fgets(buffer, BUFFER_TAMANHO, arquivo) == NULL) continue;
+      
+      // Descobre o n�mero de bytes da linha
+      for(nBytes = 0; buffer[nBytes] != 0; nBytes++);
+      
+      // Aloca o espa�o
+      img->bytes = realloc(img->bytes, sizeof(unsigned char) * (nBytesTotal + nBytes));
+      
+      // Copia para o espa�o alocado
+      (void)memcpy(&(img->bytes[nBytesTotal]), buffer, nBytes);
+      nBytesTotal+=nBytes;
+    }
+
+    // Finaliza a imagem colocando o \0 final e o tamanho
+    img->bytes = realloc(img->bytes, sizeof(unsigned char) * (nBytesTotal + 1));
+    img->bytes[nBytesTotal++] = '\0';
+    img->nBytes = nBytesTotal;
+    
+    // Fecha o arquivo
+    fclose(arquivo);
+  }
+  
+  // Verifica se a imagem � v�lida
+  if (img->nBytes < LIMIAR_INFERIOR_TAMANHO_IMAGEM) {
+    // Libera todo o espa�o alocado
+    free(img->bytes);
+    free(img);
+    
+    return NULL;
+  }
+  
+  // Retorna a imagem carregada
+  return img;
+}
+
+/**
+ *  \brief Fun��o que imprime uma Imagem ASCII.
+ *  
+ *  \param [in] img Endere�o da estrutura com os dados da imagem.
+ */
+void insta_imprimeImagem(asciiImg_t * img) {
+  printf("%s", img->bytes);
+}
+
+/**
+ *  \brief Fun��o que libera a mem�ria alocada por uma imagem.
+ *  
+ *  \param [in] img Endere�o da estrutura com os dados da imagem a ser liberada.
+ */
+void insta_liberaImagem(asciiImg_t * img) {
+  free(img->bytes);
+  free(img);
+}
+//Função para cadastro de uma postagem
+void cadastro_postagem(posts_t **ponteiro_postagem,int *num_postagens){
+    posts_t postagens;
+    
+    printf ("\t\tPOSTAGEM\t\t\n");
+    printf ("Digite o nome de seu post:\n");
+    fgets (postagens.ID_post, NUM_MAX_CARACTERES_ID, stdin);
+    util_removeQuebraLinhaFinal(postagens.ID_post);
+    printf ("Digite uma legenda para seu post: (MAX 300 caracteres)\n");
+    fgets(postagens.legenda, NUM_MAX_CARACTERES_LEGENDA ,stdin);
+    util_removeQuebraLinhaFinal(postagens.legenda);
+
+    (*num_postagens)++;
+    *ponteiro_postagem = realloc(*ponteiro_postagem,*num_postagens * sizeof(posts_t));
+    (*ponteiro_postagem)[*num_postagens-1] = postagens;
+}
+//Função para imprimir informações de posts
+void imprime_posts(posts_t * ponteiro_postagem,int num_posts){
+    int i;
+    printf ("O QUE VOCE DIGITOU:\n");
+    for (i=0;i<num_posts;i++){
+        printf ("%-30s\n %-300s\n", ponteiro_postagem[i].ID_post,ponteiro_postagem[i].legenda);
+    }
+}
 //Função principal
 int main(int argc, char **argv) {
     int opcao, escolha, escolha2,escolha3;
     perfil_t *ponteiro_perfil = NULL;
+    posts_t *ponteiro_postagem = NULL;
     login_t login_info;
     int num_perfis = 0;
+    int num_postagens = 0;
     bool logado = false;
 
     printf("Bem vindo ao Coltegram!\n");
@@ -400,6 +593,8 @@ int main(int argc, char **argv) {
                                 switch (escolha2) {
                                     case 1:{
                                         //Postar posts
+                                        cadastro_postagem(&ponteiro_postagem,&num_postagens);
+                                        imprime_posts(ponteiro_postagem,num_postagens);
                                         break;
                                     }
                                     case 2:{
