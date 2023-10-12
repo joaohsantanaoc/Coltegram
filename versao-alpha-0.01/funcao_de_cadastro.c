@@ -104,7 +104,8 @@ typedef struct curtida_s{
 //Estrutura para posts
 typedef struct posts_s{
     char ID_post[NUM_MAX_CARACTERES_ID];
-    asciiImg_t **img;
+    asciiImg_t *img;
+    char * url;
     char legenda[NUM_MAX_CARACTERES_LEGENDA];
     comentario_t comentario;
     curtida_t curtidas;
@@ -454,6 +455,17 @@ void cadastro_postagem(posts_t **ponteiro_postagem,int *num_postagens){
     printf ("Digite o nome de seu post:\n");
     fgets (postagens.ID_post, NUM_MAX_CARACTERES_ID, stdin);
     util_removeQuebraLinhaFinal(postagens.ID_post);
+    printf ("Agora de upload na imagem de seu post:\n");
+    printf ("Para isso digite o url de sua imagem com o jpg no final\n");
+    printf ("Exemplo: https://img.freepik.com/fotos-premium/fundo-de-rosas-bonitas_534373-220.jpg\n");
+    fgets (postagens.url, BUFFER_TAMANHO, stdin);
+    util_removeQuebraLinhaFinal(postagens.url);
+    postagens.img = insta_carregaImagem(postagens.url, MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
+    if (postagens.img == NULL) {
+        // Falha ao carregar a imagem
+        fprintf(stderr, "Falha ao carregar a imagem da URL %s\n", postagens.url);
+        return ERRO_CARREGAR_IMAGEM;
+  }
     printf ("Digite uma legenda para seu post: (MAX 300 caracteres)\n");
     fgets(postagens.legenda, NUM_MAX_CARACTERES_LEGENDA ,stdin);
     util_removeQuebraLinhaFinal(postagens.legenda);
@@ -466,9 +478,14 @@ void cadastro_postagem(posts_t **ponteiro_postagem,int *num_postagens){
 void imprime_posts(posts_t * ponteiro_postagem,int num_posts){
     int i;
     printf ("O QUE VOCE DIGITOU:\n");
+
     for (i=0;i<num_posts;i++){
         printf ("%-30s\n %-300s\n", ponteiro_postagem[i].ID_post,ponteiro_postagem[i].legenda);
     }
+    // Mostra a imagem, o n�mero de bytes e libera a mem�ria
+    insta_imprimeImagem(ponteiro_postagem->img);
+    printf("N.Bytes Imagem: %d\n", ponteiro_postagem->img->nBytes);
+    insta_liberaImagem(ponteiro_postagem->img);
 }
 //Função principal
 int main(int argc, char **argv) {
