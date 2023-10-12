@@ -319,6 +319,7 @@ int main(int argc, char **argv) {
     bool logado = false;
     char manipulacaoDeDados[Tamanho_Gigante];
     int contadorDeBarra = 0, contadorDeLinha = 0;
+    int i;
 
     FILE * arquivoDados;
 
@@ -335,7 +336,7 @@ int main(int argc, char **argv) {
 
     ponteiro_perfil = realloc(ponteiro_perfil, num_perfis * sizeof(perfil_t));
     
-    for (int i = 0; i < num_perfis; i++){
+    for (i = 0; i < num_perfis; i++){
 
         if (contadorDeBarra == 0){
             while (fgets(ponteiro_perfil[i].ID, NUM_MAX_CARACTERES_ID, arquivoDados) != '|');
