@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include <ctype.h>
 #include <stdbool.h>
 
@@ -11,8 +12,6 @@
 #define NUM_MAX_CARACTERES_EMAIL (50 + 1)
 #define NUM_MAX_CARACTERES_SENHA (50 + 1)
 #define NUM_MAX_CARACTERES_ID (50 + 1)
-#define NUM_MAX_CARACTERES_LEGENDA (299+1)
-#define NUM_MAX_CARACTERES_COMENTARIO (299+1)
 
 //Estrutura para o perfil
 typedef struct perfil_s {
@@ -30,27 +29,6 @@ typedef struct login_s {
     char email_login[NUM_MAX_CARACTERES_EMAIL];
     char senha_login[NUM_MAX_CARACTERES_SENHA];
 } login_t;
-
-//Estrutura para comentarios
-typedef struct comentario_s{
-    char id_comentario[NUM_MAX_CARACTERES_ID];
-    char perfil_que_comentou[NUM_MAX_CARACTERES_ID];
-    char mensagem[NUM_MAX_CARACTERES_COMENTARIO];
-}comentario_t;
-
-//Estrutura para curtidas
-typedef struct curtida_s{
-    char id_curtida[NUM_MAX_CARACTERES_ID];
-    bool curtida;
-}curtida_t;
-
-//Estrutura para posts
-typedef struct posts_s{
-    char ID_post[NUM_MAX_CARACTERES_ID];
-    char legenda[NUM_MAX_CARACTERES_LEGENDA];
-    comentario_t comentario;
-    curtida_t curtidas;
-}posts_t;
 
 //Função para tirar o '\n' das strings
 void util_removeQuebraLinhaFinal(char dados[]) {
@@ -332,30 +310,6 @@ void imprimir_tudo_cadastrado(perfil_t * ponteiro_perfil, int num_perfis){
 
 }
 
-//Função para cadastro de uma postagem
-void cadastro_postagem(posts_t **ponteiro_postagem,int *num_postagens){
-    posts_t postagens;
-    
-    printf ("\t\tPOSTAGEM\t\t\n");
-    printf ("Digite o nome de seu post:\n");
-    fgets (postagens.ID_post, NUM_MAX_CARACTERES_ID, stdin);
-    util_removeQuebraLinhaFinal(postagens.ID_post);
-    printf ("Digite uma legenda para seu post: (MAX 300 caracteres)\n");
-    fgets(postagens.legenda, NUM_MAX_CARACTERES_LEGENDA ,stdin);
-    util_removeQuebraLinhaFinal(postagens.legenda);
-
-    (*num_postagens)++;
-    *ponteiro_postagem = realloc(*ponteiro_postagem,*num_postagens * sizeof(posts_t));
-    (*ponteiro_postagem)[*num_postagens-1] = postagens;
-}
-//Função para imprimir informações de posts
-void imprime_posts(posts_t * ponteiro_postagem,int num_posts){
-    int i;
-    printf ("O QUE VOCE DIGITOU:\n");
-    for (i=0;i<num_posts;i++){
-        printf ("%-30s\n %-300s\n", ponteiro_postagem[i].ID_post,ponteiro_postagem[i].legenda);
-    }
-}
 //Função principal
 int main(int argc, char **argv) {
     int opcao, escolha, escolha2,escolha3;
