@@ -13,6 +13,65 @@
 #define NUM_MAX_CARACTERES_SENHA (50 + 1)
 #define NUM_MAX_CARACTERES_ID (50 + 1)
 
+#define NUM_MAX_CARACTERES_LEGENDA (299+1)
+#define NUM_MAX_CARACTERES_COMENTARIO (299+1)
+// Tamanho do buffer para cada linha da imagem
+#define BUFFER_TAMANHO  50000
+
+// Tamanho m�ximo da linha de comando
+#define LINHA_COMANDO   10000
+
+// Limiar inferior que considera o download com sucesso
+#define LIMIAR_INFERIOR_TAMANHO_IMAGEM  500
+
+// Nome do execut�vel da ferramenta de download e convers�o da imagem
+#ifdef __unix__ 
+#define FERRAMENTA_IMAGEM   "./ascii-image-converter.bin"
+#else
+#define FERRAMENTA_IMAGEM   "ascii-image-converter.exe"
+#endif
+
+// Nome do arquivo de sa�da tempor�rio da imagem
+#define ARQUIVO_IMAGEM_TMP  "ascii_art.txt"
+// Falha ao carregar a imagem fornecida
+#define ERRO_CARREGAR_IMAGEM 1
+
+/* Constantes */
+
+// N�mero de colunas da imagem
+#define IMAGEM_NUMERO_COLUNAS     120
+
+// Defini��o de imagem colorida
+#define IMAGEM_COLORIDA           true
+// Defini��o de imagem preto/branco
+#define IMAGEM_PRETO_BRANCO      false
+// Defini��o de imagem utilizada
+#define MODO_IMAGEM               IMAGEM_COLORIDA
+
+/**
+ *  \brief Fun��o principal.
+ *  
+ *  \param [in] argc N�mero de argumentos.
+ *  \param [in] argv Valores dos argumentos.
+ *  \return C�digo de erro indicando o que aconteceu com o programa.
+ */
+/**
+ *  \brief Fun��o que carrega uma imagem informada na URL.
+ *  
+ *  \param [in] colorido Define se a imagem ser� colorida.
+ *  \param [in] largura Define a largura da imagem gerada.
+ *  \return Endere�o da estrutura com a imagem. 
+ *          Caso a imagem n�o tenha sido carregada corretamente, a fun��o
+ *          retornar� NULL.
+ */
+
+/// Estrutura que representa uma imagem em Ascii
+struct asciiImg_s {
+  uint8_t * bytes;
+  int nBytes;
+};
+/// Tipo "Imagem ASCII"
+typedef struct asciiImg_s asciiImg_t;
 //Estrutura para o perfil
 typedef struct perfil_s {
     char ID[NUM_MAX_CARACTERES_ID];
@@ -21,7 +80,6 @@ typedef struct perfil_s {
     char senha[NUM_MAX_CARACTERES_SENHA];
     char senha_confirmada[NUM_MAX_CARACTERES_SENHA];
 } perfil_t;
-
 //Estrutura para login
 typedef struct login_s {
     char ID_login[NUM_MAX_CARACTERES_ID];
@@ -29,6 +87,28 @@ typedef struct login_s {
     char email_login[NUM_MAX_CARACTERES_EMAIL];
     char senha_login[NUM_MAX_CARACTERES_SENHA];
 } login_t;
+
+//Estrutura para comentarios
+typedef struct comentario_s{
+    char id_comentario[NUM_MAX_CARACTERES_ID];
+    char perfil_que_comentou[NUM_MAX_CARACTERES_ID];
+    char mensagem[NUM_MAX_CARACTERES_COMENTARIO];
+}comentario_t;
+
+//Estrutura para curtidas
+typedef struct curtida_s{
+    char id_curtida[NUM_MAX_CARACTERES_ID];
+    bool curtida;
+}curtida_t;
+
+//Estrutura para posts
+typedef struct posts_s{
+    char ID_post[NUM_MAX_CARACTERES_ID];
+    asciiImg_t **img;
+    char legenda[NUM_MAX_CARACTERES_LEGENDA];
+    comentario_t comentario;
+    curtida_t curtidas;
+}posts_t;
 
 //Função para tirar o '\n' das strings
 void util_removeQuebraLinhaFinal(char dados[]) {
@@ -38,7 +118,6 @@ void util_removeQuebraLinhaFinal(char dados[]) {
         dados[tamanho - 1] = '\0';
     }
 }
-
 //Função para verificar se já existe um mesmo ID de usuário no programa
 int usuario_existente(perfil_t *perfis, int num_perfis, char *nome) {
     int i;
@@ -49,7 +128,6 @@ int usuario_existente(perfil_t *perfis, int num_perfis, char *nome) {
     }
     return 0;
 }
-
 //Função para verificar se já existe um mesmo nome de usuário no programa
 int id_existente(perfil_t *perfis, int num_perfis, char *ID) {
     int i;
@@ -60,7 +138,6 @@ int id_existente(perfil_t *perfis, int num_perfis, char *ID) {
     }
     return 0;
 }
-
 //Função para verificar se já existe um mesmo e-mail no programa
 int email_existente(perfil_t *perfis, int num_perfis, char *email) {
     int i;
@@ -71,51 +148,42 @@ int email_existente(perfil_t *perfis, int num_perfis, char *email) {
     }
     return 0;
 }
-
 //Função para o cadastro do perfil
 void cadastro_perfil(perfil_t **ponteiro_perfil, int *num_perfis) {
     perfil_t perfis;
     int i;
     int contador_espaco = 0;
     bool contador_arroba = false, contador_ponto = false;
-
     printf("\t\tBem vindo ao cadastro do seu perfil!!!\t\t\n");
     do {
         printf("Digite o ID do seu usuario: (o @ do seu usuario)\n");
         fgets(perfis.ID, NUM_MAX_CARACTERES_ID, stdin);
         util_removeQuebraLinhaFinal(perfis.ID);
         contador_espaco = 0;
-
         for (i = 0; perfis.ID[i] != '\0'; i++) {
             if (perfis.ID[i] == ' ') {
                 contador_espaco++;
             }
         }
-
         if (contador_espaco > 0) {
             printf("O nome do usuario nao pode conter espacos!!!\n");
         }
-
         if (id_existente(*ponteiro_perfil, *num_perfis, perfis.ID)) {
             printf("ID ja existe!!!\n");
         }
     } while (contador_espaco > 0 || id_existente(*ponteiro_perfil, *num_perfis, perfis.ID));
-
     printf("Digite o nome do seu usuario:\n");
     fgets(perfis.nome_usuario, NUM_MAX_CARACTERES_NOME_USUARIO, stdin);
     util_removeQuebraLinhaFinal(perfis.nome_usuario);
-
     if (usuario_existente(*ponteiro_perfil, *num_perfis, perfis.nome_usuario)) {
         printf("Ja existe um usuario com o mesmo nome. Digite novamente o nome do seu usuario:\n");
         fgets(perfis.nome_usuario, NUM_MAX_CARACTERES_NOME_USUARIO, stdin);
         util_removeQuebraLinhaFinal(perfis.nome_usuario);
     }
-
     do {
         printf("Agora digite o seu e-mail:\n");
         fgets(perfis.email, NUM_MAX_CARACTERES_EMAIL, stdin);
         util_removeQuebraLinhaFinal(perfis.email);
-
         for (i = 0; perfis.email[i] != '\0'; i++) {
             if (perfis.email[i] == '@') {
                 contador_arroba = true;
@@ -139,14 +207,12 @@ void cadastro_perfil(perfil_t **ponteiro_perfil, int *num_perfis) {
             util_removeQuebraLinhaFinal(perfis.email);
         }
     } while ((contador_arroba == false) || (contador_ponto == false));
-
     printf("Digite sua senha:\n");
     fgets(perfis.senha, NUM_MAX_CARACTERES_SENHA, stdin);
     util_removeQuebraLinhaFinal(perfis.senha);
     printf("Agora confirme sua senha:\n");
     fgets(perfis.senha_confirmada, NUM_MAX_CARACTERES_SENHA, stdin);
     util_removeQuebraLinhaFinal(perfis.senha_confirmada);
-
     while (strcmp(perfis.senha, perfis.senha_confirmada) != 0) {
         printf("Senha incorreta! Tente novamente!\n");
         printf("Digite sua senha:\n");
@@ -156,13 +222,11 @@ void cadastro_perfil(perfil_t **ponteiro_perfil, int *num_perfis) {
         fgets(perfis.senha_confirmada, NUM_MAX_CARACTERES_SENHA, stdin);
         util_removeQuebraLinhaFinal(perfis.senha_confirmada);
     }
-
     (*num_perfis)++;
     *ponteiro_perfil = realloc(*ponteiro_perfil, (*num_perfis) * sizeof(perfil_t));
     (*ponteiro_perfil)[*num_perfis - 1] = perfis;
     printf("Cadastro concluido!!!\n");
 }
-
 //Função para fazer login no sistema
 void login(perfil_t *ponteiro_perfil, int num_perfis, login_t *ponteiro_login, bool *logado) {
     int i, escolha;
@@ -189,7 +253,6 @@ void login(perfil_t *ponteiro_perfil, int num_perfis, login_t *ponteiro_login, b
     printf("Agora digite sua senha para esse perfil:\n");
     fgets(ponteiro_login->senha_login, NUM_MAX_CARACTERES_SENHA, stdin);
     util_removeQuebraLinhaFinal(ponteiro_login->senha_login);
-
     if ((strcmp(ponteiro_perfil[escolha].senha, ponteiro_login->senha_login) == 0) &&
         (strcmp(ponteiro_perfil[escolha].email, ponteiro_login->email_login) == 0)) {
         printf("Perfil Acessado!\n");
@@ -200,12 +263,10 @@ void login(perfil_t *ponteiro_perfil, int num_perfis, login_t *ponteiro_login, b
         printf("Perfil incorreto!!!\n");
     }
 }
-
 //Função bubble sort para ordenar as strings dos IDs
 void listar_IDs_cadastrados(perfil_t * ponteiro_perfil, int num_perfis){
     int i, j;
     perfil_t tmp; 
-
     //Listar Ids de forma ordenada
     for (i = 0; i < (num_perfis - 1); i++) {
         for (j = 0; j < (num_perfis - 1); j++) {
@@ -219,24 +280,20 @@ void listar_IDs_cadastrados(perfil_t * ponteiro_perfil, int num_perfis){
         }
     }
 }
-
 //Função que imprime os IDs em ordem alfabética e formato de tabela
 void imprimir_IDs_cadastrados(perfil_t * ponteiro_perfil, int num_perfis){
     int i;
     //Chamar a função bubble sort para ordenar os Ids
     listar_IDs_cadastrados(ponteiro_perfil, num_perfis);
-
     printf ("Ids\n");
     for (i=0;i<num_perfis;i++){
         printf ("@%-51s\n", ponteiro_perfil[i].ID);
     }
-
 }
 //Função bubble sort que ordena os nomes de usuários cadastrados em ordem alfabética
 void listar_nomes_cadastrados(perfil_t * ponteiro_perfil, int num_perfis){
     int i, j;
     perfil_t tmp; 
-
     //Listar Ids de forma ordenada
     for (i = 0; i < (num_perfis - 1); i++) {
         for (j = 0; j < (num_perfis - 1); j++) {
@@ -250,24 +307,20 @@ void listar_nomes_cadastrados(perfil_t * ponteiro_perfil, int num_perfis){
         }
     }
 }
-
 //Função que imprime os nomes de usuario em ordem alfabética e formato de tabela
 void imprimir_nomes_cadastrados(perfil_t * ponteiro_perfil, int num_perfis){
     int i;
     //Chamar a função bubble sort para ordenar os nomes de usuario
     listar_nomes_cadastrados(ponteiro_perfil, num_perfis);
-
     printf ("Nomes de Usuario\n");
     for (i=0;i<num_perfis;i++){
         printf ("%-51s\n", ponteiro_perfil[i].nome_usuario);
     }
-
 }
 //Função Bubble sort que ordena os e-mails cadastrados em ordem alfabetica
 void listar_emails_cadastrados(perfil_t * ponteiro_perfil, int num_perfis){
     int i, j;
     perfil_t tmp; 
-
     //Listar Ids de forma ordenada
     for (i = 0; i < (num_perfis - 1); i++) {
         for (j = 0; j < (num_perfis - 1); j++) {
@@ -286,12 +339,10 @@ void imprimir_emails_cadastrados(perfil_t * ponteiro_perfil, int num_perfis){
     int i;
     //Chamar a função bubble sort para ordenar os e-mails
     listar_emails_cadastrados(ponteiro_perfil, num_perfis);
-
     printf ("Emails\n");
     for (i=0;i<num_perfis;i++){
         printf ("%-51s\n", ponteiro_perfil[i].email);
     }
-
 }
 //Função que imprime tudo em ordem alfabética e formato de tabela
 void imprimir_tudo_cadastrado(perfil_t * ponteiro_perfil, int num_perfis){
@@ -302,7 +353,6 @@ void imprimir_tudo_cadastrado(perfil_t * ponteiro_perfil, int num_perfis){
     listar_emails_cadastrados(ponteiro_perfil,num_perfis);
     //Chamar a função bubble sort para ordenar os nomes dos usuários
     listar_nomes_cadastrados(ponteiro_perfil,num_perfis);
-
     printf ("Ids                                              E-mails                                             Nomes de usuarios\n");
     for (i=0;i<num_perfis;i++){
         printf ("@%-51s %-51s %-51s\n", ponteiro_perfil[i].ID, ponteiro_perfil[i].email, ponteiro_perfil[i].nome_usuario);
@@ -310,6 +360,116 @@ void imprimir_tudo_cadastrado(perfil_t * ponteiro_perfil, int num_perfis){
 
 }
 
+asciiImg_t * insta_carregaImagem(char url[], bool colorido, int largura) {
+
+  FILE * arquivo;
+  char buffer[BUFFER_TAMANHO];
+  int nBytes, nBytesTotal = 0;
+  char linhaComando[LINHA_COMANDO];
+
+  asciiImg_t * img;
+
+  // Aloca espa�o para uma imagem
+  img = malloc(sizeof(asciiImg_t));
+  if (img == NULL) return NULL;
+
+  // Inicializa a estrutura
+  img->bytes = NULL;
+  img->nBytes = 0;
+
+  // Monta a linha de comando
+  (void)sprintf(linhaComando, "%s %s %s -W %d -c > %s", FERRAMENTA_IMAGEM, url, (colorido ? "-C" : ""), largura, ARQUIVO_IMAGEM_TMP);
+
+  // Chama o programa para fazer o download da imagem
+  (void)system(linhaComando);
+
+  // Tenta abrir o arquivo recem criado
+  arquivo = fopen(ARQUIVO_IMAGEM_TMP, "r");
+  if (arquivo != NULL) {
+
+    while(!feof(arquivo)) {
+
+      // Limpa a linha
+      (void)memset(buffer, 0, sizeof(buffer));
+
+      // Tenta ler uma linha
+      if (fgets(buffer, BUFFER_TAMANHO, arquivo) == NULL) continue;
+
+      // Descobre o n�mero de bytes da linha
+      for(nBytes = 0; buffer[nBytes] != 0; nBytes++);
+
+      // Aloca o espa�o
+      img->bytes = realloc(img->bytes, sizeof(unsigned char) * (nBytesTotal + nBytes));
+
+      // Copia para o espa�o alocado
+      (void)memcpy(&(img->bytes[nBytesTotal]), buffer, nBytes);
+      nBytesTotal+=nBytes;
+    }
+
+    // Finaliza a imagem colocando o \0 final e o tamanho
+    img->bytes = realloc(img->bytes, sizeof(unsigned char) * (nBytesTotal + 1));
+    img->bytes[nBytesTotal++] = '\0';
+    img->nBytes = nBytesTotal;
+
+    // Fecha o arquivo
+    fclose(arquivo);
+  }
+
+  // Verifica se a imagem � v�lida
+  if (img->nBytes < LIMIAR_INFERIOR_TAMANHO_IMAGEM) {
+    // Libera todo o espa�o alocado
+    free(img->bytes);
+    free(img);
+
+    return NULL;
+  }
+
+  // Retorna a imagem carregada
+  return img;
+}
+
+/**
+ *  \brief Fun��o que imprime uma Imagem ASCII.
+ *  
+ *  \param [in] img Endere�o da estrutura com os dados da imagem.
+ */
+void insta_imprimeImagem(asciiImg_t * img) {
+  printf("%s", img->bytes);
+}
+
+/**
+ *  \brief Fun��o que libera a mem�ria alocada por uma imagem.
+ *  
+ *  \param [in] img Endere�o da estrutura com os dados da imagem a ser liberada.
+ */
+void insta_liberaImagem(asciiImg_t * img) {
+  free(img->bytes);
+  free(img);
+}
+//Função para cadastro de uma postagem
+void cadastro_postagem(posts_t **ponteiro_postagem,int *num_postagens){
+    posts_t postagens;
+
+    printf ("\t\tPOSTAGEM\t\t\n");
+    printf ("Digite o nome de seu post:\n");
+    fgets (postagens.ID_post, NUM_MAX_CARACTERES_ID, stdin);
+    util_removeQuebraLinhaFinal(postagens.ID_post);
+    printf ("Digite uma legenda para seu post: (MAX 300 caracteres)\n");
+    fgets(postagens.legenda, NUM_MAX_CARACTERES_LEGENDA ,stdin);
+    util_removeQuebraLinhaFinal(postagens.legenda);
+
+    (*num_postagens)++;
+    *ponteiro_postagem = realloc(*ponteiro_postagem,*num_postagens * sizeof(posts_t));
+    (*ponteiro_postagem)[*num_postagens-1] = postagens;
+}
+//Função para imprimir informações de posts
+void imprime_posts(posts_t * ponteiro_postagem,int num_posts){
+    int i;
+    printf ("O QUE VOCE DIGITOU:\n");
+    for (i=0;i<num_posts;i++){
+        printf ("%-30s\n %-300s\n", ponteiro_postagem[i].ID_post,ponteiro_postagem[i].legenda);
+    }
+}
 //Função principal
 int main(int argc, char **argv) {
     int opcao, escolha, escolha2,escolha3;
@@ -328,7 +488,6 @@ int main(int argc, char **argv) {
         printf("<Cadastar> (1)\n<Login> (2)\n<Sair> (0)\n");
         scanf("%d", &opcao);
         getchar();
-
         switch (opcao) {
             case 1:{
                 cadastro_perfil(&ponteiro_perfil, &num_perfis);
@@ -341,7 +500,6 @@ int main(int argc, char **argv) {
                     printf("(1) <Buscar perfis>\n(2) <Visitar perfis>\n(3) <Listar perfis cadastrados>\n(4) <Acoes do usuario>\n(0) <Sair>\n");
                     scanf("%d", &escolha);
                     getchar();
-
                     switch (escolha) {
                         case 1:{
                             //Buscar perfis
@@ -359,7 +517,6 @@ int main(int argc, char **argv) {
                                 printf ("O que voce deseja realizar:\n");
                                 scanf ("%d", &escolha3);
                                 getchar();
-
                                 switch (escolha3){
                                     case 1:{
                                         //Listar Ids em ordem alfabetica
@@ -399,7 +556,6 @@ int main(int argc, char **argv) {
                                 printf("O que voce deseja fazer?\n");
                                 scanf("%d", &escolha2);
                                 getchar();
-
                                 switch (escolha2) {
                                     case 1:{
                                         //Postar posts
@@ -458,7 +614,6 @@ int main(int argc, char **argv) {
                 printf("Opcao invalida!!!\n");
             }
         }
-
     } while (opcao != 0);
 
     free(ponteiro_perfil);
