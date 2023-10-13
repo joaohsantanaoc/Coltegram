@@ -18,51 +18,51 @@
 // Tamanho do buffer para cada linha da imagem
 #define BUFFER_TAMANHO  50000
 
-// Tamanho m�ximo da linha de comando
+// Tamanho máximo da linha de comando
 #define LINHA_COMANDO   10000
 
 // Limiar inferior que considera o download com sucesso
 #define LIMIAR_INFERIOR_TAMANHO_IMAGEM  500
 
-// Nome do execut�vel da ferramenta de download e convers�o da imagem
+// Nome do executável da ferramenta de download e conversão da imagem
 #ifdef __unix__ 
 #define FERRAMENTA_IMAGEM   "./ascii-image-converter.bin"
 #else
 #define FERRAMENTA_IMAGEM   "ascii-image-converter.exe"
 #endif
 
-// Nome do arquivo de sa�da tempor�rio da imagem
+// Nome do arquivo de saída temporário da imagem
 #define ARQUIVO_IMAGEM_TMP  "ascii_art.txt"
 // Falha ao carregar a imagem fornecida
 #define ERRO_CARREGAR_IMAGEM 1
 
 /* Constantes */
 
-// N�mero de colunas da imagem
+// Número de colunas da imagem
 #define IMAGEM_NUMERO_COLUNAS     120
 
-// Defini��o de imagem colorida
+// Definição de imagem colorida
 #define IMAGEM_COLORIDA           true
-// Defini��o de imagem preto/branco
+// Definição de imagem preto/branco
 #define IMAGEM_PRETO_BRANCO      false
-// Defini��o de imagem utilizada
+// Definição de imagem utilizada
 #define MODO_IMAGEM               IMAGEM_COLORIDA
 
 /**
- *  \brief Fun��o principal.
+ *  \brief Função principal.
  *  
- *  \param [in] argc N�mero de argumentos.
+ *  \param [in] argc Número de argumentos.
  *  \param [in] argv Valores dos argumentos.
- *  \return C�digo de erro indicando o que aconteceu com o programa.
+ *  \return Código de erro indicando o que aconteceu com o programa.
  */
 /**
- *  \brief Fun��o que carrega uma imagem informada na URL.
+ *  \brief Função que carrega uma imagem informada na URL.
  *  
- *  \param [in] colorido Define se a imagem ser� colorida.
+ *  \param [in] colorido Define se a imagem será colorida.
  *  \param [in] largura Define a largura da imagem gerada.
- *  \return Endere�o da estrutura com a imagem. 
- *          Caso a imagem n�o tenha sido carregada corretamente, a fun��o
- *          retornar� NULL.
+ *  \return Endereço da estrutura com a imagem. 
+ *          Caso a imagem não tenha sido carregada corretamente, a função
+ *          retornará NULL.
  */
 
 /// Estrutura que representa uma imagem em Ascii
@@ -370,7 +370,7 @@ asciiImg_t * insta_carregaImagem(char url[], bool colorido, int largura) {
 
   asciiImg_t * img;
 
-  // Aloca espa�o para uma imagem
+  // Aloca espaço para uma imagem
   img = malloc(sizeof(asciiImg_t));
   if (img == NULL) return NULL;
 
@@ -396,13 +396,13 @@ asciiImg_t * insta_carregaImagem(char url[], bool colorido, int largura) {
       // Tenta ler uma linha
       if (fgets(buffer, BUFFER_TAMANHO, arquivo) == NULL) continue;
 
-      // Descobre o n�mero de bytes da linha
+      // Descobre o número de bytes da linha
       for(nBytes = 0; buffer[nBytes] != 0; nBytes++);
 
-      // Aloca o espa�o
+      // Aloca o espaço
       img->bytes = realloc(img->bytes, sizeof(unsigned char) * (nBytesTotal + nBytes));
 
-      // Copia para o espa�o alocado
+      // Copia para o espaço alocado
       (void)memcpy(&(img->bytes[nBytesTotal]), buffer, nBytes);
       nBytesTotal+=nBytes;
     }
@@ -416,9 +416,9 @@ asciiImg_t * insta_carregaImagem(char url[], bool colorido, int largura) {
     fclose(arquivo);
   }
 
-  // Verifica se a imagem � v�lida
+  // Verifica se a imagem é válida
   if (img->nBytes < LIMIAR_INFERIOR_TAMANHO_IMAGEM) {
-    // Libera todo o espa�o alocado
+    // Libera todo o espaço alocado
     free(img->bytes);
     free(img);
 
@@ -430,18 +430,18 @@ asciiImg_t * insta_carregaImagem(char url[], bool colorido, int largura) {
 }
 
 /**
- *  \brief Fun��o que imprime uma Imagem ASCII.
+ *  \brief Função que imprime uma Imagem ASCII.
  *  
- *  \param [in] img Endere�o da estrutura com os dados da imagem.
+ *  \param [in] img Endereço da estrutura com os dados da imagem.
  */
 void insta_imprimeImagem(asciiImg_t * img) {
   printf("%s", img->bytes);
 }
 
 /**
- *  \brief Fun��o que libera a mem�ria alocada por uma imagem.
+ *  \brief Função que libera a memória alocada por uma imagem.
  *  
- *  \param [in] img Endere�o da estrutura com os dados da imagem a ser liberada.
+ *  \param [in] img Endereço da estrutura com os dados da imagem a ser liberada.
  */
 void insta_liberaImagem(asciiImg_t * img) {
   free(img->bytes);
@@ -455,6 +455,7 @@ void cadastro_postagem(posts_t **ponteiro_postagem,int *num_postagens){
     printf ("Digite o nome de seu post:\n");
     fgets (postagens.ID_post, NUM_MAX_CARACTERES_ID, stdin);
     util_removeQuebraLinhaFinal(postagens.ID_post);
+    /*
     printf ("Agora de upload na imagem de seu post:\n");
     printf ("Para isso digite o url de sua imagem com o jpg no final\n");
     printf ("Exemplo: https://img.freepik.com/fotos-premium/fundo-de-rosas-bonitas_534373-220.jpg\n");
@@ -465,7 +466,8 @@ void cadastro_postagem(posts_t **ponteiro_postagem,int *num_postagens){
         // Falha ao carregar a imagem
         fprintf(stderr, "Falha ao carregar a imagem da URL %s\n", postagens.url);
         return ERRO_CARREGAR_IMAGEM;
-  }
+    }
+    */
     printf ("Digite uma legenda para seu post: (MAX 300 caracteres)\n");
     fgets(postagens.legenda, NUM_MAX_CARACTERES_LEGENDA ,stdin);
     util_removeQuebraLinhaFinal(postagens.legenda);
@@ -475,17 +477,131 @@ void cadastro_postagem(posts_t **ponteiro_postagem,int *num_postagens){
     (*ponteiro_postagem)[*num_postagens-1] = postagens;
 }
 //Função para imprimir informações de posts
-void imprime_posts(posts_t * ponteiro_postagem,int num_posts){
+void imprime_posts(posts_t * ponteiro_postagem,int num_postagens){
     int i;
-    printf ("O QUE VOCE DIGITOU:\n");
 
-    for (i=0;i<num_posts;i++){
-        printf ("%-30s\n %-300s\n", ponteiro_postagem[i].ID_post,ponteiro_postagem[i].legenda);
+    if (num_postagens < 1){
+        printf ("Voce nao postou posts ainda!\n");
+        return;
     }
-    // Mostra a imagem, o n�mero de bytes e libera a mem�ria
+
+    printf ("SEUS POSTS\n");
+    for (i=0;i<num_postagens;i++){
+        printf ("NUMERO DO POST: %d\n", i+1);
+        printf ("Titulo\n");
+        printf ("%-30s\nLegenda\n %-300s\n", ponteiro_postagem[i].ID_post,ponteiro_postagem[i].legenda);
+    }
+    /*
+    // Mostra a imagem, o número de bytes e libera a memória
     insta_imprimeImagem(ponteiro_postagem->img);
     printf("N.Bytes Imagem: %d\n", ponteiro_postagem->img->nBytes);
     insta_liberaImagem(ponteiro_postagem->img);
+    */
+}
+void editar_posts(posts_t * ponteiro_postagem,int num_postagens){
+    int i;
+    int opcao, index;
+
+    if (num_postagens < 1){
+        printf ("Voce nao postou posts ainda!\n");
+        return;
+    }
+    printf ("\t\tSEUS POSTS:\n");
+
+    for (i=0;i<num_postagens;i++){
+        printf ("%d. %-30s\n", i+1, ponteiro_postagem[i].ID_post);
+    }
+    do {
+        printf ("O que voce deseja editar no seu post?\n");
+        printf ("(1) <TITULO DO MEU POST>\n(2) <IMAGEM DO POST>\n(3) <LEGENDA DO POST>\n(0) <SAIR>\n");
+        printf ("Digite o numero correspondente a sua opcao:\n");
+        scanf ("%d", &opcao);
+        getchar();
+        switch (opcao){
+            case 1:{
+                printf ("Qual titulo voce deseja mudar?\n");
+                for (i=0;i<num_postagens;i++){
+                    printf ("%d. %-30s\n", i+1, ponteiro_postagem[i].ID_post);
+                }
+                printf ("Digite o numero do titulo correspondente ao post que voce quer alterar:\n");
+                scanf ("%d", &index);
+                getchar();
+                index--;
+                if (index < 0 || index >= num_postagens) {
+                    printf("Opcao invalida!\n");
+                    return;
+                }
+                printf ("Titulo do seu post:\n");
+                printf ("%-30s\n", ponteiro_postagem[index].ID_post);
+                printf ("Digite o que voce quer mudar no titulo:\n");
+                fgets(ponteiro_postagem[index].ID_post,NUM_MAX_CARACTERES_ID,stdin);
+                util_removeQuebraLinhaFinal(ponteiro_postagem[index].ID_post);
+                printf ("Seu novo titulo do post:\n");
+                printf ("%-30s\n", ponteiro_postagem[index].ID_post);
+                break;
+            }
+            case 2:{
+                break;
+            }
+            case 3:{
+                printf ("Digite o post que voce deseja acessar:\n");
+                for (i=0;i<num_postagens;i++){
+                    printf ("%d. %-30s\n", i+1, ponteiro_postagem[i].ID_post);
+                }
+                scanf ("%d", &index);
+                getchar();
+                index--;
+                if (index < 0 || index >= num_postagens) {
+                    printf("Opcao invalida!\n");
+                    return;
+                }
+                printf ("Legenda do seu post:\n");
+                printf ("LEGENDA:\n");
+                printf ("%-300s\n", ponteiro_postagem[index].legenda);
+                printf ("Digite o que voce quer mudar na legenda:\n");
+                fgets (ponteiro_postagem[index].legenda, NUM_MAX_CARACTERES_LEGENDA, stdin);
+                util_removeQuebraLinhaFinal(ponteiro_postagem[index].legenda);
+                printf ("Sua nova legenda:\n");
+                printf ("%-300s\n", ponteiro_postagem[index].legenda);
+                break;
+            }
+            case 0:{
+                break;
+            }
+            default:{
+                printf ("Opcao invalida!!!\n");
+            }
+        }    
+
+    }while (opcao != 0);
+
+}
+void excluir_posts(posts_t * ponteiro_postagem,int num_postagens){
+    int i, index;
+
+     if (num_postagens < 1){
+        printf ("Voce nao postou posts ainda!\n");
+        return;
+    }
+    printf ("\t\tSEUS POSTS:\n");
+    for (i=0;i<num_postagens;i++){
+        printf ("%d. %-30s\n", i+1, ponteiro_postagem[i].ID_post);
+    }
+    printf ("Digite o numero da postagem correspondente ao post que voce quer excluir:\n");
+    scanf ("%d", &index);
+    getchar();
+    index--;
+    //Excluir o post
+    if (index >=0 && index < num_postagens){
+        for (i=index;i< num_postagens -1;i++){
+            ponteiro_postagem[i] = ponteiro_postagem[i + 1];
+        }
+        //Atualiza o numero de postagens
+        num_postagens--;
+        printf ("O post foi excluido com sucesso!\n");
+    }else {
+        printf ("Opcao invalida!\n");
+    }
 }
 //Função principal
 int main(int argc, char **argv) {
@@ -582,10 +698,12 @@ int main(int argc, char **argv) {
                                     }
                                     case 2:{
                                         //Editar posts
+                                        editar_posts(ponteiro_postagem,num_postagens);
                                         break;
                                     }
                                     case 3:{
                                         //Listar posts
+                                        imprime_posts(ponteiro_postagem,num_postagens);
                                         break;
                                     }
                                     case 4:{
@@ -594,6 +712,7 @@ int main(int argc, char **argv) {
                                     }
                                     case 5:{
                                         //Apagar posts
+                                        excluir_posts(ponteiro_postagem,num_postagens);
                                         break;
                                     }
                                     case 6:{
@@ -632,7 +751,10 @@ int main(int argc, char **argv) {
             }
         }
     } while (opcao != 0);
-
-    free(ponteiro_perfil);
+    
+    //Libera a memória alocada
+    free (ponteiro_perfil);
+    free (ponteiro_postagem);
+    //Se chegou ate aqui é porque correu tudo bem
     return SUCESSO;
 }
