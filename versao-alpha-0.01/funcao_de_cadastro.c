@@ -6,7 +6,7 @@
 #include <ctype.h>
 #include <stdbool.h>
 
-//Constantes presntes
+//Constantes presentes
 #define SUCESSO 0
 #define NUM_MAX_CARACTERES_NOME_USUARIO (99 + 1)
 #define NUM_MAX_CARACTERES_EMAIL (50 + 1)
@@ -79,6 +79,7 @@ typedef struct perfil_s {
     char email[NUM_MAX_CARACTERES_EMAIL];
     char senha[NUM_MAX_CARACTERES_SENHA];
     char senha_confirmada[NUM_MAX_CARACTERES_SENHA];
+    bool logado;
 } perfil_t;
 //Estrutura para login
 typedef struct login_s {
@@ -229,7 +230,7 @@ void cadastro_perfil(perfil_t **ponteiro_perfil, int *num_perfis) {
     printf("Cadastro concluido!!!\n");
 }
 //Função para fazer login no sistema
-void login(perfil_t *ponteiro_perfil, int num_perfis, login_t *ponteiro_login, bool *logado) {
+void login(perfil_t *ponteiro_perfil, int num_perfis, login_t *ponteiro_login) {
     int i, escolha;
     if (num_perfis < 1) {
         printf("Nao ha perfis cadastrados nesse instagram!\n");
@@ -259,7 +260,7 @@ void login(perfil_t *ponteiro_perfil, int num_perfis, login_t *ponteiro_login, b
         printf("Perfil Acessado!\n");
         printf("Login realizado!!!\n");
         printf("Bem vindo ao Coltegram %-51s\n", ponteiro_perfil[escolha].ID);
-        *logado = true;
+        ponteiro_perfil[escolha].logado = true;
     } else {
         printf("Perfil incorreto!!!\n");
     }
@@ -576,6 +577,7 @@ void editar_posts(posts_t * ponteiro_postagem,int num_postagens){
     }while (opcao != 0);
 
 }
+/*
 void excluir_posts(posts_t * ponteiro_postagem,int num_postagens){
     int i, index;
 
@@ -603,6 +605,58 @@ void excluir_posts(posts_t * ponteiro_postagem,int num_postagens){
         printf ("Opcao invalida!\n");
     }
 }
+*/
+void comentarios(posts_t * ponteiro_postagem, int num_postagens,perfil_t * ponteiro_perfil){
+    int i, index;
+    if (num_postagens < 1){
+        printf ("Voce nao postou posts!\n");
+        return;
+    }
+    for (i=0;i<num_postagens;i++){
+        printf ("%d.%-30s\n", i+1,ponteiro_postagem[i].ID_post);
+    }
+    printf ("Digite qual post voce deseja acessar e comentar:\n");
+    scanf ("%d", &index);
+    getchar();
+    index--;
+    if (index < 0 || index >= num_postagens){
+        printf ("Opcao invalida!\n");
+        return;
+    }
+    printf ("O que voce deseja comentar no post %-30s?\n", ponteiro_postagem[index].ID_post);
+    fgets (ponteiro_postagem[index].comentario.mensagem, NUM_MAX_CARACTERES_COMENTARIO, stdin);
+    util_removeQuebraLinhaFinal(ponteiro_postagem[index].comentario.mensagem);
+    ponteiro_perfil->logado = ponteiro_postagem[index].comentario.perfil_que_comentou;
+    printf ("Comentario feito!\n");
+    printf ("SEU COMENTARIO:\n");
+    printf ("%-300s\n", ponteiro_postagem[index].comentario.mensagem);
+
+}
+void listar_comentario(posts_t * ponteiro_postagem, int num_postagens){
+    int i,escolha;
+    if (num_postagens < 1){
+        printf ("Voce nao postou posts!\n");
+        return;
+    }
+    printf ("Qual postagem voce deseja acessar?\n");
+    for (i=0;i<num_postagens;i++){
+        printf ("%d.%-30s\n", i+1, ponteiro_postagem[i].ID_post);
+    }
+    printf ("SUA ESCOLHA:\n");
+    scanf ("%d", &escolha);
+    getchar();
+    escolha--;
+    if (escolha < 0 || escolha >= num_postagens){
+        printf ("Opcao invalida!\n");
+        return;
+    }
+    printf ("Comentarios para a postagem %-30s\n", ponteiro_postagem[escolha].ID_post);
+    for (i=0;i<num_postagens;i++){
+        printf ("%-51s.%-300s\n", ponteiro_postagem[i].comentario.perfil_que_comentou, ponteiro_postagem[i].comentario.mensagem);
+    }
+
+
+}
 //Função principal
 int main(int argc, char **argv) {
     int opcao, escolha, escolha2,escolha3;
@@ -611,7 +665,6 @@ int main(int argc, char **argv) {
     login_t login_info;
     int num_perfis = 0;
     int num_postagens = 0;
-    bool logado = false;
 
     printf("Bem vindo ao Coltegram!\n");
     printf("Instagram feito por:\nIcaro Cardoso Nascimento\nJoao Henrique Santana Oliveira Campos\nMatheus Fernandes de Oliveira Brandemburg\n");
@@ -627,8 +680,8 @@ int main(int argc, char **argv) {
                 break;
             }    
             case 2:{
-                login(ponteiro_perfil, num_perfis, &login_info, &logado);
-                while (logado && escolha != 0) {
+                login(ponteiro_perfil, num_perfis, &login_info);
+                while (ponteiro_perfil->logado && escolha != 0) {
                     printf("Quais acoes voce deseja executar:\n");
                     printf("(1) <Buscar perfis>\n(2) <Visitar perfis>\n(3) <Listar perfis cadastrados>\n(4) <Acoes do usuario>\n(0) <Sair>\n");
                     scanf("%d", &escolha);
@@ -708,16 +761,20 @@ int main(int argc, char **argv) {
                                     }
                                     case 4:{
                                         //Detalhar posts
+                                        comentarios(ponteiro_postagem,num_postagens,ponteiro_perfil);
+                                        listar_comentario(ponteiro_postagem,num_postagens);
                                         break;
                                     }
                                     case 5:{
                                         //Apagar posts
+                                        /*
                                         excluir_posts(ponteiro_postagem,num_postagens);
+                                        */
                                         break;
                                     }
                                     case 6:{
                                         printf("Saindo do perfil...\n");
-                                        logado = false;
+                                        ponteiro_perfil->logado = false;
                                         break;
                                     }
                                     case 0:{
@@ -728,7 +785,7 @@ int main(int argc, char **argv) {
                                         printf("Opcao invalida!!!\n");
                                     }
                                 }
-                            } while (escolha2 != 0 && logado);
+                            } while (escolha2 != 0 && ponteiro_perfil->logado);
                             break;
                         }
                         case 0:{
