@@ -34,7 +34,7 @@
 // Nome do arquivo de saída temporário da imagem
 #define ARQUIVO_IMAGEM_TMP  "ascii_art.txt"
 // Falha ao carregar a imagem fornecida
-#define ERRO_CARREGAR_IMAGEM 1
+#define ERRO_CARREGAR_IMAGEM (1)
 
 /* Constantes */
 
@@ -47,6 +47,10 @@
 #define IMAGEM_PRETO_BRANCO      false
 // Definição de imagem utilizada
 #define MODO_IMAGEM               IMAGEM_COLORIDA
+//Define o tamanho máximo para a imagem
+#define NUM_MAX_IMAGEM (999 + 1)
+//Define o erro
+#define USUARIO_INVALIDO (-1)
 
 /**
  *  \brief Função principal.
@@ -106,7 +110,7 @@ typedef struct curtida_s{
 typedef struct posts_s{
     char ID_post[NUM_MAX_CARACTERES_ID];
     asciiImg_t *img;
-    char * url;
+    char  url[NUM_MAX_IMAGEM];
     char legenda[NUM_MAX_CARACTERES_LEGENDA];
     comentario_t comentario;
     curtida_t curtidas;
@@ -230,11 +234,11 @@ void cadastro_perfil(perfil_t **ponteiro_perfil, int *num_perfis) {
     printf("Cadastro concluido!!!\n");
 }
 //Função para fazer login no sistema
-void login(perfil_t *ponteiro_perfil, int num_perfis, login_t *ponteiro_login) {
+int login(perfil_t *ponteiro_perfil, int num_perfis, login_t *ponteiro_login) {
     int i, escolha;
     if (num_perfis < 1) {
         printf("Nao ha perfis cadastrados nesse instagram!\n");
-        return;
+        return USUARIO_INVALIDO;
     }
     printf("\t\tLOGIN:\n");
     printf("ID do usuario:\n");
@@ -247,7 +251,7 @@ void login(perfil_t *ponteiro_perfil, int num_perfis, login_t *ponteiro_login) {
     escolha--;
     if (escolha < 0 || escolha >= num_perfis) {
         printf("Opcao invalida!\n");
-        return;
+        return USUARIO_INVALIDO;
     }
     printf("Digite seu email para esse perfil:\n");
     fgets(ponteiro_login->email_login, NUM_MAX_CARACTERES_EMAIL, stdin);
@@ -260,9 +264,10 @@ void login(perfil_t *ponteiro_perfil, int num_perfis, login_t *ponteiro_login) {
         printf("Perfil Acessado!\n");
         printf("Login realizado!!!\n");
         printf("Bem vindo ao Coltegram %-51s\n", ponteiro_perfil[escolha].ID);
-        ponteiro_perfil[escolha].logado = true;
+        return escolha; 
     } else {
         printf("Perfil incorreto!!!\n");
+        return USUARIO_INVALIDO;
     }
 }
 //Função bubble sort para ordenar as strings dos IDs
@@ -456,11 +461,11 @@ void cadastro_postagem(posts_t **ponteiro_postagem,int *num_postagens){
     printf ("Digite o nome de seu post:\n");
     fgets (postagens.ID_post, NUM_MAX_CARACTERES_ID, stdin);
     util_removeQuebraLinhaFinal(postagens.ID_post);
-    /*
+    
     printf ("Agora de upload na imagem de seu post:\n");
     printf ("Para isso digite o url de sua imagem com o jpg no final\n");
     printf ("Exemplo: https://img.freepik.com/fotos-premium/fundo-de-rosas-bonitas_534373-220.jpg\n");
-    fgets (postagens.url, BUFFER_TAMANHO, stdin);
+    fgets (postagens.url, NUM_MAX_IMAGEM, stdin);
     util_removeQuebraLinhaFinal(postagens.url);
     postagens.img = insta_carregaImagem(postagens.url, MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
     if (postagens.img == NULL) {
@@ -468,7 +473,9 @@ void cadastro_postagem(posts_t **ponteiro_postagem,int *num_postagens){
         fprintf(stderr, "Falha ao carregar a imagem da URL %s\n", postagens.url);
         return ERRO_CARREGAR_IMAGEM;
     }
-    */
+    // Mostra a imagem, o n�mero de bytes e libera a mem�ria
+    insta_imprimeImagem(postagens.img);
+    printf("N.Bytes Imagem: %d\n", postagens.img->nBytes);
     printf ("Digite uma legenda para seu post: (MAX 300 caracteres)\n");
     fgets(postagens.legenda, NUM_MAX_CARACTERES_LEGENDA ,stdin);
     util_removeQuebraLinhaFinal(postagens.legenda);
@@ -491,13 +498,14 @@ void imprime_posts(posts_t * ponteiro_postagem,int num_postagens){
         printf ("NUMERO DO POST: %d\n", i+1);
         printf ("Titulo\n");
         printf ("%-30s\nLegenda\n %-300s\n", ponteiro_postagem[i].ID_post,ponteiro_postagem[i].legenda);
+        printf ("IMAGEM:\n");
+        // Mostra a imagem, o n�mero de bytes e libera a mem�ria
+        insta_imprimeImagem(ponteiro_postagem[i].img);
+        printf("N.Bytes Imagem: %d\n", ponteiro_postagem[i].img->nBytes);
+        insta_liberaImagem(ponteiro_postagem[i].img);
     }
-    /*
-    // Mostra a imagem, o número de bytes e libera a memória
-    insta_imprimeImagem(ponteiro_postagem->img);
-    printf("N.Bytes Imagem: %d\n", ponteiro_postagem->img->nBytes);
-    insta_liberaImagem(ponteiro_postagem->img);
-    */
+    
+    
 }
 void editar_posts(posts_t * ponteiro_postagem,int num_postagens){
     int i;
@@ -665,6 +673,7 @@ int main(int argc, char **argv) {
     login_t login_info;
     int num_perfis = 0;
     int num_postagens = 0;
+    int posicao_usuario_logado;
 
     printf("Bem vindo ao Coltegram!\n");
     printf("Instagram feito por:\nIcaro Cardoso Nascimento\nJoao Henrique Santana Oliveira Campos\nMatheus Fernandes de Oliveira Brandemburg\n");
@@ -680,8 +689,8 @@ int main(int argc, char **argv) {
                 break;
             }    
             case 2:{
-                login(ponteiro_perfil, num_perfis, &login_info);
-                while (ponteiro_perfil->logado && escolha != 0) {
+                posicao_usuario_logado = login(ponteiro_perfil, num_perfis, &login_info);
+                while (posicao_usuario_logado != USUARIO_INVALIDO && escolha != 0) {
                     printf("Quais acoes voce deseja executar:\n");
                     printf("(1) <Buscar perfis>\n(2) <Visitar perfis>\n(3) <Listar perfis cadastrados>\n(4) <Acoes do usuario>\n(0) <Sair>\n");
                     scanf("%d", &escolha);
@@ -774,7 +783,7 @@ int main(int argc, char **argv) {
                                     }
                                     case 6:{
                                         printf("Saindo do perfil...\n");
-                                        ponteiro_perfil->logado = false;
+                                        posicao_usuario_logado = USUARIO_INVALIDO;
                                         break;
                                     }
                                     case 0:{
@@ -785,7 +794,7 @@ int main(int argc, char **argv) {
                                         printf("Opcao invalida!!!\n");
                                     }
                                 }
-                            } while (escolha2 != 0 && ponteiro_perfil->logado);
+                            } while (escolha2 != 0 && posicao_usuario_logado != USUARIO_INVALIDO);
                             break;
                         }
                         case 0:{

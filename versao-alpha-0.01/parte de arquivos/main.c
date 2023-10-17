@@ -47,6 +47,8 @@
 #define IMAGEM_PRETO_BRANCO      false
 // Definição de imagem utilizada
 #define MODO_IMAGEM               IMAGEM_COLORIDA
+//Número para o limite de uma imagem
+#define NUM_MAX_IMAGEM (999 + 1)
 
 /**
  *  \brief Função principal.
@@ -105,8 +107,8 @@ typedef struct curtida_s{
 //Estrutura para posts
 typedef struct posts_s{
     char ID_post[NUM_MAX_CARACTERES_ID];
-    asciiImg_t *img;
-    char * url;
+    asciiImg_t **img;
+    char  url[NUM_MAX_IMAGEM];
     char legenda[NUM_MAX_CARACTERES_LEGENDA];
     comentario_t comentario;
     curtida_t curtidas;
