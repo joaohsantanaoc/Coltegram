@@ -50,6 +50,8 @@
 //Número para o limite de uma imagem
 #define NUM_MAX_IMAGEM (999 + 1)
 
+#define ERRO 1
+
 /**
  *  \brief Função principal.
  *  
@@ -89,6 +91,7 @@ typedef struct login_s {
     char nome_usuario_login[NUM_MAX_CARACTERES_NOME_USUARIO];
     char email_login[NUM_MAX_CARACTERES_EMAIL];
     char senha_login[NUM_MAX_CARACTERES_SENHA];
+    
 } login_t;
 
 //Estrutura para comentarios
@@ -152,6 +155,9 @@ int email_existente(perfil_t *perfis, int num_perfis, char *email) {
     }
     return 0;
 }
+
+
+
 //Função para o cadastro do perfil
 void cadastro_perfil(perfil_t **ponteiro_perfil, int *num_perfis) {
     perfil_t perfis;
@@ -231,6 +237,9 @@ void cadastro_perfil(perfil_t **ponteiro_perfil, int *num_perfis) {
     (*ponteiro_perfil)[*num_perfis - 1] = perfis;
     printf("Cadastro concluido!!!\n");
 }
+
+
+
 //Função para fazer login no sistema
 void login(perfil_t *ponteiro_perfil, int num_perfis, login_t *ponteiro_login) {
     int i, escolha;
@@ -668,6 +677,34 @@ int main(int argc, char **argv) {
     int num_perfis = 0;
     int num_postagens = 0;
 
+    FILE * arquivo;
+
+    arquivo = fopen("dadosColtegram.txt", "r");
+
+    if (arquivo == NULL)
+    {
+        printf("Erro ao abrir o arquivo");
+        return ERRO;
+    }
+
+    //Lê os dados
+
+    while (feof(arquivo) != true)
+    {
+        ponteiro_perfil = realloc(ponteiro_perfil, sizeof(perfil_t) * (num_perfis + 1));
+
+        fgets(ponteiro_perfil[num_perfis].ID, NUM_MAX_CARACTERES_ID, arquivo);
+
+        fgets(ponteiro_perfil[num_perfis].nome_usuario, NUM_MAX_CARACTERES_NOME_USUARIO, arquivo);
+
+        fgets(ponteiro_perfil[num_perfis].email, NUM_MAX_CARACTERES_EMAIL, arquivo);
+
+        fgets(ponteiro_perfil[num_perfis].senha, NUM_MAX_CARACTERES_SENHA, arquivo);
+
+        num_perfis ++;
+    }
+    
+
     printf("Bem vindo ao Coltegram!\n");
     printf("Instagram feito por:\nIcaro Cardoso Nascimento\nJoao Henrique Santana Oliveira Campos\nMatheus Fernandes de Oliveira Brandemburg\n");
     do {
@@ -811,9 +848,29 @@ int main(int argc, char **argv) {
         }
     } while (opcao != 0);
     
+    fclose(arquivo);
+
+    arquivo = fopen("dadosColtegram.txt", "w");
+
+    if (arquivo == NULL)
+    {
+        printf("Erro ao abrir o arquivo");
+        return ERRO;
+    }
+
+    for (int i = 0; i < num_perfis; i++){
+
+        fprintf(arquivo, "%s\n", ponteiro_perfil[i].ID);
+        fprintf(arquivo, "%s\n", ponteiro_perfil[i].nome_usuario);
+        fprintf(arquivo, "%s\n", ponteiro_perfil[i].email);
+        fprintf(arquivo, "%s\n", ponteiro_perfil[i].senha);
+
+    }
+
     //Libera a memória alocada
     free (ponteiro_perfil);
     free (ponteiro_postagem);
+    fclose(arquivo);
     //Se chegou ate aqui é porque correu tudo bem
     return SUCESSO;
 }
