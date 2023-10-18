@@ -8,6 +8,7 @@
 
 //Constantes presentes
 #define SUCESSO 0
+#define ERRO 1
 #define NUM_MAX_CARACTERES_NOME_USUARIO (99 + 1)
 #define NUM_MAX_CARACTERES_EMAIL (50 + 1)
 #define NUM_MAX_CARACTERES_SENHA (50 + 1)
@@ -34,7 +35,7 @@
 // Nome do arquivo de saída temporário da imagem
 #define ARQUIVO_IMAGEM_TMP  "ascii_art.txt"
 // Falha ao carregar a imagem fornecida
-#define ERRO_CARREGAR_IMAGEM 1
+#define ERRO_CARREGAR_IMAGEM (1)
 
 /* Constantes */
 
@@ -454,7 +455,7 @@ void insta_liberaImagem(asciiImg_t * img) {
   free(img);
 }
 //Função para cadastro de uma postagem
-int cadastro_postagem(posts_t **ponteiro_postagem,int *num_postagens){
+void cadastro_postagem(posts_t **ponteiro_postagem,int *num_postagens){
     posts_t postagens;
 
     printf ("\t\tPOSTAGEM\t\t\n");
@@ -473,7 +474,7 @@ int cadastro_postagem(posts_t **ponteiro_postagem,int *num_postagens){
         fprintf(stderr, "Falha ao carregar a imagem da URL %s\n", postagens.url);
         return ERRO_CARREGAR_IMAGEM;
     }
-    // Mostra a imagem, o número de bytes e libera a memória
+    // Mostra a imagem, o n�mero de bytes e libera a mem�ria
     insta_imprimeImagem(postagens.img);
     printf("N.Bytes Imagem: %d\n", postagens.img->nBytes);
     printf ("Digite uma legenda para seu post: (MAX 300 caracteres)\n");
@@ -483,8 +484,6 @@ int cadastro_postagem(posts_t **ponteiro_postagem,int *num_postagens){
     (*num_postagens)++;
     *ponteiro_postagem = realloc(*ponteiro_postagem,*num_postagens * sizeof(posts_t));
     (*ponteiro_postagem)[*num_postagens-1] = postagens;
-
-    return SUCESSO; 
 }
 //Função para imprimir informações de posts
 void imprime_posts(posts_t * ponteiro_postagem,int num_postagens){
@@ -636,7 +635,7 @@ void comentarios(posts_t * ponteiro_postagem, int num_postagens,perfil_t * ponte
     printf ("O que voce deseja comentar no post %-30s?\n", ponteiro_postagem[index].ID_post);
     fgets (ponteiro_postagem[index].comentario.mensagem, NUM_MAX_CARACTERES_COMENTARIO, stdin);
     util_removeQuebraLinhaFinal(ponteiro_postagem[index].comentario.mensagem);
-    
+    ponteiro_perfil->logado = ponteiro_postagem[index].comentario.perfil_que_comentou;
     printf ("Comentario feito!\n");
     printf ("SEU COMENTARIO:\n");
     printf ("%-300s\n", ponteiro_postagem[index].comentario.mensagem);
@@ -676,6 +675,34 @@ int main(int argc, char **argv) {
     int num_perfis = 0;
     int num_postagens = 0;
     int posicao_usuario_logado;
+
+    FILE * arquivo;
+
+    arquivo = fopen("dadosColtegram.txt", "r");
+
+    if (arquivo == NULL)
+    {
+        printf("Erro ao abrir o arquivo");
+        return ERRO;
+    }
+
+    //Lê os dados
+
+    while (feof(arquivo) != true)
+    {
+        ponteiro_perfil = realloc(ponteiro_perfil, sizeof(perfil_t) * (num_perfis + 1));
+
+        fgets(ponteiro_perfil[num_perfis].ID, NUM_MAX_CARACTERES_ID, arquivo);
+
+        fgets(ponteiro_perfil[num_perfis].nome_usuario, NUM_MAX_CARACTERES_NOME_USUARIO, arquivo);
+
+        fgets(ponteiro_perfil[num_perfis].email, NUM_MAX_CARACTERES_EMAIL, arquivo);
+
+        fgets(ponteiro_perfil[num_perfis].senha, NUM_MAX_CARACTERES_SENHA, arquivo);
+
+        num_perfis ++;
+    }
+
 
     printf("Bem vindo ao Coltegram!\n");
     printf("Instagram feito por:\nIcaro Cardoso Nascimento\nJoao Henrique Santana Oliveira Campos\nMatheus Fernandes de Oliveira Brandemburg\n");
@@ -820,9 +847,56 @@ int main(int argc, char **argv) {
         }
     } while (opcao != 0);
     
+    fclose(arquivo);
+
+    arquivo = fopen("dadosColtegram.txt", "w+");
+
+    if (arquivo == NULL)
+    {
+        printf("Erro ao abrir o arquivo");
+        return ERRO;
+    }
+
+    for (int i = 0;  i < num_perfis; i++){
+        if(ponteiro_perfil[i].ID[strlen(ponteiro_perfil[i].ID) - 1] == '\n'){
+
+            ponteiro_perfil[i].ID[strlen(ponteiro_perfil[i].ID) - 1] = '\0';
+
+        }
+
+        if(ponteiro_perfil[i].nome_usuario[strlen(ponteiro_perfil[i].nome_usuario) - 1] == '\n'){
+
+            ponteiro_perfil[i].nome_usuario[strlen(ponteiro_perfil[i].nome_usuario) - 1] = '\0';
+
+        }
+
+        if(ponteiro_perfil[i].email[strlen(ponteiro_perfil[i].email) - 1] == '\n'){
+
+            ponteiro_perfil[i].email[strlen(ponteiro_perfil[i].email) - 1] = '\0';
+
+        }
+
+        if(ponteiro_perfil[i].senha[strlen(ponteiro_perfil[i].senha) - 1] == '\n'){
+
+            ponteiro_perfil[i].senha[strlen(ponteiro_perfil[i].senha) - 1] = '\0';
+
+        }
+
+    }
+
+    for (int i = 0; i < num_perfis; i++){
+
+        fprintf(arquivo, "%s\n", ponteiro_perfil[i].ID);
+        fprintf(arquivo, "%s\n", ponteiro_perfil[i].nome_usuario);
+        fprintf(arquivo, "%s\n", ponteiro_perfil[i].email);
+        fprintf(arquivo, "%s\n", ponteiro_perfil[i].senha);
+
+    }
+
     //Libera a memória alocada
     free (ponteiro_perfil);
     free (ponteiro_postagem);
+    fclose(arquivo);
     //Se chegou ate aqui é porque correu tudo bem
     return SUCESSO;
 }
