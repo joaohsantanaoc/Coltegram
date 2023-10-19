@@ -110,7 +110,7 @@ typedef struct curtida_s{
 //Estrutura para posts
 typedef struct posts_s{
     char ID_post[NUM_MAX_CARACTERES_ID];
-    asciiImg_t *img;
+    asciiImg_t **img;
     char  url[NUM_MAX_IMAGEM];
     char legenda[NUM_MAX_CARACTERES_LEGENDA];
     comentario_t comentario;
@@ -455,28 +455,39 @@ void insta_liberaImagem(asciiImg_t * img) {
   free(img);
 }
 //Função para cadastro de uma postagem
-void cadastro_postagem(posts_t **ponteiro_postagem,int *num_postagens){
+int cadastro_postagem(posts_t **ponteiro_postagem,int *num_postagens,int num_imagens){
     posts_t postagens;
+    int i;
 
     printf ("\t\tPOSTAGEM\t\t\n");
     printf ("Digite o nome de seu post:\n");
     fgets (postagens.ID_post, NUM_MAX_CARACTERES_ID, stdin);
     util_removeQuebraLinhaFinal(postagens.ID_post);
-    
+
+    printf ("Digite quantas imagens voce deseja colocar em seu post:\n");
+    scanf ("%d", &num_imagens);
+    getchar();
     printf ("Agora de upload na imagem de seu post:\n");
     printf ("Para isso digite o url de sua imagem com o jpg no final\n");
     printf ("Exemplo: https://img.freepik.com/fotos-premium/fundo-de-rosas-bonitas_534373-220.jpg\n");
-    fgets (postagens.url, NUM_MAX_IMAGEM, stdin);
-    util_removeQuebraLinhaFinal(postagens.url);
-    postagens.img = insta_carregaImagem(postagens.url, MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
-    if (postagens.img == NULL) {
+    for (i=0;i<num_imagens;i++){
+        fgets (postagens.url, NUM_MAX_IMAGEM, stdin);
+        util_removeQuebraLinhaFinal(postagens.url);
+        postagens.img[i] = insta_carregaImagem(postagens.url, MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
+        if (postagens.img[i] == NULL) {
         // Falha ao carregar a imagem
         fprintf(stderr, "Falha ao carregar a imagem da URL %s\n", postagens.url);
         return ERRO_CARREGAR_IMAGEM;
+        }
+        // Mostra a imagem, o número de bytes e libera a memória
+        insta_imprimeImagem(postagens.img[i]);
+        printf("N.Bytes Imagem: %d\n", postagens.img[i]->nBytes);
     }
-    // Mostra a imagem, o n�mero de bytes e libera a mem�ria
-    insta_imprimeImagem(postagens.img);
-    printf("N.Bytes Imagem: %d\n", postagens.img->nBytes);
+    
+    
+    
+
+
     printf ("Digite uma legenda para seu post: (MAX 300 caracteres)\n");
     fgets(postagens.legenda, NUM_MAX_CARACTERES_LEGENDA ,stdin);
     util_removeQuebraLinhaFinal(postagens.legenda);
@@ -484,14 +495,16 @@ void cadastro_postagem(posts_t **ponteiro_postagem,int *num_postagens){
     (*num_postagens)++;
     *ponteiro_postagem = realloc(*ponteiro_postagem,*num_postagens * sizeof(posts_t));
     (*ponteiro_postagem)[*num_postagens-1] = postagens;
+
+    return SUCESSO; 
 }
 //Função para imprimir informações de posts
-void imprime_posts(posts_t * ponteiro_postagem,int num_postagens){
-    int i;
+int imprime_posts(posts_t * ponteiro_postagem,int num_postagens,int num_imagens){
+    int i,j;
 
     if (num_postagens < 1){
         printf ("Voce nao postou posts ainda!\n");
-        return;
+        return ERRO;
     }
 
     printf ("SEUS POSTS\n");
@@ -500,21 +513,23 @@ void imprime_posts(posts_t * ponteiro_postagem,int num_postagens){
         printf ("Titulo\n");
         printf ("%-30s\nLegenda\n %-300s\n", ponteiro_postagem[i].ID_post,ponteiro_postagem[i].legenda);
         printf ("IMAGEM:\n");
-        // Mostra a imagem, o n�mero de bytes e libera a mem�ria
-        insta_imprimeImagem(ponteiro_postagem[i].img);
-        printf("N.Bytes Imagem: %d\n", ponteiro_postagem[i].img->nBytes);
-        insta_liberaImagem(ponteiro_postagem[i].img);
+        for (j=0;j<num_imagens;j++){
+            // Mostra a imagem, o número de bytes e libera a memória
+            insta_imprimeImagem(ponteiro_postagem[i].img[j]);
+            printf("N.Bytes Imagem: %d\n", ponteiro_postagem[i].img[j]->nBytes);
+        }
     }
+    return SUCESSO; 
     
     
 }
-void editar_posts(posts_t * ponteiro_postagem,int num_postagens){
+int editar_posts(posts_t * ponteiro_postagem,int num_postagens){
     int i;
     int opcao, index;
 
     if (num_postagens < 1){
         printf ("Voce nao postou posts ainda!\n");
-        return;
+        return ERRO;
     }
     printf ("\t\tSEUS POSTS:\n");
 
@@ -539,7 +554,7 @@ void editar_posts(posts_t * ponteiro_postagem,int num_postagens){
                 index--;
                 if (index < 0 || index >= num_postagens) {
                     printf("Opcao invalida!\n");
-                    return;
+                    return ERRO;
                 }
                 printf ("Titulo do seu post:\n");
                 printf ("%-30s\n", ponteiro_postagem[index].ID_post);
@@ -563,7 +578,7 @@ void editar_posts(posts_t * ponteiro_postagem,int num_postagens){
                 index--;
                 if (index < 0 || index >= num_postagens) {
                     printf("Opcao invalida!\n");
-                    return;
+                    return ERRO;
                 }
                 printf ("Legenda do seu post:\n");
                 printf ("LEGENDA:\n");
@@ -584,6 +599,8 @@ void editar_posts(posts_t * ponteiro_postagem,int num_postagens){
         }    
 
     }while (opcao != 0);
+
+    return SUCESSO; 
 
 }
 /*
@@ -615,11 +632,11 @@ void excluir_posts(posts_t * ponteiro_postagem,int num_postagens){
     }
 }
 */
-void comentarios(posts_t * ponteiro_postagem, int num_postagens,perfil_t * ponteiro_perfil){
+int comentarios(posts_t * ponteiro_postagem, int num_postagens,perfil_t * ponteiro_perfil){
     int i, index;
     if (num_postagens < 1){
         printf ("Voce nao postou posts!\n");
-        return;
+        return ERRO;
     }
     for (i=0;i<num_postagens;i++){
         printf ("%d.%-30s\n", i+1,ponteiro_postagem[i].ID_post);
@@ -630,7 +647,7 @@ void comentarios(posts_t * ponteiro_postagem, int num_postagens,perfil_t * ponte
     index--;
     if (index < 0 || index >= num_postagens){
         printf ("Opcao invalida!\n");
-        return;
+        return ERRO;
     }
     printf ("O que voce deseja comentar no post %-30s?\n", ponteiro_postagem[index].ID_post);
     fgets (ponteiro_postagem[index].comentario.mensagem, NUM_MAX_CARACTERES_COMENTARIO, stdin);
@@ -640,12 +657,14 @@ void comentarios(posts_t * ponteiro_postagem, int num_postagens,perfil_t * ponte
     printf ("SEU COMENTARIO:\n");
     printf ("%-300s\n", ponteiro_postagem[index].comentario.mensagem);
 
+    return SUCESSO; 
+
 }
-void listar_comentario(posts_t * ponteiro_postagem, int num_postagens){
+int listar_comentario(posts_t * ponteiro_postagem, int num_postagens){
     int i,escolha;
     if (num_postagens < 1){
         printf ("Voce nao postou posts!\n");
-        return;
+        return ERRO;
     }
     printf ("Qual postagem voce deseja acessar?\n");
     for (i=0;i<num_postagens;i++){
@@ -657,12 +676,14 @@ void listar_comentario(posts_t * ponteiro_postagem, int num_postagens){
     escolha--;
     if (escolha < 0 || escolha >= num_postagens){
         printf ("Opcao invalida!\n");
-        return;
+        return ERRO;
     }
     printf ("Comentarios para a postagem %-30s\n", ponteiro_postagem[escolha].ID_post);
     for (i=0;i<num_postagens;i++){
         printf ("%-51s.%-300s\n", ponteiro_postagem[i].comentario.perfil_que_comentou, ponteiro_postagem[i].comentario.mensagem);
     }
+
+    return SUCESSO;
 
 
 }
@@ -674,8 +695,9 @@ int main(int argc, char **argv) {
     login_t login_info;
     int num_perfis = 0;
     int num_postagens = 0;
+    int num_imagens = 0;
     int posicao_usuario_logado;
-
+    /*
     FILE * arquivo;
 
     arquivo = fopen("dadosColtegram.txt", "r");
@@ -702,6 +724,7 @@ int main(int argc, char **argv) {
 
         num_perfis ++;
     }
+    */
 
 
     printf("Bem vindo ao Coltegram!\n");
@@ -783,8 +806,8 @@ int main(int argc, char **argv) {
                                 switch (escolha2) {
                                     case 1:{
                                         //Postar posts
-                                        cadastro_postagem(&ponteiro_postagem,&num_postagens);
-                                        imprime_posts(ponteiro_postagem,num_postagens);
+                                        cadastro_postagem(&ponteiro_postagem,&num_postagens, num_imagens);
+                                        imprime_posts(ponteiro_postagem,num_postagens, num_imagens);
                                         break;
                                     }
                                     case 2:{
@@ -794,7 +817,7 @@ int main(int argc, char **argv) {
                                     }
                                     case 3:{
                                         //Listar posts
-                                        imprime_posts(ponteiro_postagem,num_postagens);
+                                        imprime_posts(ponteiro_postagem,num_postagens,num_imagens);
                                         break;
                                     }
                                     case 4:{
@@ -846,7 +869,7 @@ int main(int argc, char **argv) {
             }
         }
     } while (opcao != 0);
-    
+    /*
     fclose(arquivo);
 
     arquivo = fopen("dadosColtegram.txt", "w+");
@@ -857,7 +880,7 @@ int main(int argc, char **argv) {
         return ERRO;
     }
 
-    for (int i = 0;  i < num_perfis; i++){
+    for (i = 0;  i < num_perfis; i++){
         if(ponteiro_perfil[i].ID[strlen(ponteiro_perfil[i].ID) - 1] == '\n'){
 
             ponteiro_perfil[i].ID[strlen(ponteiro_perfil[i].ID) - 1] = '\0';
@@ -884,7 +907,7 @@ int main(int argc, char **argv) {
 
     }
 
-    for (int i = 0; i < num_perfis; i++){
+    for (i = 0; i < num_perfis; i++){
 
         fprintf(arquivo, "%s\n", ponteiro_perfil[i].ID);
         fprintf(arquivo, "%s\n", ponteiro_perfil[i].nome_usuario);
@@ -892,11 +915,14 @@ int main(int argc, char **argv) {
         fprintf(arquivo, "%s\n", ponteiro_perfil[i].senha);
 
     }
+    */
 
     //Libera a memória alocada
     free (ponteiro_perfil);
     free (ponteiro_postagem);
+    /*
     fclose(arquivo);
+    */
     //Se chegou ate aqui é porque correu tudo bem
     return SUCESSO;
 }
