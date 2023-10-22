@@ -888,7 +888,7 @@ int main(int argc, char **argv) {
         return ERRO;
     }
 
-    for (i = 0;  i < num_perfis; i++){
+    for (int i = 0;  i < num_perfis; i++){
         if(ponteiro_perfil[i].ID[strlen(ponteiro_perfil[i].ID) - 1] == '\n'){
 
             ponteiro_perfil[i].ID[strlen(ponteiro_perfil[i].ID) - 1] = '\0';
@@ -915,7 +915,7 @@ int main(int argc, char **argv) {
 
     }
 
-    for (i = 0; i < num_perfis; i++){
+    for (int i = 0; i < num_perfis; i++){
 
         fprintf(arquivo, "%s\n", ponteiro_perfil[i].ID);
         fprintf(arquivo, "%s\n", ponteiro_perfil[i].nome_usuario);
