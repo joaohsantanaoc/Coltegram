@@ -697,7 +697,7 @@ int main(int argc, char **argv) {
     int num_postagens = 0;
     int num_imagens = 0;
     int posicao_usuario_logado;
-    /*
+  
     FILE * arquivo;
 
     arquivo = fopen("dadosColtegram.txt", "r");
@@ -710,8 +710,12 @@ int main(int argc, char **argv) {
 
     //Lê os dados
 
-    while (feof(arquivo) != true)
+    while (true)
     {
+
+        if (feof(arquivo)){
+            break;
+        }
         ponteiro_perfil = realloc(ponteiro_perfil, sizeof(perfil_t) * (num_perfis + 1));
 
         fgets(ponteiro_perfil[num_perfis].ID, NUM_MAX_CARACTERES_ID, arquivo);
@@ -722,9 +726,13 @@ int main(int argc, char **argv) {
 
         fgets(ponteiro_perfil[num_perfis].senha, NUM_MAX_CARACTERES_SENHA, arquivo);
 
+        if (feof(arquivo)){
+            break;
+        }
+
         num_perfis ++;
+
     }
-    */
 
 
     printf("Bem vindo ao Coltegram!\n");
@@ -869,7 +877,7 @@ int main(int argc, char **argv) {
             }
         }
     } while (opcao != 0);
-    /*
+
     fclose(arquivo);
 
     arquivo = fopen("dadosColtegram.txt", "w+");
@@ -915,14 +923,14 @@ int main(int argc, char **argv) {
         fprintf(arquivo, "%s\n", ponteiro_perfil[i].senha);
 
     }
-    */
+
 
     //Libera a memória alocada
     free (ponteiro_perfil);
     free (ponteiro_postagem);
-    /*
+
     fclose(arquivo);
-    */
+
     //Se chegou ate aqui é porque correu tudo bem
     return SUCESSO;
 }
