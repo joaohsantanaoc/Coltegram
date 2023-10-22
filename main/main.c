@@ -716,16 +716,20 @@ int main(int argc, char **argv) {
         if (feof(arquivo)){
             break;
         }
-        ponteiro_perfil = realloc(ponteiro_perfil, sizeof(perfil_t) * (num_perfis + 1));
+        ponteiro_perfil = (perfil_t*)realloc(ponteiro_perfil, sizeof(perfil_t) * (num_perfis + 1));
 
         fgets(ponteiro_perfil[num_perfis].ID, NUM_MAX_CARACTERES_ID, arquivo);
+        util_removeQuebraLinhaFinal(ponteiro_perfil[num_perfis].ID);
 
         fgets(ponteiro_perfil[num_perfis].nome_usuario, NUM_MAX_CARACTERES_NOME_USUARIO, arquivo);
+        util_removeQuebraLinhaFinal(ponteiro_perfil[num_perfis].nome_usuario);
 
         fgets(ponteiro_perfil[num_perfis].email, NUM_MAX_CARACTERES_EMAIL, arquivo);
+        util_removeQuebraLinhaFinal(ponteiro_perfil[num_perfis].email);
 
         fgets(ponteiro_perfil[num_perfis].senha, NUM_MAX_CARACTERES_SENHA, arquivo);
-
+        util_removeQuebraLinhaFinal(ponteiro_perfil[num_perfis].senha);
+        
         if (feof(arquivo)){
             break;
         }
@@ -733,6 +737,9 @@ int main(int argc, char **argv) {
         num_perfis ++;
 
     }
+
+    printf("%s", ponteiro_perfil[1].email);
+    printf("%s", ponteiro_perfil[1].senha);
 
 
     printf("Bem vindo ao Coltegram!\n");
