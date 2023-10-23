@@ -738,9 +738,6 @@ int main(int argc, char **argv) {
 
     }
 
-    printf("%s", ponteiro_perfil[1].email);
-    printf("%s", ponteiro_perfil[1].senha);
-
 
     printf("Bem vindo ao Coltegram!\n");
     printf("Instagram feito por:\nIcaro Cardoso Nascimento\nJoao Henrique Santana Oliveira Campos\nMatheus Fernandes de Oliveira Brandemburg\n");
