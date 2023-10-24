@@ -459,13 +459,22 @@ int cadastro_postagem(posts_t **ponteiro_postagem,int *num_postagens,int num_ima
     posts_t postagens;
     int i;
 
+    (*num_postagens)++;
+    *ponteiro_postagem = realloc(*ponteiro_postagem,*num_postagens * sizeof(posts_t));
+    (*ponteiro_postagem)[*num_postagens-1] = postagens;
+    *ponteiro_postagem[*num_postagens]->img = malloc(num_imagens * sizeof(asciiImg_t *));
+    /*
+    for(i = 0;i<num_imagens;i++) {
+        *ponteiro_postagem[*num_postagens]->img[i] = insta_carregaImagem(ponteiro_postagem[i]->url,MODO_IMAGEM,IMAGEM_NUMERO_COLUNAS);
+    }
+    */
     printf ("\t\tPOSTAGEM\t\t\n");
     printf ("Digite o nome de seu post:\n");
     fgets (postagens.ID_post, NUM_MAX_CARACTERES_ID, stdin);
     util_removeQuebraLinhaFinal(postagens.ID_post);
-
     printf ("Digite quantas imagens voce deseja colocar em seu post:\n");
     scanf ("%d", &num_imagens);
+
     getchar();
     printf ("Agora de upload na imagem de seu post:\n");
     printf ("Para isso digite o url de sua imagem com o jpg no final\n");
@@ -492,9 +501,9 @@ int cadastro_postagem(posts_t **ponteiro_postagem,int *num_postagens,int num_ima
     fgets(postagens.legenda, NUM_MAX_CARACTERES_LEGENDA ,stdin);
     util_removeQuebraLinhaFinal(postagens.legenda);
 
-    (*num_postagens)++;
-    *ponteiro_postagem = realloc(*ponteiro_postagem,*num_postagens * sizeof(posts_t));
-    (*ponteiro_postagem)[*num_postagens-1] = postagens;
+ 
+
+   
 
     return SUCESSO; 
 }
