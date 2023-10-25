@@ -454,6 +454,7 @@ void insta_liberaImagem(asciiImg_t * img) {
   free(img->bytes);
   free(img);
 }
+
 //Função para cadastro de uma postagem
 int cadastro_postagem(posts_t **ponteiro_postagem,int *num_postagens,int num_imagens){
     posts_t postagens;
@@ -719,6 +720,7 @@ int main(int argc, char **argv) {
     }
 
     //Lê os dados
+printf("preparando para entrar no while");
 
     while (true)
     {
@@ -727,18 +729,32 @@ int main(int argc, char **argv) {
             break;
         }
         ponteiro_perfil = (perfil_t*)realloc(ponteiro_perfil, sizeof(perfil_t) * (num_perfis + 1));
+printf("perfil realocado\n");
 
-        fgets(ponteiro_perfil[num_perfis].ID, NUM_MAX_CARACTERES_ID, arquivo);
-        util_removeQuebraLinhaFinal(ponteiro_perfil[num_perfis].ID);
+        if (fgets(ponteiro_perfil[num_perfis].ID, NUM_MAX_CARACTERES_ID, arquivo) == NULL){
+            printf("Arquivo corrompido.\n");
+            
+        }
+            util_removeQuebraLinhaFinal(ponteiro_perfil[num_perfis].ID);
 
-        fgets(ponteiro_perfil[num_perfis].nome_usuario, NUM_MAX_CARACTERES_NOME_USUARIO, arquivo);
-        util_removeQuebraLinhaFinal(ponteiro_perfil[num_perfis].nome_usuario);
+        if (fgets(ponteiro_perfil[num_perfis].nome_usuario, NUM_MAX_CARACTERES_NOME_USUARIO, arquivo) == NULL){
+            printf("Arquivo corrompido.\n");
+            
+        }
+            util_removeQuebraLinhaFinal(ponteiro_perfil[num_perfis].nome_usuario);
 
-        fgets(ponteiro_perfil[num_perfis].email, NUM_MAX_CARACTERES_EMAIL, arquivo);
-        util_removeQuebraLinhaFinal(ponteiro_perfil[num_perfis].email);
+        if (fgets(ponteiro_perfil[num_perfis].email, NUM_MAX_CARACTERES_EMAIL, arquivo) == NULL){
+            printf("Arquivo corrompido.\n");
+            
+        }
+            util_removeQuebraLinhaFinal(ponteiro_perfil[num_perfis].email);
 
-        fgets(ponteiro_perfil[num_perfis].senha, NUM_MAX_CARACTERES_SENHA, arquivo);
-        util_removeQuebraLinhaFinal(ponteiro_perfil[num_perfis].senha);
+
+        if(fgets(ponteiro_perfil[num_perfis].senha, NUM_MAX_CARACTERES_SENHA, arquivo) == NULL){
+            printf("Arquivo corrompido.\n");
+            
+        }
+            util_removeQuebraLinhaFinal(ponteiro_perfil[num_perfis].senha);
         
         if (feof(arquivo)){
             break;
@@ -748,6 +764,8 @@ int main(int argc, char **argv) {
 
     }
 
+        //fgets(url, tamanhourl, perfilselecionado);
+        //ponteiro_postagem[0].img = insta_carregaImagem(url, modoImagem, numerodecolunas);
 
     printf("Bem vindo ao Coltegram!\n");
     printf("Instagram feito por:\nIcaro Cardoso Nascimento\nJoao Henrique Santana Oliveira Campos\nMatheus Fernandes de Oliveira Brandemburg\n");
@@ -894,7 +912,7 @@ int main(int argc, char **argv) {
 
     fclose(arquivo);
 
-    arquivo = fopen("dadosColtegram.txt", "w+");
+    arquivo = fopen("dadosColtegram.txt", "w");
 
     if (arquivo == NULL)
     {
