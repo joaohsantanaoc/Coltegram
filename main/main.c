@@ -35,7 +35,7 @@
 // Nome do arquivo de saída temporário da imagem
 #define ARQUIVO_IMAGEM_TMP  "ascii_art.txt"
 // Falha ao carregar a imagem fornecida
-#define ERRO_CARREGAR_IMAGEM (1)
+#define ERRO_CARREGAR_IMAGEM 1
 
 /* Constantes */
 
@@ -51,7 +51,7 @@
 //Define o tamanho máximo para a imagem
 #define NUM_MAX_IMAGEM (999 + 1)
 //Define o erro
-#define USUARIO_INVALIDO (-1)
+#define USUARIO_INVALIDO -1
 
 /**
  *  \brief Função principal.
@@ -110,7 +110,7 @@ typedef struct curtida_s{
 //Estrutura para posts
 typedef struct posts_s{
     char ID_post[NUM_MAX_CARACTERES_ID];
-    asciiImg_t **img;
+    asciiImg_t * * img;
     char  url[NUM_MAX_IMAGEM];
     char legenda[NUM_MAX_CARACTERES_LEGENDA];
     comentario_t comentario;
@@ -442,6 +442,7 @@ asciiImg_t * insta_carregaImagem(char url[], bool colorido, int largura) {
  *  \param [in] img Endereço da estrutura com os dados da imagem.
  */
 void insta_imprimeImagem(asciiImg_t * img) {
+  if (img == NULL) return;
   printf("%s", img->bytes);
 }
 
@@ -454,63 +455,58 @@ void insta_liberaImagem(asciiImg_t * img) {
   free(img->bytes);
   free(img);
 }
-
 //Função para cadastro de uma postagem
-int cadastro_postagem(posts_t **ponteiro_postagem,int *num_postagens,int num_imagens){
+int cadastro_postagem(posts_t **ponteiro_postagem,int *num_postagens){
     posts_t postagens;
     int i;
+    int num_imagens = 0;
 
-    (*num_postagens)++;
-    *ponteiro_postagem = realloc(*ponteiro_postagem,*num_postagens * sizeof(posts_t));
-    (*ponteiro_postagem)[*num_postagens-1] = postagens;
-    *ponteiro_postagem[*num_postagens]->img = malloc(num_imagens * sizeof(asciiImg_t *));
-    /*
-    for(i = 0;i<num_imagens;i++) {
-        *ponteiro_postagem[*num_postagens]->img[i] = insta_carregaImagem(ponteiro_postagem[i]->url,MODO_IMAGEM,IMAGEM_NUMERO_COLUNAS);
-    }
-    */
+
     printf ("\t\tPOSTAGEM\t\t\n");
     printf ("Digite o nome de seu post:\n");
     fgets (postagens.ID_post, NUM_MAX_CARACTERES_ID, stdin);
     util_removeQuebraLinhaFinal(postagens.ID_post);
-    printf ("Digite quantas imagens voce deseja colocar em seu post:\n");
-    scanf ("%d", &num_imagens);
+    
 
-    getchar();
+    printf ("Digite quantas imagens voce deseja colocar em seu post:\n");
+    scanf ("%d%*c", &num_imagens);
+
+    // Aloca espaço para as imagens
+    postagens.img = malloc(sizeof(asciiImg_t *) * num_imagens);    
+
     printf ("Agora de upload na imagem de seu post:\n");
     printf ("Para isso digite o url de sua imagem com o jpg no final\n");
     printf ("Exemplo: https://img.freepik.com/fotos-premium/fundo-de-rosas-bonitas_534373-220.jpg\n");
-    for (i=0;i<num_imagens;i++){
-        fgets (postagens.url, NUM_MAX_IMAGEM, stdin);
+
+    for(i = 0; i < num_imagens; i++) {
+        printf("URL: ");
+        fgets (postagens.url,NUM_MAX_IMAGEM,stdin);
         util_removeQuebraLinhaFinal(postagens.url);
+        
         postagens.img[i] = insta_carregaImagem(postagens.url, MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
         if (postagens.img[i] == NULL) {
-        // Falha ao carregar a imagem
-        fprintf(stderr, "Falha ao carregar a imagem da URL %s\n", postagens.url);
-        return ERRO_CARREGAR_IMAGEM;
+            // Falha ao carregar a imagem
+            fprintf(stderr, "Falha ao carregar a imagem da URL %s\n", postagens.url);
+            return ERRO_CARREGAR_IMAGEM;
         }
         // Mostra a imagem, o número de bytes e libera a memória
         insta_imprimeImagem(postagens.img[i]);
-        printf("N.Bytes Imagem: %d\n", postagens.img[i]->nBytes);
-    }
-    
-    
-    
 
+    }
 
     printf ("Digite uma legenda para seu post: (MAX 300 caracteres)\n");
     fgets(postagens.legenda, NUM_MAX_CARACTERES_LEGENDA ,stdin);
     util_removeQuebraLinhaFinal(postagens.legenda);
 
- 
-
-   
+    (*num_postagens)++;
+    *ponteiro_postagem = realloc(*ponteiro_postagem,*num_postagens * sizeof(posts_t));
+    (*ponteiro_postagem)[*num_postagens-1] = postagens;
 
     return SUCESSO; 
 }
 //Função para imprimir informações de posts
-int imprime_posts(posts_t * ponteiro_postagem,int num_postagens,int num_imagens){
-    int i,j;
+int imprime_posts(posts_t * ponteiro_postagem,int num_postagens){
+    int i;
 
     if (num_postagens < 1){
         printf ("Voce nao postou posts ainda!\n");
@@ -523,11 +519,6 @@ int imprime_posts(posts_t * ponteiro_postagem,int num_postagens,int num_imagens)
         printf ("Titulo\n");
         printf ("%-30s\nLegenda\n %-300s\n", ponteiro_postagem[i].ID_post,ponteiro_postagem[i].legenda);
         printf ("IMAGEM:\n");
-        for (j=0;j<num_imagens;j++){
-            // Mostra a imagem, o número de bytes e libera a memória
-            insta_imprimeImagem(ponteiro_postagem[i].img[j]);
-            printf("N.Bytes Imagem: %d\n", ponteiro_postagem[i].img[j]->nBytes);
-        }
     }
     return SUCESSO; 
     
@@ -699,13 +690,12 @@ int listar_comentario(posts_t * ponteiro_postagem, int num_postagens){
 }
 //Função principal
 int main(int argc, char **argv) {
-    int opcao, escolha, escolha2,escolha3;
+    int opcao, escolha1, escolha2,escolha3;
     perfil_t *ponteiro_perfil = NULL;
     posts_t *ponteiro_postagem = NULL;
     login_t login_info;
     int num_perfis = 0;
     int num_postagens = 0;
-    int num_imagens = 0;
     int posicao_usuario_logado;
     int i;
   
@@ -720,7 +710,6 @@ int main(int argc, char **argv) {
     }
 
     //Lê os dados
-printf("preparando para entrar no while");
 
     while (true)
     {
@@ -729,32 +718,42 @@ printf("preparando para entrar no while");
             break;
         }
         ponteiro_perfil = (perfil_t*)realloc(ponteiro_perfil, sizeof(perfil_t) * (num_perfis + 1));
-printf("perfil realocado\n");
-
+        
+        fgets(ponteiro_perfil[num_perfis].ID, NUM_MAX_CARACTERES_ID, arquivo);
+        /*
         if (fgets(ponteiro_perfil[num_perfis].ID, NUM_MAX_CARACTERES_ID, arquivo) == NULL){
             printf("Arquivo corrompido.\n");
-            
+            return ERRO;
         }
-            util_removeQuebraLinhaFinal(ponteiro_perfil[num_perfis].ID);
-
+        */
+        util_removeQuebraLinhaFinal(ponteiro_perfil[num_perfis].ID);
+        
+        fgets(ponteiro_perfil[num_perfis].nome_usuario, NUM_MAX_CARACTERES_NOME_USUARIO, arquivo);
+        /*
         if (fgets(ponteiro_perfil[num_perfis].nome_usuario, NUM_MAX_CARACTERES_NOME_USUARIO, arquivo) == NULL){
             printf("Arquivo corrompido.\n");
-            
+            return ERRO;
         }
-            util_removeQuebraLinhaFinal(ponteiro_perfil[num_perfis].nome_usuario);
-
+        */
+        util_removeQuebraLinhaFinal(ponteiro_perfil[num_perfis].nome_usuario);
+        
+        fgets(ponteiro_perfil[num_perfis].email, NUM_MAX_CARACTERES_EMAIL, arquivo);
+        /*
         if (fgets(ponteiro_perfil[num_perfis].email, NUM_MAX_CARACTERES_EMAIL, arquivo) == NULL){
             printf("Arquivo corrompido.\n");
-            
+            return ERRO;
         }
-            util_removeQuebraLinhaFinal(ponteiro_perfil[num_perfis].email);
-
-
+        */
+        util_removeQuebraLinhaFinal(ponteiro_perfil[num_perfis].email);
+        
+        fgets(ponteiro_perfil[num_perfis].senha, NUM_MAX_CARACTERES_SENHA, arquivo);
+        /*
         if(fgets(ponteiro_perfil[num_perfis].senha, NUM_MAX_CARACTERES_SENHA, arquivo) == NULL){
             printf("Arquivo corrompido.\n");
-            
+            return ERRO;
         }
-            util_removeQuebraLinhaFinal(ponteiro_perfil[num_perfis].senha);
+        */
+        util_removeQuebraLinhaFinal(ponteiro_perfil[num_perfis].senha);
         
         if (feof(arquivo)){
             break;
@@ -764,8 +763,9 @@ printf("perfil realocado\n");
 
     }
 
-        //fgets(url, tamanhourl, perfilselecionado);
-        //ponteiro_postagem[0].img = insta_carregaImagem(url, modoImagem, numerodecolunas);
+     //fgets(url, tamanhourl, perfilselecionado);
+    //ponteiro_postagem[0].img = insta_carregaImagem(url, modoImagem, numerodecolunas);
+
 
     printf("Bem vindo ao Coltegram!\n");
     printf("Instagram feito por:\nIcaro Cardoso Nascimento\nJoao Henrique Santana Oliveira Campos\nMatheus Fernandes de Oliveira Brandemburg\n");
@@ -782,12 +782,12 @@ printf("perfil realocado\n");
             }    
             case 2:{
                 posicao_usuario_logado = login(ponteiro_perfil, num_perfis, &login_info);
-                while (posicao_usuario_logado != USUARIO_INVALIDO && escolha != 0) {
+                while (posicao_usuario_logado != USUARIO_INVALIDO) {
                     printf("Quais acoes voce deseja executar:\n");
-                    printf("(1) <Buscar perfis>\n(2) <Visitar perfis>\n(3) <Listar perfis cadastrados>\n(4) <Acoes do usuario>\n(0) <Sair>\n");
-                    scanf("%d", &escolha);
+                    printf("(1) <Buscar perfis>\n(2) <Visitar perfis>\n(3) <Listar perfis cadastrados>\n(4) <Acoes do usuario>\n");
+                    scanf("%d", &escolha1);
                     getchar();
-                    switch (escolha) {
+                    switch (escolha1) {
                         case 1:{
                             //Buscar perfis
                             break;
@@ -825,10 +825,6 @@ printf("perfil realocado\n");
                                         imprimir_tudo_cadastrado(ponteiro_perfil,num_perfis);
                                         break;
                                     }
-                                    case 0:{
-                                        printf ("Saindo...\n");
-                                        break;
-                                    }
                                     default:{
                                         printf ("Opcao invalida!!!\n");
                                     }
@@ -846,8 +842,7 @@ printf("perfil realocado\n");
                                 switch (escolha2) {
                                     case 1:{
                                         //Postar posts
-                                        cadastro_postagem(&ponteiro_postagem,&num_postagens, num_imagens);
-                                        imprime_posts(ponteiro_postagem,num_postagens, num_imagens);
+                                        cadastro_postagem(&ponteiro_postagem,&num_postagens);
                                         break;
                                     }
                                     case 2:{
@@ -857,7 +852,7 @@ printf("perfil realocado\n");
                                     }
                                     case 3:{
                                         //Listar posts
-                                        imprime_posts(ponteiro_postagem,num_postagens,num_imagens);
+                                        imprime_posts(ponteiro_postagem,num_postagens);
                                         break;
                                     }
                                     case 4:{
