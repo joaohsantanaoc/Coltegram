@@ -125,6 +125,108 @@ void util_removeQuebraLinhaFinal(char dados[]) {
         dados[tamanho - 1] = '\0';
     }
 }
+
+void funcaoLerArquivo(perfil_t ** ponteiro_perfil, int *num_perfis){
+
+    perfil_t * VetorPerfil = NULL; 
+
+    FILE * arquivo;
+
+    arquivo = fopen("dadosColtegram.txt", "r");
+
+    if (arquivo == NULL)
+    {
+        printf("Erro ao abrir o arquivo");
+        return ERRO;
+    }
+
+    //Lê os dados
+
+    while (true)
+    {
+
+        if (feof(arquivo)){
+            break;
+        }
+        VetorPerfil = (perfil_t*)realloc(VetorPerfil, sizeof(perfil_t) * (*num_perfis + 1));
+        
+        fgets(VetorPerfil[*num_perfis].ID, NUM_MAX_CARACTERES_ID, arquivo);
+        util_removeQuebraLinhaFinal(VetorPerfil[*num_perfis].ID);
+        
+        fgets(VetorPerfil[*num_perfis].nome_usuario, NUM_MAX_CARACTERES_NOME_USUARIO, arquivo);
+        util_removeQuebraLinhaFinal(VetorPerfil[*num_perfis].nome_usuario);
+        
+        fgets(VetorPerfil[*num_perfis].email, NUM_MAX_CARACTERES_EMAIL, arquivo);
+        util_removeQuebraLinhaFinal(VetorPerfil[*num_perfis].email);
+        
+        fgets(VetorPerfil[*num_perfis].senha, NUM_MAX_CARACTERES_SENHA, arquivo);
+        util_removeQuebraLinhaFinal(VetorPerfil[*num_perfis].senha);
+        
+        if (feof(arquivo)){
+            break;
+        }
+
+        (*num_perfis)++;
+
+    }
+
+    fclose(arquivo);
+
+    *ponteiro_perfil = (perfil_t*)realloc(ponteiro_perfil, sizeof(perfil_t) * (*num_perfis + 1));
+    (*ponteiro_perfil) = VetorPerfil;
+}
+
+void funcaoEscreveArquivo(perfil_t * dadosNaMemoria, int num_perfis){
+
+    FILE * arquivo;
+
+    arquivo = fopen("dadosColtegram.txt", "w");
+
+    if (arquivo == NULL)
+    {
+        printf("Erro ao abrir o arquivo");
+        return ERRO;
+    }
+
+    for (int i = 0;  i < num_perfis; i++){
+        if(dadosNaMemoria[i].ID[strlen(dadosNaMemoria[i].ID) - 1] == '\n'){
+
+            dadosNaMemoria[i].ID[strlen(dadosNaMemoria[i].ID) - 1] = '\0';
+
+        }
+
+        if(dadosNaMemoria[i].nome_usuario[strlen(dadosNaMemoria[i].nome_usuario) - 1] == '\n'){
+
+            dadosNaMemoria[i].nome_usuario[strlen(dadosNaMemoria[i].nome_usuario) - 1] = '\0';
+
+        }
+
+        if(dadosNaMemoria[i].email[strlen(dadosNaMemoria[i].email) - 1] == '\n'){
+
+            dadosNaMemoria[i].email[strlen(dadosNaMemoria[i].email) - 1] = '\0';
+
+        }
+
+        if(dadosNaMemoria[i].senha[strlen(dadosNaMemoria[i].senha) - 1] == '\n'){
+
+            dadosNaMemoria[i].senha[strlen(dadosNaMemoria[i].senha) - 1] = '\0';
+
+        }
+
+    }
+
+    for (int i = 0; i < num_perfis; i++){
+
+        fprintf(arquivo, "%s\n", dadosNaMemoria[i].ID);
+        fprintf(arquivo, "%s\n", dadosNaMemoria[i].nome_usuario);
+        fprintf(arquivo, "%s\n", dadosNaMemoria[i].email);
+        fprintf(arquivo, "%s\n", dadosNaMemoria[i].senha);
+
+    }
+
+    fclose(arquivo);
+}
+
 //Função para verificar se já existe um mesmo ID de usuário no programa
 int usuario_existente(perfil_t *perfis, int num_perfis, char *nome) {
     int i;
@@ -697,74 +799,11 @@ int main(int argc, char **argv) {
     int num_perfis = 0;
     int num_postagens = 0;
     int posicao_usuario_logado;
-    int i;
-  
-    FILE * arquivo;
-
-    arquivo = fopen("dadosColtegram.txt", "r");
-
-    if (arquivo == NULL)
-    {
-        printf("Erro ao abrir o arquivo");
-        return ERRO;
-    }
-
-    //Lê os dados
-
-    while (true)
-    {
-
-        if (feof(arquivo)){
-            break;
-        }
-        ponteiro_perfil = (perfil_t*)realloc(ponteiro_perfil, sizeof(perfil_t) * (num_perfis + 1));
-        
-        fgets(ponteiro_perfil[num_perfis].ID, NUM_MAX_CARACTERES_ID, arquivo);
-        /*
-        if (fgets(ponteiro_perfil[num_perfis].ID, NUM_MAX_CARACTERES_ID, arquivo) == NULL){
-            printf("Arquivo corrompido.\n");
-            return ERRO;
-        }
-        */
-        util_removeQuebraLinhaFinal(ponteiro_perfil[num_perfis].ID);
-        
-        fgets(ponteiro_perfil[num_perfis].nome_usuario, NUM_MAX_CARACTERES_NOME_USUARIO, arquivo);
-        /*
-        if (fgets(ponteiro_perfil[num_perfis].nome_usuario, NUM_MAX_CARACTERES_NOME_USUARIO, arquivo) == NULL){
-            printf("Arquivo corrompido.\n");
-            return ERRO;
-        }
-        */
-        util_removeQuebraLinhaFinal(ponteiro_perfil[num_perfis].nome_usuario);
-        
-        fgets(ponteiro_perfil[num_perfis].email, NUM_MAX_CARACTERES_EMAIL, arquivo);
-        /*
-        if (fgets(ponteiro_perfil[num_perfis].email, NUM_MAX_CARACTERES_EMAIL, arquivo) == NULL){
-            printf("Arquivo corrompido.\n");
-            return ERRO;
-        }
-        */
-        util_removeQuebraLinhaFinal(ponteiro_perfil[num_perfis].email);
-        
-        fgets(ponteiro_perfil[num_perfis].senha, NUM_MAX_CARACTERES_SENHA, arquivo);
-        /*
-        if(fgets(ponteiro_perfil[num_perfis].senha, NUM_MAX_CARACTERES_SENHA, arquivo) == NULL){
-            printf("Arquivo corrompido.\n");
-            return ERRO;
-        }
-        */
-        util_removeQuebraLinhaFinal(ponteiro_perfil[num_perfis].senha);
-        
-        if (feof(arquivo)){
-            break;
-        }
-
-        num_perfis ++;
-
-    }
 
      //fgets(url, tamanhourl, perfilselecionado);
     //ponteiro_postagem[0].img = insta_carregaImagem(url, modoImagem, numerodecolunas);
+
+    funcaoLerArquivo(&ponteiro_perfil, &num_perfis);
 
 
     printf("Bem vindo ao Coltegram!\n");
@@ -905,58 +944,11 @@ int main(int argc, char **argv) {
         }
     } while (opcao != 0);
 
-    fclose(arquivo);
-
-    arquivo = fopen("dadosColtegram.txt", "w");
-
-    if (arquivo == NULL)
-    {
-        printf("Erro ao abrir o arquivo");
-        return ERRO;
-    }
-
-    for (i = 0;  i < num_perfis; i++){
-        if(ponteiro_perfil[i].ID[strlen(ponteiro_perfil[i].ID) - 1] == '\n'){
-
-            ponteiro_perfil[i].ID[strlen(ponteiro_perfil[i].ID) - 1] = '\0';
-
-        }
-
-        if(ponteiro_perfil[i].nome_usuario[strlen(ponteiro_perfil[i].nome_usuario) - 1] == '\n'){
-
-            ponteiro_perfil[i].nome_usuario[strlen(ponteiro_perfil[i].nome_usuario) - 1] = '\0';
-
-        }
-
-        if(ponteiro_perfil[i].email[strlen(ponteiro_perfil[i].email) - 1] == '\n'){
-
-            ponteiro_perfil[i].email[strlen(ponteiro_perfil[i].email) - 1] = '\0';
-
-        }
-
-        if(ponteiro_perfil[i].senha[strlen(ponteiro_perfil[i].senha) - 1] == '\n'){
-
-            ponteiro_perfil[i].senha[strlen(ponteiro_perfil[i].senha) - 1] = '\0';
-
-        }
-
-    }
-
-    for (i = 0; i < num_perfis; i++){
-
-        fprintf(arquivo, "%s\n", ponteiro_perfil[i].ID);
-        fprintf(arquivo, "%s\n", ponteiro_perfil[i].nome_usuario);
-        fprintf(arquivo, "%s\n", ponteiro_perfil[i].email);
-        fprintf(arquivo, "%s\n", ponteiro_perfil[i].senha);
-
-    }
-
+    funcaoEscreveArquivo(ponteiro_perfil, num_perfis);
 
     //Libera a memória alocada
     free (ponteiro_perfil);
     free (ponteiro_postagem);
-
-    fclose(arquivo);
 
     //Se chegou ate aqui é porque correu tudo bem
     return SUCESSO;
