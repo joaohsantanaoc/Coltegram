@@ -189,29 +189,11 @@ void funcaoEscreveArquivo(perfil_t * dadosNaMemoria, int num_perfis){
     }
 
     for (int i = 0;  i < num_perfis; i++){
-        if(dadosNaMemoria[i].ID[strlen(dadosNaMemoria[i].ID) - 1] == '\n'){
 
-            dadosNaMemoria[i].ID[strlen(dadosNaMemoria[i].ID) - 1] = '\0';
-
-        }
-
-        if(dadosNaMemoria[i].nome_usuario[strlen(dadosNaMemoria[i].nome_usuario) - 1] == '\n'){
-
-            dadosNaMemoria[i].nome_usuario[strlen(dadosNaMemoria[i].nome_usuario) - 1] = '\0';
-
-        }
-
-        if(dadosNaMemoria[i].email[strlen(dadosNaMemoria[i].email) - 1] == '\n'){
-
-            dadosNaMemoria[i].email[strlen(dadosNaMemoria[i].email) - 1] = '\0';
-
-        }
-
-        if(dadosNaMemoria[i].senha[strlen(dadosNaMemoria[i].senha) - 1] == '\n'){
-
-            dadosNaMemoria[i].senha[strlen(dadosNaMemoria[i].senha) - 1] = '\0';
-
-        }
+        util_removeQuebraLinhaFinal(dadosNaMemoria[i].ID);
+        util_removeQuebraLinhaFinal(dadosNaMemoria[i].nome_usuario);
+        util_removeQuebraLinhaFinal(dadosNaMemoria[i].email);
+        util_removeQuebraLinhaFinal(dadosNaMemoria[i].senha);
 
     }
 
