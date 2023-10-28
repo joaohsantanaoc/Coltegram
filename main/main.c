@@ -544,6 +544,8 @@ int cadastro_postagem(posts_t **ponteiro_postagem,int *num_postagens){
     posts_t postagens;
     int i;
     int num_imagens = 0;
+    
+    FILE * arquivo;
 
 
     printf ("\t\tPOSTAGEM\t\t\n");
@@ -782,8 +784,10 @@ int main(int argc, char **argv) {
     int num_postagens = 0;
     int posicao_usuario_logado;
 
-     //fgets(url, tamanhourl, perfilselecionado);
+    //fgets(url, tamanhourl, perfilselecionado);
     //ponteiro_postagem[0].img = insta_carregaImagem(url, modoImagem, numerodecolunas);
+
+
 
     funcaoLerArquivo(&ponteiro_perfil, &num_perfis);
 
