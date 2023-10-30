@@ -9,6 +9,7 @@
 //Constantes presentes
 #define SUCESSO 0
 #define ERRO 1
+#define Tamanho_Maximo 100
 #define NUM_MAX_CARACTERES_NOME_USUARIO (99 + 1)
 #define NUM_MAX_CARACTERES_EMAIL (50 + 1)
 #define NUM_MAX_CARACTERES_SENHA (50 + 1)
@@ -211,6 +212,30 @@ void funcaoEscreveArquivo(perfil_t * dadosNaMemoria, int num_perfis){
 
     fclose(arquivo);
 }
+
+/*void lerPostagensArquivo(posts_t ** ponteiro_postagem, int numeroPerfil){
+
+    FILE * arquivoPostagem;
+
+    char nome_Do_Arquivo[Tamanho_Maximo];
+
+
+
+    arquivoPostagem = fopen(numeroPerfil, "r");
+
+    if (arquivoPostagem == NULL){
+
+        printf("Erro ao abrir postagens ou postagens inexistentes!\n");
+        return ERRO;
+    }
+
+    (*ponteiro_postagem) = (posts_t*)realloc(*ponteiro_postagem, sizeof(posts_t) * (numeroPerfil + 1));
+
+    fgets(*ponteiro_postagem[numeroPerfil]->url, NUM_MAX_IMAGEM, arquivoPostagem);
+
+    printf("\n%s\n", *ponteiro_postagem[numeroPerfil]->url);
+}
+*/
 
 //Função para verificar se já existe um mesmo ID de usuário no programa
 int usuario_existente(perfil_t *perfis, int num_perfis, char *nome) {
@@ -789,9 +814,9 @@ int main(int argc, char **argv) {
     //ponteiro_postagem[0].img = insta_carregaImagem(url, modoImagem, numerodecolunas);
 
 
-printf("Antes da nfunção\n");
     funcaoLerArquivo(&ponteiro_perfil, &num_perfis);
-printf("Após a função\n");
+
+    //lerPostagensArquivo(&ponteiro_postagem, 2);
 
     printf("Bem vindo ao Coltegram!\n");
     printf("Instagram feito por:\nIcaro Cardoso Nascimento\nJoao Henrique Santana Oliveira Campos\nMatheus Fernandes de Oliveira Brandemburg\n");
