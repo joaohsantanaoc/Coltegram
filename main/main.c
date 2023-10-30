@@ -128,7 +128,7 @@ void util_removeQuebraLinhaFinal(char dados[]) {
 
 void funcaoLerArquivo(perfil_t ** ponteiro_perfil, int *num_perfis){
 
-    perfil_t * VetorPerfil = NULL; 
+    perfil_t * VetorPerfil = NULL;
 
     FILE * arquivo;
 
@@ -141,7 +141,7 @@ void funcaoLerArquivo(perfil_t ** ponteiro_perfil, int *num_perfis){
     }
 
     //Lê os dados
-
+    printf("Antes de entrar no while\n");
     while (true)
     {
 
@@ -149,6 +149,8 @@ void funcaoLerArquivo(perfil_t ** ponteiro_perfil, int *num_perfis){
             break;
         }
         VetorPerfil = (perfil_t*)realloc(VetorPerfil, sizeof(perfil_t) * (*num_perfis + 1));
+
+        printf("Primeiro realoc do whuile\n");
         
         fgets(VetorPerfil[*num_perfis].ID, NUM_MAX_CARACTERES_ID, arquivo);
         util_removeQuebraLinhaFinal(VetorPerfil[*num_perfis].ID);
@@ -171,9 +173,15 @@ void funcaoLerArquivo(perfil_t ** ponteiro_perfil, int *num_perfis){
     }
 
     fclose(arquivo);
+    printf("Arquivo fechado!\n");
 
-    *ponteiro_perfil = (perfil_t*)realloc(ponteiro_perfil, sizeof(perfil_t) * (*num_perfis + 1));
+    (*ponteiro_perfil) = (perfil_t*)realloc(*ponteiro_perfil, sizeof(perfil_t) * (*num_perfis + 1));
+
+    printf("Segundo realoc\n");
+
     (*ponteiro_perfil) = VetorPerfil;
+
+    free(VetorPerfil);
 }
 
 void funcaoEscreveArquivo(perfil_t * dadosNaMemoria, int num_perfis){
@@ -544,8 +552,6 @@ int cadastro_postagem(posts_t **ponteiro_postagem,int *num_postagens){
     posts_t postagens;
     int i;
     int num_imagens = 0;
-    
-    FILE * arquivo;
 
 
     printf ("\t\tPOSTAGEM\t\t\n");
@@ -788,9 +794,9 @@ int main(int argc, char **argv) {
     //ponteiro_postagem[0].img = insta_carregaImagem(url, modoImagem, numerodecolunas);
 
 
-
+printf("Antes da nfunção\n");
     funcaoLerArquivo(&ponteiro_perfil, &num_perfis);
-
+printf("Após a função\n");
 
     printf("Bem vindo ao Coltegram!\n");
     printf("Instagram feito por:\nIcaro Cardoso Nascimento\nJoao Henrique Santana Oliveira Campos\nMatheus Fernandes de Oliveira Brandemburg\n");
