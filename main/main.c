@@ -149,16 +149,18 @@ void funcaoLerArquivo(perfil_t ** ponteiro_perfil, int *num_perfis){
         }
         VetorPerfil = (perfil_t*)realloc(VetorPerfil, sizeof(perfil_t) * (*num_perfis + 1));
         
-        fgets(VetorPerfil[*num_perfis].ID, NUM_MAX_CARACTERES_ID, arquivo);
+        if (fgets(VetorPerfil[*num_perfis].ID, NUM_MAX_CARACTERES_ID, arquivo) == NULL){break;};
+
         util_removeQuebraLinhaFinal(VetorPerfil[*num_perfis].ID);
         
-        fgets(VetorPerfil[*num_perfis].nome_usuario, NUM_MAX_CARACTERES_NOME_USUARIO, arquivo);
+        if (fgets(VetorPerfil[*num_perfis].nome_usuario, NUM_MAX_CARACTERES_NOME_USUARIO, arquivo) == NULL){break;};
+
         util_removeQuebraLinhaFinal(VetorPerfil[*num_perfis].nome_usuario);
         
-        fgets(VetorPerfil[*num_perfis].email, NUM_MAX_CARACTERES_EMAIL, arquivo);
+        if (fgets(VetorPerfil[*num_perfis].email, NUM_MAX_CARACTERES_EMAIL, arquivo) == NULL){break;};
         util_removeQuebraLinhaFinal(VetorPerfil[*num_perfis].email);
         
-        fgets(VetorPerfil[*num_perfis].senha, NUM_MAX_CARACTERES_SENHA, arquivo);
+        if (fgets(VetorPerfil[*num_perfis].senha, NUM_MAX_CARACTERES_SENHA, arquivo) == NULL){break;};
         util_removeQuebraLinhaFinal(VetorPerfil[*num_perfis].senha);
         
         if (feof(arquivo)){
