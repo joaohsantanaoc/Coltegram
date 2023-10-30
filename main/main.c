@@ -141,7 +141,6 @@ void funcaoLerArquivo(perfil_t ** ponteiro_perfil, int *num_perfis){
     }
 
     //Lê os dados
-    printf("Antes de entrar no while\n");
     while (true)
     {
 
@@ -149,8 +148,6 @@ void funcaoLerArquivo(perfil_t ** ponteiro_perfil, int *num_perfis){
             break;
         }
         VetorPerfil = (perfil_t*)realloc(VetorPerfil, sizeof(perfil_t) * (*num_perfis + 1));
-
-        printf("Primeiro realoc do whuile\n");
         
         fgets(VetorPerfil[*num_perfis].ID, NUM_MAX_CARACTERES_ID, arquivo);
         util_removeQuebraLinhaFinal(VetorPerfil[*num_perfis].ID);
@@ -173,15 +170,11 @@ void funcaoLerArquivo(perfil_t ** ponteiro_perfil, int *num_perfis){
     }
 
     fclose(arquivo);
-    printf("Arquivo fechado!\n");
 
     (*ponteiro_perfil) = (perfil_t*)realloc(*ponteiro_perfil, sizeof(perfil_t) * (*num_perfis + 1));
 
-    printf("Segundo realoc\n");
-
     (*ponteiro_perfil) = VetorPerfil;
 
-    free(VetorPerfil);
 }
 
 void funcaoEscreveArquivo(perfil_t * dadosNaMemoria, int num_perfis){
