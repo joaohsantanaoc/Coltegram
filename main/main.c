@@ -213,15 +213,16 @@ void funcaoEscreveArquivo(perfil_t * dadosNaMemoria, int num_perfis){
     fclose(arquivo);
 }
 
-/*void lerPostagensArquivo(posts_t ** ponteiro_postagem, int numeroPerfil){
+void lerPostagensArquivo(posts_t ** ponteiro_postagem, int numeroPerfil){
 
     FILE * arquivoPostagem;
+    int indice = 0;
 
     char nome_Do_Arquivo[Tamanho_Maximo];
 
+    sprintf(nome_Do_Arquivo, "%d.txt", numeroPerfil);
 
-
-    arquivoPostagem = fopen(numeroPerfil, "r");
+    arquivoPostagem = fopen(nome_Do_Arquivo, "r");
 
     if (arquivoPostagem == NULL){
 
@@ -229,13 +230,46 @@ void funcaoEscreveArquivo(perfil_t * dadosNaMemoria, int num_perfis){
         return ERRO;
     }
 
-    (*ponteiro_postagem) = (posts_t*)realloc(*ponteiro_postagem, sizeof(posts_t) * (numeroPerfil + 1));
+    if (feof(arquivoPostagem))
+    {
+        printf("Nao há postagens cadastradas\n");
+    }
 
-    fgets(*ponteiro_postagem[numeroPerfil]->url, NUM_MAX_IMAGEM, arquivoPostagem);
+    while (true)
+    {
 
-    printf("\n%s\n", *ponteiro_postagem[numeroPerfil]->url);
+    if (feof(arquivoPostagem))
+    {
+        break;
+    }
+
+        (*ponteiro_postagem) = (posts_t*)realloc(*ponteiro_postagem, sizeof(posts_t) * (indice + 1));
+
+        fgets((*ponteiro_postagem)[indice].ID_post, NUM_MAX_IMAGEM, arquivoPostagem);
+        util_removeQuebraLinhaFinal((*ponteiro_postagem)[indice].ID_post);
+
+        fgets((*ponteiro_postagem)[indice].url, NUM_MAX_IMAGEM, arquivoPostagem);
+        util_removeQuebraLinhaFinal((*ponteiro_postagem)[indice].url);
+
+        fgets((*ponteiro_postagem)[indice].legenda, NUM_MAX_IMAGEM, arquivoPostagem);
+        util_removeQuebraLinhaFinal((*ponteiro_postagem)[indice].legenda);
+
+    if (feof(arquivoPostagem))
+    {
+        break;
+    }
+
+        indice++;
+    }
+
+    for(int i = 0; i < indice; i++){
+        printf("%s", (*ponteiro_postagem)[i].ID_post);
+        printf("%s", (*ponteiro_postagem)[i].url);
+        printf("%s", (*ponteiro_postagem)[i].legenda);
+    }
+    
 }
-*/
+
 
 //Função para verificar se já existe um mesmo ID de usuário no programa
 int usuario_existente(perfil_t *perfis, int num_perfis, char *nome) {
@@ -816,7 +850,7 @@ int main(int argc, char **argv) {
 
     funcaoLerArquivo(&ponteiro_perfil, &num_perfis);
 
-    //lerPostagensArquivo(&ponteiro_postagem, 2);
+    //lerPostagensArquivo(&ponteiro_postagem, 1);
 
     printf("Bem vindo ao Coltegram!\n");
     printf("Instagram feito por:\nIcaro Cardoso Nascimento\nJoao Henrique Santana Oliveira Campos\nMatheus Fernandes de Oliveira Brandemburg\n");
