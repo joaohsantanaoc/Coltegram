@@ -127,7 +127,7 @@ void util_removeQuebraLinhaFinal(char dados[]) {
     }
 }
 
-void funcaoLerArquivo(perfil_t ** ponteiro_perfil, int *num_perfis){
+int funcaoLerArquivo(perfil_t ** ponteiro_perfil, int *num_perfis){
 
     perfil_t * VetorPerfil = NULL;
 
@@ -178,9 +178,11 @@ void funcaoLerArquivo(perfil_t ** ponteiro_perfil, int *num_perfis){
 
     (*ponteiro_perfil) = VetorPerfil;
 
+    return SUCESSO;
+
 }
 
-void funcaoEscreveArquivo(perfil_t * dadosNaMemoria, int num_perfis){
+int funcaoEscreveArquivo(perfil_t * dadosNaMemoria, int num_perfis){
 
     FILE * arquivo;
 
@@ -211,9 +213,10 @@ void funcaoEscreveArquivo(perfil_t * dadosNaMemoria, int num_perfis){
     }
 
     fclose(arquivo);
+    return SUCESSO;
 }
 
-void lerPostagensArquivo(posts_t ** ponteiro_postagem, int numeroPerfil){
+int lerPostagensArquivo(posts_t ** ponteiro_postagem, int numeroPerfil){
 
     FILE * arquivoPostagem;
     int indice = 0;
@@ -267,6 +270,7 @@ void lerPostagensArquivo(posts_t ** ponteiro_postagem, int numeroPerfil){
         printf("%s", (*ponteiro_postagem)[i].url);
         printf("%s", (*ponteiro_postagem)[i].legenda);
     }
+    return SUCESSO;
     
 }
 
@@ -607,6 +611,21 @@ int cadastro_postagem(posts_t **ponteiro_postagem,int *num_postagens){
     int i;
     int num_imagens = 0;
 
+    /*Aqui voce tem que fazer uma matriz
+    
+    [2][4]
+    o numero 2 no primeiro colchete vai representar o usuario ou seja, a variavel posiçao usuario
+    o numero 4 no segundo colchete vai representar qual postagem esta sendo "mexida", ou seja postagem numero 4 do usuario 2 tem isso, aquilo, etc
+    
+    resumindo o que precisa
+    tratar a variavel ponteiro postagem como matriz
+    atribuir seu primeiro indice como o usuario
+    atribuir seu segundo indice como as postagens
+
+    nao entendeu? me pergunta
+    */
+
+
 
     printf ("\t\tPOSTAGEM\t\t\n");
     printf ("Digite o nome de seu post:\n");
@@ -866,7 +885,7 @@ int main(int argc, char **argv) {
                 break;
             }    
             case 2:{
-                posicao_usuario_logado = login(ponteiro_perfil, num_perfis, &login_info);
+                posicao_usuario_logado = login(ponteiro_perfil, num_perfis, &login_info);       //Aqui a variavel posicao_usuario_logado recebe o valor escolha, que deverá ser a posiçao do perfil.
                 while (posicao_usuario_logado != USUARIO_INVALIDO) {
                     printf("Quais acoes voce deseja executar:\n");
                     printf("(1) <Buscar perfis>\n(2) <Visitar perfis>\n(3) <Listar perfis cadastrados>\n(4) <Acoes do usuario>\n");
@@ -910,8 +929,10 @@ int main(int argc, char **argv) {
                                         imprimir_tudo_cadastrado(ponteiro_perfil,num_perfis);
                                         break;
                                     }
+
                                     default:{
                                         printf ("Opcao invalida!!!\n");
+
                                     }
                                 }
                             } while (escolha3 != 0);
@@ -927,7 +948,7 @@ int main(int argc, char **argv) {
                                 switch (escolha2) {
                                     case 1:{
                                         //Postar posts
-                                        cadastro_postagem(&ponteiro_postagem,&num_postagens);
+                                        cadastro_postagem(&ponteiro_postagem,&num_postagens);//Aqui você vai incluir a variavel posicao_usuario_logado como parametro
                                         break;
                                     }
                                     case 2:{
