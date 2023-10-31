@@ -1,3 +1,14 @@
+/*                                             COLTEGRAM
+                                    FEITO A PARTIR DE PROGRAMAÇÂO EM C
+
+LEMBRETES: 
+-Rodar sed -i 's/\r//g'  dadosColtegram.txt no terminal do linux para trnsferir informações do Windows para o Linux;
+-Guardar o arquivo dadosColtegram.txt tanto na pasta main e na pasta output;
+-As ferramentas ascii-image-converter.bin, ascii-image-converter.exe e ascii_art.txt devem estar presentes na pasta;       
+-Rodar chmod +x ascii-image-converter.bin para imprimir as imagens no linux                             
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+*/
+
 //Bibliotecas presentes no programa
 #include <stdio.h>
 #include <stdlib.h>
@@ -111,13 +122,19 @@ typedef struct curtida_s{
 //Estrutura para posts
 typedef struct posts_s{
     char ID_post[NUM_MAX_CARACTERES_ID];
-    asciiImg_t * * img;
+    asciiImg_t ** img;
     char  url[NUM_MAX_IMAGEM];
     char legenda[NUM_MAX_CARACTERES_LEGENDA];
     comentario_t comentario;
     curtida_t curtidas;
+    int num_imagens;
 }posts_t;
+//Estrutura análoga para matriz de ponteiros
+typedef struct copia_post_s{
+    posts_t * ponteiro_post;
+    int n_posts;
 
+}copia_post_t;
 //Função para tirar o '\n' das strings
 void util_removeQuebraLinhaFinal(char dados[]) {
     int tamanho;
@@ -185,6 +202,7 @@ int funcaoLerArquivo(perfil_t ** ponteiro_perfil, int *num_perfis){
 int funcaoEscreveArquivo(perfil_t * dadosNaMemoria, int num_perfis){
 
     FILE * arquivo;
+    int i;
 
     arquivo = fopen("dadosColtegram.txt", "w");
 
@@ -194,7 +212,7 @@ int funcaoEscreveArquivo(perfil_t * dadosNaMemoria, int num_perfis){
         return ERRO;
     }
 
-    for (int i = 0;  i < num_perfis; i++){
+    for (i = 0;  i < num_perfis; i++){
 
         util_removeQuebraLinhaFinal(dadosNaMemoria[i].ID);
         util_removeQuebraLinhaFinal(dadosNaMemoria[i].nome_usuario);
@@ -203,7 +221,7 @@ int funcaoEscreveArquivo(perfil_t * dadosNaMemoria, int num_perfis){
 
     }
 
-    for (int i = 0; i < num_perfis; i++){
+    for (i = 0; i < num_perfis; i++){
 
         fprintf(arquivo, "%s\n", dadosNaMemoria[i].ID);
         fprintf(arquivo, "%s\n", dadosNaMemoria[i].nome_usuario);
@@ -220,6 +238,7 @@ int lerPostagensArquivo(posts_t ** ponteiro_postagem, int numeroPerfil){
 
     FILE * arquivoPostagem;
     int indice = 0;
+    int i;
 
     char nome_Do_Arquivo[Tamanho_Maximo];
 
@@ -265,7 +284,7 @@ int lerPostagensArquivo(posts_t ** ponteiro_postagem, int numeroPerfil){
         indice++;
     }
 
-    for(int i = 0; i < indice; i++){
+    for(i = 0; i < indice; i++){
         printf("%s", (*ponteiro_postagem)[i].ID_post);
         printf("%s", (*ponteiro_postagem)[i].url);
         printf("%s", (*ponteiro_postagem)[i].legenda);
@@ -606,10 +625,10 @@ void insta_liberaImagem(asciiImg_t * img) {
   free(img);
 }
 //Função para cadastro de uma postagem
-int cadastro_postagem(posts_t **ponteiro_postagem,int *num_postagens){
+int cadastro_postagem(posts_t ***ponteiro_postagem,int *num_postagens,int posicao_usuario_logado){
     posts_t postagens;
     int i;
-    int num_imagens = 0;
+    
 
     /*Aqui voce tem que fazer uma matriz
     
@@ -634,16 +653,16 @@ int cadastro_postagem(posts_t **ponteiro_postagem,int *num_postagens){
     
 
     printf ("Digite quantas imagens voce deseja colocar em seu post:\n");
-    scanf ("%d%*c", &num_imagens);
+    scanf ("%d%*c", &postagens.num_imagens);
 
     // Aloca espaço para as imagens
-    postagens.img = malloc(sizeof(asciiImg_t *) * num_imagens);    
+    postagens.img = malloc(sizeof(asciiImg_t *) * postagens.num_imagens);    
 
     printf ("Agora de upload na imagem de seu post:\n");
     printf ("Para isso digite o url de sua imagem com o jpg no final\n");
     printf ("Exemplo: https://img.freepik.com/fotos-premium/fundo-de-rosas-bonitas_534373-220.jpg\n");
 
-    for(i = 0; i < num_imagens; i++) {
+    for(i = 0; i < postagens.num_imagens; i++) {
         printf("URL: ");
         fgets (postagens.url,NUM_MAX_IMAGEM,stdin);
         util_removeQuebraLinhaFinal(postagens.url);
@@ -664,14 +683,14 @@ int cadastro_postagem(posts_t **ponteiro_postagem,int *num_postagens){
     util_removeQuebraLinhaFinal(postagens.legenda);
 
     (*num_postagens)++;
-    *ponteiro_postagem = realloc(*ponteiro_postagem,*num_postagens * sizeof(posts_t));
-    (*ponteiro_postagem)[*num_postagens-1] = postagens;
+    *ponteiro_postagem = realloc(*ponteiro_postagem,*num_postagens * sizeof(posts_t*));
+    (**ponteiro_postagem)[*num_postagens-1] = postagens;
 
-    return SUCESSO; 
+    return SUCESSO;
 }
 //Função para imprimir informações de posts
 int imprime_posts(posts_t * ponteiro_postagem,int num_postagens){
-    int i;
+    int i, j;
 
     if (num_postagens < 1){
         printf ("Voce nao postou posts ainda!\n");
@@ -684,6 +703,17 @@ int imprime_posts(posts_t * ponteiro_postagem,int num_postagens){
         printf ("Titulo\n");
         printf ("%-30s\nLegenda\n %-300s\n", ponteiro_postagem[i].ID_post,ponteiro_postagem[i].legenda);
         printf ("IMAGEM:\n");
+        for (j = 0;j < ponteiro_postagem->num_imagens;j++){
+            ponteiro_postagem[i].img[j] = insta_carregaImagem(ponteiro_postagem[i].url, MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
+            if (ponteiro_postagem[i].img[j] == NULL) {
+                // Falha ao carregar a imagem
+                fprintf(stderr, "Falha ao carregar a imagem da URL %s\n", ponteiro_postagem[i].url);
+                return ERRO_CARREGAR_IMAGEM;
+            }
+            // Mostra a imagem, o número de bytes e libera a memória
+            insta_imprimeImagem(ponteiro_postagem[i].img[j]);
+
+        }
     }
     return SUCESSO; 
     
@@ -862,6 +892,7 @@ int main(int argc, char **argv) {
     int num_perfis = 0;
     int num_postagens = 0;
     int posicao_usuario_logado;
+    
 
     //fgets(url, tamanhourl, perfilselecionado);
     //ponteiro_postagem[0].img = insta_carregaImagem(url, modoImagem, numerodecolunas);
@@ -948,7 +979,7 @@ int main(int argc, char **argv) {
                                 switch (escolha2) {
                                     case 1:{
                                         //Postar posts
-                                        cadastro_postagem(&ponteiro_postagem,&num_postagens);//Aqui você vai incluir a variavel posicao_usuario_logado como parametro
+                                        cadastro_postagem(&ponteiro_postagem,&num_postagens,posicao_usuario_logado);//Aqui você vai incluir a variavel posicao_usuario_logado como parametro
                                         break;
                                     }
                                     case 2:{
