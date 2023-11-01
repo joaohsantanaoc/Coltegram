@@ -96,6 +96,7 @@ typedef struct perfil_s {
     char email[NUM_MAX_CARACTERES_EMAIL];
     char senha[NUM_MAX_CARACTERES_SENHA];
     char senha_confirmada[NUM_MAX_CARACTERES_SENHA];
+    int numeroDePostagens;
     bool logado;
 } perfil_t;
 //Estrutura para login
@@ -150,7 +151,7 @@ int funcaoLerArquivo(perfil_t ** ponteiro_perfil, int *num_perfis){
 
     FILE * arquivo;
 
-    arquivo = fopen("dadosColtegram.txt", "r");
+    arquivo = fopen("dadosColtegram.txt", "r+");
 
     if (arquivo == NULL)
     {
@@ -180,10 +181,14 @@ int funcaoLerArquivo(perfil_t ** ponteiro_perfil, int *num_perfis){
         
         if (fgets(VetorPerfil[*num_perfis].senha, NUM_MAX_CARACTERES_SENHA, arquivo) == NULL){break;};
         util_removeQuebraLinhaFinal(VetorPerfil[*num_perfis].senha);
-        
+
+        if (fscanf(arquivo, "%d", &VetorPerfil[*num_perfis].numeroDePostagens) != true) {break;};
+        fgetc(arquivo);
+
         if (feof(arquivo)){
             break;
         }
+
 
         (*num_perfis)++;
 
@@ -227,6 +232,7 @@ int funcaoEscreveArquivo(perfil_t * dadosNaMemoria, int num_perfis){
         fprintf(arquivo, "%s\n", dadosNaMemoria[i].nome_usuario);
         fprintf(arquivo, "%s\n", dadosNaMemoria[i].email);
         fprintf(arquivo, "%s\n", dadosNaMemoria[i].senha);
+        fprintf(arquivo, "%d\n", dadosNaMemoria[i].numeroDePostagens);
 
     }
 
@@ -327,6 +333,7 @@ int email_existente(perfil_t *perfis, int num_perfis, char *email) {
 //Função para o cadastro do perfil
 void cadastro_perfil(perfil_t **ponteiro_perfil, int *num_perfis) {
     perfil_t perfis;
+    perfis.numeroDePostagens = 0;
     int i;
     int contador_espaco = 0;
     bool contador_arroba = false, contador_ponto = false;
@@ -624,17 +631,15 @@ void insta_liberaImagem(asciiImg_t * img) {
   free(img);
 }
 
-void alocarMatriz(posts_t **ponteiro_postagem, int *num_postagens, int posicao_usuario_logado, int usuarios){
+void alocarMatriz(posts_t * **ponteiro_postagem, int *num_postagens, int posicao_usuario_logado, int usuarios){
 
 (*ponteiro_postagem) = (posts_t**)realloc(*ponteiro_postagem, usuarios * sizeof(posts_t*));
 
-//(*matriz)[i] = (MinhaEstrutura*)malloc(colunas * sizeof(MinhaEstrutura));
-
-(*ponteiro_postagem)[posicao_usuario_logado] = (posts_t*)realloc(*ponteiro_postagem, (*num_postagens)* sizeof(posts_t));
+(*ponteiro_postagem)[posicao_usuario_logado] = (posts_t*)realloc(*ponteiro_postagem, (*num_postagens) * sizeof(posts_t));
 
 }
 //Função para cadastro de uma postagem
-int cadastro_postagem(posts_t **ponteiro_postagem,int *num_postagens,int posicao_usuario_logado){
+int cadastro_postagem(posts_t ***ponteiro_postagem,int *num_postagem,int posicao_usuario_logado, int usuarios){
     posts_t postagens;
     int i;
     
@@ -691,23 +696,25 @@ int cadastro_postagem(posts_t **ponteiro_postagem,int *num_postagens,int posicao
     fgets(postagens.legenda, NUM_MAX_CARACTERES_LEGENDA ,stdin);
     util_removeQuebraLinhaFinal(postagens.legenda);
 
-    (*num_postagens)++;
-    *ponteiro_postagem = realloc(*ponteiro_postagem,*num_postagens * sizeof(posts_t));
-    (*ponteiro_postagem)[*num_postagens-1] = postagens;
+    (*num_postagem)++;
+
+    alocarMatriz(ponteiro_postagem, num_postagem, posicao_usuario_logado, usuarios);
+
+    (*ponteiro_postagem)[posicao_usuario_logado][*num_postagem] = postagens;
 
     return SUCESSO;
 }
 //Função para imprimir informações de posts
-int imprime_posts(posts_t * ponteiro_postagem,int num_postagens){
+int imprime_posts(posts_t * ponteiro_postagem,int num_postagem){
     int i, j;
 
-    if (num_postagens < 1){
+    if (num_postagem < 1){
         printf ("Voce nao postou posts ainda!\n");
         return ERRO;
     }
 
     printf ("SEUS POSTS\n");
-    for (i=0;i<num_postagens;i++){
+    for (i=0;i<num_postagem;i++){
         printf ("Titulo\n");
         printf ("%s\n", ponteiro_postagem[i].ID_post);
         printf ("IMAGEM:\n");
@@ -928,7 +935,7 @@ int listar_comentario(posts_t * ponteiro_postagem, int num_postagens){
 int main(int argc, char **argv) {
     int opcao, escolha1, escolha2,escolha3;
     perfil_t *ponteiro_perfil = NULL;
-    posts_t *ponteiro_postagem = NULL;
+    posts_t **ponteiro_postagem = NULL;
     login_t login_info;
     int num_perfis = 0;
     int num_postagens = 0;
@@ -1016,7 +1023,7 @@ int main(int argc, char **argv) {
                                 switch (escolha2) {
                                     case 1:{
                                         //Postar posts
-                                        cadastro_postagem(&ponteiro_postagem,&num_postagens,posicao_usuario_logado);//Aqui você vai incluir a variavel posicao_usuario_logado como parametro
+                                        cadastro_postagem(&ponteiro_postagem,&num_postagens,posicao_usuario_logado, num_perfis);//Aqui você vai incluir a variavel posicao_usuario_logado como parametro
                                         break;
                                     }
                                     case 2:{
