@@ -25,7 +25,7 @@ LEMBRETES:
 #define NUM_MAX_CARACTERES_EMAIL (50 + 1)
 #define NUM_MAX_CARACTERES_SENHA (50 + 1)
 #define NUM_MAX_CARACTERES_ID (50 + 1)
-
+#define MAX_IMAGENS (1000)
 #define NUM_MAX_CARACTERES_LEGENDA (299+1)
 #define NUM_MAX_CARACTERES_COMENTARIO (299+1)
 // Tamanho do buffer para cada linha da imagem
@@ -123,7 +123,7 @@ typedef struct curtida_s{
 typedef struct posts_s{
     char ID_post[NUM_MAX_CARACTERES_ID];
     asciiImg_t ** img;
-    char  url[NUM_MAX_IMAGEM];
+    char  url[NUM_MAX_IMAGEM][MAX_IMAGENS];
     char legenda[NUM_MAX_CARACTERES_LEGENDA];
     comentario_t comentario;
     curtida_t curtidas;
@@ -270,8 +270,8 @@ int lerPostagensArquivo(posts_t ** ponteiro_postagem, int numeroPerfil){
         fgets((*ponteiro_postagem)[indice].ID_post, NUM_MAX_IMAGEM, arquivoPostagem);
         util_removeQuebraLinhaFinal((*ponteiro_postagem)[indice].ID_post);
 
-        fgets((*ponteiro_postagem)[indice].url, NUM_MAX_IMAGEM, arquivoPostagem);
-        util_removeQuebraLinhaFinal((*ponteiro_postagem)[indice].url);
+        fgets((*ponteiro_postagem)[indice].url[indice], NUM_MAX_IMAGEM, arquivoPostagem);
+        util_removeQuebraLinhaFinal((*ponteiro_postagem)[indice].url[indice]);
 
         fgets((*ponteiro_postagem)[indice].legenda, NUM_MAX_IMAGEM, arquivoPostagem);
         util_removeQuebraLinhaFinal((*ponteiro_postagem)[indice].legenda);
@@ -286,7 +286,7 @@ int lerPostagensArquivo(posts_t ** ponteiro_postagem, int numeroPerfil){
 
     for(i = 0; i < indice; i++){
         printf("%s", (*ponteiro_postagem)[i].ID_post);
-        printf("%s", (*ponteiro_postagem)[i].url);
+        printf("%s", (*ponteiro_postagem)[i].url[indice]);
         printf("%s", (*ponteiro_postagem)[i].legenda);
     }
     return SUCESSO;
@@ -416,8 +416,7 @@ int login(perfil_t *ponteiro_perfil, int num_perfis, login_t *ponteiro_login) {
         printf("%d.%-51s\n", i + 1, ponteiro_perfil[i].ID);
     }
     printf("Qual perfil voce deseja fazer login (digite o numero corrrespondente):\n");
-    scanf("%d", &escolha);
-    getchar();
+    scanf("%d%*c", &escolha);
     escolha--;
     if (escolha < 0 || escolha >= num_perfis) {
         printf("Opcao invalida!\n");
@@ -625,7 +624,7 @@ void insta_liberaImagem(asciiImg_t * img) {
   free(img);
 }
 //Função para cadastro de uma postagem
-int cadastro_postagem(posts_t ***ponteiro_postagem,int *num_postagens,int posicao_usuario_logado){
+int cadastro_postagem(posts_t **ponteiro_postagem,int *num_postagens,int posicao_usuario_logado){
     posts_t postagens;
     int i;
     
@@ -664,13 +663,13 @@ int cadastro_postagem(posts_t ***ponteiro_postagem,int *num_postagens,int posica
 
     for(i = 0; i < postagens.num_imagens; i++) {
         printf("URL: ");
-        fgets (postagens.url,NUM_MAX_IMAGEM,stdin);
-        util_removeQuebraLinhaFinal(postagens.url);
+        fgets (postagens.url[i],NUM_MAX_IMAGEM,stdin);
+        util_removeQuebraLinhaFinal(postagens.url[i]);
         
-        postagens.img[i] = insta_carregaImagem(postagens.url, MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
+        postagens.img[i] = insta_carregaImagem(postagens.url[i], MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
         if (postagens.img[i] == NULL) {
             // Falha ao carregar a imagem
-            fprintf(stderr, "Falha ao carregar a imagem da URL %s\n", postagens.url);
+            fprintf(stderr, "Falha ao carregar a imagem da URL %s\n", postagens.url[i]);
             return ERRO_CARREGAR_IMAGEM;
         }
         // Mostra a imagem, o número de bytes e libera a memória
@@ -683,8 +682,8 @@ int cadastro_postagem(posts_t ***ponteiro_postagem,int *num_postagens,int posica
     util_removeQuebraLinhaFinal(postagens.legenda);
 
     (*num_postagens)++;
-    *ponteiro_postagem = realloc(*ponteiro_postagem,*num_postagens * sizeof(posts_t*));
-    (**ponteiro_postagem)[*num_postagens-1] = postagens;
+    *ponteiro_postagem = realloc(*ponteiro_postagem,*num_postagens * sizeof(posts_t));
+    (*ponteiro_postagem)[*num_postagens-1] = postagens;
 
     return SUCESSO;
 }
@@ -699,21 +698,21 @@ int imprime_posts(posts_t * ponteiro_postagem,int num_postagens){
 
     printf ("SEUS POSTS\n");
     for (i=0;i<num_postagens;i++){
-        printf ("NUMERO DO POST: %d\n", i+1);
         printf ("Titulo\n");
-        printf ("%-30s\nLegenda\n %-300s\n", ponteiro_postagem[i].ID_post,ponteiro_postagem[i].legenda);
+        printf ("%s\n", ponteiro_postagem[i].ID_post);
         printf ("IMAGEM:\n");
-        for (j = 0;j < ponteiro_postagem->num_imagens;j++){
-            ponteiro_postagem[i].img[j] = insta_carregaImagem(ponteiro_postagem[i].url, MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
+        for (j = 0;j < ponteiro_postagem[i].num_imagens;j++){
+            ponteiro_postagem[i].img[j] = insta_carregaImagem(ponteiro_postagem[i].url[j], MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
             if (ponteiro_postagem[i].img[j] == NULL) {
                 // Falha ao carregar a imagem
-                fprintf(stderr, "Falha ao carregar a imagem da URL %s\n", ponteiro_postagem[i].url);
+                fprintf(stderr, "Falha ao carregar a imagem da URL %s\n", ponteiro_postagem[i].url[j]);
                 return ERRO_CARREGAR_IMAGEM;
             }
             // Mostra a imagem, o número de bytes e libera a memória
             insta_imprimeImagem(ponteiro_postagem[i].img[j]);
-
         }
+        printf ("Legenda:\n");
+        printf ("%s\n", ponteiro_postagem[i].legenda);
     }
     return SUCESSO; 
     
@@ -736,8 +735,7 @@ int editar_posts(posts_t * ponteiro_postagem,int num_postagens){
         printf ("O que voce deseja editar no seu post?\n");
         printf ("(1) <TITULO DO MEU POST>\n(2) <IMAGEM DO POST>\n(3) <LEGENDA DO POST>\n(0) <SAIR>\n");
         printf ("Digite o numero correspondente a sua opcao:\n");
-        scanf ("%d", &opcao);
-        getchar();
+        scanf ("%d%*c", &opcao);
         switch (opcao){
             case 1:{
                 printf ("Qual titulo voce deseja mudar?\n");
@@ -745,8 +743,7 @@ int editar_posts(posts_t * ponteiro_postagem,int num_postagens){
                     printf ("%d. %-30s\n", i+1, ponteiro_postagem[i].ID_post);
                 }
                 printf ("Digite o numero do titulo correspondente ao post que voce quer alterar:\n");
-                scanf ("%d", &index);
-                getchar();
+                scanf ("%d%*c", &index);
                 index--;
                 if (index < 0 || index >= num_postagens) {
                     printf("Opcao invalida!\n");
@@ -762,6 +759,43 @@ int editar_posts(posts_t * ponteiro_postagem,int num_postagens){
                 break;
             }
             case 2:{
+                printf ("Digite o post que voce deseja acessar:\n");
+                for (i=0;i<num_postagens;i++){
+                    printf ("%d. %-30s\n", i+1, ponteiro_postagem[i].ID_post);
+                }
+                scanf ("%d%*c", &index);
+                index--;
+                 if (index < 0 || index >= num_postagens) {
+                    printf("Opcao invalida!\n");
+                    return ERRO;
+                }
+                printf ("Imagem do seu post:\n");
+                for (i = 0;i < ponteiro_postagem[index].num_imagens;i++){
+                    ponteiro_postagem[index].img[i] = insta_carregaImagem(ponteiro_postagem[index].url[i], MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
+                    if (ponteiro_postagem[index].img[i] == NULL) {
+                        // Falha ao carregar a imagem
+                        fprintf(stderr, "Falha ao carregar a imagem da URL %s\n", ponteiro_postagem[index].url[i]);
+                        return ERRO_CARREGAR_IMAGEM;
+                    }
+                    // Mostra a imagem, o número de bytes e libera a memória
+                    insta_imprimeImagem(ponteiro_postagem[index].img[i]);
+                }
+                printf ("Digite quantas imagens voce vai querer inserir:\n");
+                scanf ("%d%*c", &ponteiro_postagem[index].num_imagens);
+
+                for (i = 0;i < ponteiro_postagem[index].num_imagens;i++){
+                    printf ("Digite a nova url:\n");
+                    fgets (ponteiro_postagem[index].url[i], NUM_MAX_IMAGEM, stdin);
+                    util_removeQuebraLinhaFinal (ponteiro_postagem[index].url[i]);
+                    
+                    ponteiro_postagem[index].img[i] = insta_carregaImagem(ponteiro_postagem[index].url[i], MODO_IMAGEM , IMAGEM_NUMERO_COLUNAS);
+                    if (ponteiro_postagem[index].img[i] == NULL){
+                        // Falha ao carregar a imagem
+                        fprintf(stderr, "Falha ao carregar a imagem da URL %s\n", ponteiro_postagem[index].url[i]);
+                        return ERRO_CARREGAR_IMAGEM;
+                    }
+                    insta_imprimeImagem(ponteiro_postagem[index].img[i]);
+                }
                 break;
             }
             case 3:{
@@ -769,8 +803,7 @@ int editar_posts(posts_t * ponteiro_postagem,int num_postagens){
                 for (i=0;i<num_postagens;i++){
                     printf ("%d. %-30s\n", i+1, ponteiro_postagem[i].ID_post);
                 }
-                scanf ("%d", &index);
-                getchar();
+                scanf ("%d%*c", &index);
                 index--;
                 if (index < 0 || index >= num_postagens) {
                     printf("Opcao invalida!\n");
@@ -778,12 +811,12 @@ int editar_posts(posts_t * ponteiro_postagem,int num_postagens){
                 }
                 printf ("Legenda do seu post:\n");
                 printf ("LEGENDA:\n");
-                printf ("%-300s\n", ponteiro_postagem[index].legenda);
+                printf ("%s\n", ponteiro_postagem[index].legenda);
                 printf ("Digite o que voce quer mudar na legenda:\n");
                 fgets (ponteiro_postagem[index].legenda, NUM_MAX_CARACTERES_LEGENDA, stdin);
                 util_removeQuebraLinhaFinal(ponteiro_postagem[index].legenda);
                 printf ("Sua nova legenda:\n");
-                printf ("%-300s\n", ponteiro_postagem[index].legenda);
+                printf ("%s\n", ponteiro_postagem[index].legenda);
                 break;
             }
             case 0:{
@@ -838,8 +871,7 @@ int comentarios(posts_t * ponteiro_postagem, int num_postagens,perfil_t * pontei
         printf ("%d.%-30s\n", i+1,ponteiro_postagem[i].ID_post);
     }
     printf ("Digite qual post voce deseja acessar e comentar:\n");
-    scanf ("%d", &index);
-    getchar();
+    scanf ("%d%*c", &index);
     index--;
     if (index < 0 || index >= num_postagens){
         printf ("Opcao invalida!\n");
@@ -851,7 +883,7 @@ int comentarios(posts_t * ponteiro_postagem, int num_postagens,perfil_t * pontei
     ponteiro_perfil->logado = ponteiro_postagem[index].comentario.perfil_que_comentou;
     printf ("Comentario feito!\n");
     printf ("SEU COMENTARIO:\n");
-    printf ("%-300s\n", ponteiro_postagem[index].comentario.mensagem);
+    printf ("%s\n", ponteiro_postagem[index].comentario.mensagem);
 
     return SUCESSO; 
 
@@ -867,8 +899,7 @@ int listar_comentario(posts_t * ponteiro_postagem, int num_postagens){
         printf ("%d.%-30s\n", i+1, ponteiro_postagem[i].ID_post);
     }
     printf ("SUA ESCOLHA:\n");
-    scanf ("%d", &escolha);
-    getchar();
+    scanf ("%d%*c", &escolha);
     escolha--;
     if (escolha < 0 || escolha >= num_postagens){
         printf ("Opcao invalida!\n");
@@ -908,8 +939,7 @@ int main(int argc, char **argv) {
         printf("Bem vindo ao Coltegram!!!\n");
         printf("Digite sua opcao:\n");
         printf("<Cadastar> (1)\n<Login> (2)\n<Sair> (0)\n");
-        scanf("%d", &opcao);
-        getchar();
+        scanf("%d%*c", &opcao);
         switch (opcao) {
             case 1:{
                 cadastro_perfil(&ponteiro_perfil, &num_perfis);
@@ -920,8 +950,7 @@ int main(int argc, char **argv) {
                 while (posicao_usuario_logado != USUARIO_INVALIDO) {
                     printf("Quais acoes voce deseja executar:\n");
                     printf("(1) <Buscar perfis>\n(2) <Visitar perfis>\n(3) <Listar perfis cadastrados>\n(4) <Acoes do usuario>\n");
-                    scanf("%d", &escolha1);
-                    getchar();
+                    scanf("%d%*c", &escolha1);
                     switch (escolha1) {
                         case 1:{
                             //Buscar perfis
@@ -963,7 +992,6 @@ int main(int argc, char **argv) {
 
                                     default:{
                                         printf ("Opcao invalida!!!\n");
-
                                     }
                                 }
                             } while (escolha3 != 0);
@@ -974,8 +1002,7 @@ int main(int argc, char **argv) {
                                 printf("Acoes do usuario:\n");
                                 printf("(1) <Postar Posts>\n(2) <Editar Posts>\n(3) <Listar Posts>\n(4) <Detalhar Posts>\n(5) <Apagar posts>\n(6) <Deslogar>\n(0) <Sair>\n");
                                 printf("O que voce deseja fazer?\n");
-                                scanf("%d", &escolha2);
-                                getchar();
+                                scanf("%d%*c", &escolha2);
                                 switch (escolha2) {
                                     case 1:{
                                         //Postar posts
