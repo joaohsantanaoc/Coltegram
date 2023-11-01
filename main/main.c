@@ -623,6 +623,16 @@ void insta_liberaImagem(asciiImg_t * img) {
   free(img->bytes);
   free(img);
 }
+
+void alocarMatriz(posts_t **ponteiro_postagem, int *num_postagens, int posicao_usuario_logado, int usuarios){
+
+(*ponteiro_postagem) = (posts_t**)realloc(*ponteiro_postagem, usuarios * sizeof(posts_t*));
+
+//(*matriz)[i] = (MinhaEstrutura*)malloc(colunas * sizeof(MinhaEstrutura));
+
+(*ponteiro_postagem)[posicao_usuario_logado] = (posts_t*)realloc(*ponteiro_postagem, (*num_postagens)* sizeof(posts_t));
+
+}
 //Função para cadastro de uma postagem
 int cadastro_postagem(posts_t **ponteiro_postagem,int *num_postagens,int posicao_usuario_logado){
     posts_t postagens;
