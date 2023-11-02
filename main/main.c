@@ -299,6 +299,13 @@ int lerPostagensArquivo(posts_t ** ponteiro_postagem, int numeroPerfil){
     
 }
 
+void escreverPostagens(){
+
+    FILE * arquivoPostagem;
+
+    
+}
+
 
 //Função para verificar se já existe um mesmo ID de usuário no programa
 int usuario_existente(perfil_t *perfis, int num_perfis, char *nome) {
@@ -635,7 +642,7 @@ void alocarMatriz(posts_t * **ponteiro_postagem, int *num_postagens, int posicao
 
 (*ponteiro_postagem) = (posts_t**)realloc(*ponteiro_postagem, usuarios * sizeof(posts_t*));
 
-(*ponteiro_postagem)[posicao_usuario_logado] = (posts_t*)realloc(*ponteiro_postagem, (*num_postagens) * sizeof(posts_t));
+(*ponteiro_postagem)[posicao_usuario_logado] = (posts_t*)realloc(*ponteiro_postagem, (*num_postagens + 1) * sizeof(posts_t));
 
 }
 //Função para cadastro de uma postagem
@@ -1023,7 +1030,7 @@ int main(int argc, char **argv) {
                                 switch (escolha2) {
                                     case 1:{
                                         //Postar posts
-                                        cadastro_postagem(&ponteiro_postagem,&num_postagens,posicao_usuario_logado, num_perfis);//Aqui você vai incluir a variavel posicao_usuario_logado como parametro
+                                        cadastro_postagem(&ponteiro_postagem, &ponteiro_perfil[posicao_usuario_logado].numeroDePostagens, posicao_usuario_logado, num_perfis);//Aqui você vai incluir a variavel posicao_usuario_logado como parametro
                                         break;
                                     }
                                     case 2:{
