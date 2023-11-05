@@ -99,7 +99,6 @@ typedef struct perfil_s
     char senha[NUM_MAX_CARACTERES_SENHA];
     char senha_confirmada[NUM_MAX_CARACTERES_SENHA];
     int numeroDePostagens;
-    bool logado;
 } perfil_t;
 // Estrutura para login
 typedef struct login_s
@@ -732,9 +731,8 @@ void alocarMatriz(posts_t ***ponteiro_postagem, int num_postagens, int posicao_u
     (*ponteiro_postagem)[posicao_usuario_logado] = (posts_t *)realloc((*ponteiro_postagem), (num_postagens + 1) * sizeof(posts_t));
 }
 // Função para cadastro de uma postagem
-int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posicao_usuario_logado, int num_perfis)
-{
-    posts_t postagens;
+int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posicao_usuario_logado, int num_perfis){
+    posts_t * postagens = malloc(sizeof(posts_t ));
     int i;
 
     /*Aqui voce tem que fazer uma matriz
@@ -753,55 +751,55 @@ int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posi
 
     printf("\t\tPOSTAGEM\t\t\n");
     printf("Digite o nome de seu post:\n");
-    fgets(postagens.ID_post, NUM_MAX_CARACTERES_ID, stdin);
-    util_removeQuebraLinhaFinal(postagens.ID_post);
+    fgets(postagens[posicao_usuario_logado].ID_post, NUM_MAX_CARACTERES_ID, stdin);
+    util_removeQuebraLinhaFinal(postagens[posicao_usuario_logado].ID_post);
 
     printf("Digite quantas imagens voce deseja colocar em seu post:\n");
-    scanf("%d%*c", &postagens.num_imagens);
+    scanf("%d%*c", &postagens[posicao_usuario_logado].num_imagens);
 
     // Aloca espaço para as imagens
-    postagens.img = malloc(sizeof(asciiImg_t *) * postagens.num_imagens);
+    postagens[posicao_usuario_logado].img = malloc(sizeof(asciiImg_t *) * postagens[posicao_usuario_logado].num_imagens);
 
     printf("Agora de upload na imagem de seu post:\n");
     printf("Para isso digite o url de sua imagem com o jpg no final\n");
     printf("Exemplo: https://img.freepik.com/fotos-premium/fundo-de-rosas-bonitas_534373-220.jpg\n");
 
-    for (i = 0; i < postagens.num_imagens; i++)
+    for (i = 0; i < postagens[posicao_usuario_logado].num_imagens; i++)
     {
         printf("URL: ");
-        fgets(postagens.url[i], NUM_MAX_IMAGEM, stdin);
-        util_removeQuebraLinhaFinal(postagens.url[i]);
+        fgets(postagens[posicao_usuario_logado].url[i], NUM_MAX_IMAGEM, stdin);
+        util_removeQuebraLinhaFinal(postagens[posicao_usuario_logado].url[i]);
 
-        postagens.img[i] = insta_carregaImagem(postagens.url[i], MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
-        if (postagens.img[i] == NULL)
+        postagens[posicao_usuario_logado].img[i] = insta_carregaImagem(postagens[posicao_usuario_logado].url[i], MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
+        if (postagens[posicao_usuario_logado].img[i] == NULL)
         {
             // Falha ao carregar a imagem
-            fprintf(stderr, "Falha ao carregar a imagem da URL %s\n", postagens.url[i]);
+            fprintf(stderr, "Falha ao carregar a imagem da URL %s\n", postagens[posicao_usuario_logado].url[i]);
             return ERRO_CARREGAR_IMAGEM;
         }
         // Mostra a imagem, o número de bytes e libera a memória
-        insta_imprimeImagem(postagens.img[i]);
+        insta_imprimeImagem(postagens[posicao_usuario_logado].img[i]);
     }
 
     printf("Digite uma legenda para seu post: (MAX 300 caracteres)\n");
-    fgets(postagens.legenda, NUM_MAX_CARACTERES_LEGENDA, stdin);
-    util_removeQuebraLinhaFinal(postagens.legenda);
+    fgets(postagens[posicao_usuario_logado].legenda, NUM_MAX_CARACTERES_LEGENDA, stdin);
+    util_removeQuebraLinhaFinal(postagens[posicao_usuario_logado].legenda);
 
 
     (*num_postagens)++;
 
     alocarMatriz(ponteiro_postagem, *num_postagens, posicao_usuario_logado, num_perfis);
 
-    (*ponteiro_postagem)[posicao_usuario_logado][*num_postagens - 1] = postagens;
+    (*ponteiro_postagem)[posicao_usuario_logado][*num_postagens - 1] = postagens[posicao_usuario_logado];
 
 
     return SUCESSO;
 }
 
 // Função para imprimir informações de posts
-int imprime_posts(posts_t **ponteiro_postagem, int num_postagem, int posicao_usuario_logado)
+int imprime_posts(posts_t **ponteiro_postagem, int num_postagem, int num_perfis)
 {
-    int i, j;
+    int i, j, k;
 
     if (num_postagem < 1)
     {
@@ -810,25 +808,27 @@ int imprime_posts(posts_t **ponteiro_postagem, int num_postagem, int posicao_usu
     }
 
     printf("SEUS POSTS\n");
-
-    for (i = 0; i < num_postagem; i++){
-        printf("Titulo\n");
-        printf("%s\n", ponteiro_postagem[posicao_usuario_logado][i].ID_post);
-        printf("IMAGEM:\n");
-        for (j = 0; j < ponteiro_postagem[posicao_usuario_logado][i].num_imagens; j++){
-
-            ponteiro_postagem[posicao_usuario_logado][i].img[j] = insta_carregaImagem(ponteiro_postagem[posicao_usuario_logado][i].url[j], MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
-            if (ponteiro_postagem[posicao_usuario_logado][i].img[j] == NULL){
-                // Falha ao carregar a imagem
-                fprintf(stderr, "Falha ao carregar a imagem da URL %s\n", ponteiro_postagem[posicao_usuario_logado][i].url[j]);
-                return ERRO_CARREGAR_IMAGEM;
+    for (k = 0; k < num_perfis;k++){
+        for (i = 0; i < num_postagem; i++){
+            printf("Titulo\n");
+            printf("%s\n", ponteiro_postagem[k][i].ID_post);
+            printf("IMAGEM:\n");
+            for (j = 0; j < ponteiro_postagem[k][i].num_imagens; j++){
+                ponteiro_postagem[k][i].img[j] = insta_carregaImagem(ponteiro_postagem[k][i].url[j], MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
+                if (ponteiro_postagem[k][i].img[j] == NULL){
+                    // Falha ao carregar a imagem
+                    fprintf(stderr, "Falha ao carregar a imagem da URL %s\n", ponteiro_postagem[k][i].url[j]);
+                    return ERRO_CARREGAR_IMAGEM;
+                }
+                // Mostra a imagem, o número de bytes e libera a memória
+                insta_imprimeImagem(ponteiro_postagem[k][i].img[j]);
             }
-            // Mostra a imagem, o número de bytes e libera a memória
-            insta_imprimeImagem(ponteiro_postagem[posicao_usuario_logado][i].img[j]);
-        }
         printf("Legenda:\n");
-        printf("%s\n",ponteiro_postagem[posicao_usuario_logado][i].legenda);
+        printf("%s\n",ponteiro_postagem[k][i].legenda);
     }
+
+    }
+
     return SUCESSO;
 }
 
@@ -1008,7 +1008,7 @@ int comentarios(posts_t **ponteiro_postagem, int num_postagens, perfil_t *pontei
             printf("%d.%s\n", j + 1, ponteiro_postagem[i][j].ID_post);
         }
     }
-    printf("Digite qual post voce deseja acessar e comentar:\n");
+    printf("Digite qual usuario e qual post voce deseja acessar e comentar:\n");
     scanf("%d%*c", &index);
     index--;
     if (index < 0 || index >= num_postagens){
@@ -1177,7 +1177,7 @@ int main(int argc, char **argv)
                         case 3:
                         {
                             // Listar posts
-                            imprime_posts(ponteiro_postagem, num_postagens, posicao_usuario_logado);
+                            imprime_posts(ponteiro_postagem, num_postagens,num_perfis);
                             break;
                         }
                         case 4:
