@@ -727,9 +727,9 @@ void insta_liberaImagem(asciiImg_t *img)
 void alocarMatriz(posts_t ***ponteiro_postagem, int num_postagens, int posicao_usuario_logado, int num_perfis)
 { // deixa o asterisco do jeito que ta
 
-    (*ponteiro_postagem) = (posts_t **)realloc(*ponteiro_postagem, num_perfis * sizeof(posts_t *));
+    *ponteiro_postagem = (posts_t **)realloc(*ponteiro_postagem, num_perfis * sizeof(posts_t *));
 
-    (*ponteiro_postagem)[posicao_usuario_logado] = (posts_t *)realloc(*ponteiro_postagem, (num_postagens + 1) * sizeof(posts_t));
+    (*ponteiro_postagem)[posicao_usuario_logado] = (posts_t *)realloc((*ponteiro_postagem), (num_postagens + 1) * sizeof(posts_t));
 }
 // Função para cadastro de uma postagem
 int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posicao_usuario_logado, int num_perfis)
@@ -787,19 +787,19 @@ int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posi
     fgets(postagens.legenda, NUM_MAX_CARACTERES_LEGENDA, stdin);
     util_removeQuebraLinhaFinal(postagens.legenda);
 
+
     (*num_postagens)++;
 
     alocarMatriz(ponteiro_postagem, *num_postagens, posicao_usuario_logado, num_perfis);
 
     (*ponteiro_postagem)[posicao_usuario_logado][*num_postagens - 1] = postagens;
 
-    // printf ("%s\n", (*ponteiro_postagem)[posicao_usuario_logado][0].ID_post);
 
     return SUCESSO;
 }
 
 // Função para imprimir informações de posts
-int imprime_posts(posts_t ***ponteiro_postagem, int num_postagem, int posicao_usuario_logado)
+int imprime_posts(posts_t **ponteiro_postagem, int num_postagem, int posicao_usuario_logado)
 {
     int i, j;
 
@@ -811,27 +811,23 @@ int imprime_posts(posts_t ***ponteiro_postagem, int num_postagem, int posicao_us
 
     printf("SEUS POSTS\n");
 
-    for (i = 0; i < num_postagem; i++)
-    {
+    for (i = 0; i < num_postagem; i++){
         printf("Titulo\n");
-        printf("%s\n", (*ponteiro_postagem)[posicao_usuario_logado][i].ID_post);
+        printf("%s\n", ponteiro_postagem[posicao_usuario_logado][i].ID_post);
         printf("IMAGEM:\n");
-        for (j = 0; j < (*ponteiro_postagem)[posicao_usuario_logado][i].num_imagens; j++)
-        
-        {//da uma olhada na linha de baixo que eu mudei um negocio que acho que tava errado mas nao tenho certeza
+        for (j = 0; j < ponteiro_postagem[posicao_usuario_logado][i].num_imagens; j++){
 
-            (*ponteiro_postagem)[posicao_usuario_logado][i].img[j] = insta_carregaImagem((*ponteiro_postagem)[posicao_usuario_logado][i].url[j], MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
-            if ((*ponteiro_postagem)[posicao_usuario_logado][i].img[j] == NULL)
-            {
+            ponteiro_postagem[posicao_usuario_logado][i].img[j] = insta_carregaImagem(ponteiro_postagem[posicao_usuario_logado][i].url[j], MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
+            if (ponteiro_postagem[posicao_usuario_logado][i].img[j] == NULL){
                 // Falha ao carregar a imagem
-                fprintf(stderr, "Falha ao carregar a imagem da URL %s\n", (*ponteiro_postagem)[posicao_usuario_logado][i].url[j]);
+                fprintf(stderr, "Falha ao carregar a imagem da URL %s\n", ponteiro_postagem[posicao_usuario_logado][i].url[j]);
                 return ERRO_CARREGAR_IMAGEM;
             }
             // Mostra a imagem, o número de bytes e libera a memória
-            insta_imprimeImagem((*ponteiro_postagem)[posicao_usuario_logado][i].img[j]);
+            insta_imprimeImagem(ponteiro_postagem[posicao_usuario_logado][i].img[j]);
         }
         printf("Legenda:\n");
-        printf("%s\n", (*ponteiro_postagem)[posicao_usuario_logado][i].legenda);
+        printf("%s\n",ponteiro_postagem[posicao_usuario_logado][i].legenda);
     }
     return SUCESSO;
 }
@@ -1001,6 +997,7 @@ void excluir_posts(posts_t * ponteiro_postagem,int num_postagens){
 int comentarios(posts_t **ponteiro_postagem, int num_postagens, perfil_t *ponteiro_perfil, int posicao_usuario_logado)
 {
     int i, index;
+    char id[NUM_MAX_CARACTERES_ID];
     if (num_postagens < 1)
     {
         printf("Voce nao postou posts!\n");
@@ -1008,7 +1005,7 @@ int comentarios(posts_t **ponteiro_postagem, int num_postagens, perfil_t *pontei
     }
     for (i = 0; i < num_postagens; i++)
     {
-        printf("%d.%-30s\n", i + 1, ponteiro_postagem[posicao_usuario_logado][i].ID_post);
+        printf("%d.%s\n", i + 1, ponteiro_postagem[posicao_usuario_logado][i].ID_post);
     }
     printf("Digite qual post voce deseja acessar e comentar:\n");
     scanf("%d%*c", &index);
@@ -1021,10 +1018,10 @@ int comentarios(posts_t **ponteiro_postagem, int num_postagens, perfil_t *pontei
     printf("O que voce deseja comentar no post %-30s?\n", ponteiro_postagem[posicao_usuario_logado][index].ID_post);
     fgets(ponteiro_postagem[posicao_usuario_logado][index].comentario.mensagem, NUM_MAX_CARACTERES_COMENTARIO, stdin);
     util_removeQuebraLinhaFinal(ponteiro_postagem[posicao_usuario_logado][index].comentario.mensagem);
-    ponteiro_perfil->logado = ponteiro_postagem[posicao_usuario_logado][index].comentario.perfil_que_comentou;
     printf("Comentario feito!\n");
+    *ponteiro_perfil[posicao_usuario_logado].ID = id[NUM_MAX_CARACTERES_ID];
     printf("SEU COMENTARIO:\n");
-    printf("%s\n", ponteiro_postagem[posicao_usuario_logado][index].comentario.mensagem);
+    printf("%s: %s\n", id ,ponteiro_postagem[posicao_usuario_logado][index].comentario.mensagem);
 
     return SUCESSO;
 }
@@ -1039,7 +1036,7 @@ int listar_comentario(posts_t **ponteiro_postagem, int num_postagens, int posica
     printf("Qual postagem voce deseja acessar?\n");
     for (i = 0; i < num_postagens; i++)
     {
-        printf("%d.%-30s\n", i + 1, ponteiro_postagem[posicao_usuario_logado][i].ID_post);
+        printf("%d.%s\n", i + 1, ponteiro_postagem[posicao_usuario_logado][i].ID_post);
     }
     printf("SUA ESCOLHA:\n");
     scanf("%d%*c", &escolha);
@@ -1052,7 +1049,7 @@ int listar_comentario(posts_t **ponteiro_postagem, int num_postagens, int posica
     printf("Comentarios para a postagem %-30s\n", ponteiro_postagem[posicao_usuario_logado][escolha].ID_post);
     for (i = 0; i < num_postagens; i++)
     {
-        printf("%-51s.%-300s\n", ponteiro_postagem[posicao_usuario_logado][i].comentario.perfil_que_comentou, ponteiro_postagem[posicao_usuario_logado][i].comentario.mensagem);
+        printf("%s.%s\n", ponteiro_postagem[posicao_usuario_logado][i].comentario.perfil_que_comentou, ponteiro_postagem[posicao_usuario_logado][i].comentario.mensagem);
     }
 
     return SUCESSO;
@@ -1180,7 +1177,7 @@ int main(int argc, char **argv)
                         case 3:
                         {
                             // Listar posts
-                            imprime_posts(&ponteiro_postagem, num_postagens, posicao_usuario_logado);
+                            imprime_posts(ponteiro_postagem, num_postagens, posicao_usuario_logado);
                             break;
                         }
                         case 4:
