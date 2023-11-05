@@ -994,53 +994,55 @@ void excluir_posts(posts_t * ponteiro_postagem,int num_postagens){
     }
 }
 */
-int comentarios(posts_t **ponteiro_postagem, int num_postagens, perfil_t *ponteiro_perfil, int posicao_usuario_logado)
+int comentarios(posts_t **ponteiro_postagem, int num_postagens, perfil_t *ponteiro_perfil, int posicao_usuario_logado, int num_perfis)
 {
-    int i, index;
+    int i,j, index;
     if (num_postagens < 1)
     {
         printf("Voce nao postou posts!\n");
         return ERRO;
     }
-    for (i = 0; i < num_postagens; i++)
-    {
-        printf("%d.%s\n", i + 1, ponteiro_postagem[posicao_usuario_logado][i].ID_post);
+    for (i = 0; i < num_perfis; i++){
+        for (j = 0;j < num_postagens;j++){
+            printf ("%s:\n", ponteiro_perfil[i].ID);
+            printf("%d.%s\n", j + 1, ponteiro_postagem[i][j].ID_post);
+        }
     }
     printf("Digite qual post voce deseja acessar e comentar:\n");
     scanf("%d%*c", &index);
     index--;
-    if (index < 0 || index >= num_postagens)
-    {
+    if (index < 0 || index >= num_postagens){
         printf("Opcao invalida!\n");
         return ERRO;
     }
-    printf("O que voce deseja comentar no post %-30s?\n", ponteiro_postagem[posicao_usuario_logado][index].ID_post);
-    fgets(ponteiro_postagem[posicao_usuario_logado][index].comentario.mensagem, NUM_MAX_CARACTERES_COMENTARIO, stdin);
-    util_removeQuebraLinhaFinal(ponteiro_postagem[posicao_usuario_logado][index].comentario.mensagem);
+    printf("O que voce deseja comentar no post %s?\n", ponteiro_postagem[index][index].ID_post);
+    fgets(ponteiro_postagem[index][index].comentario.mensagem, NUM_MAX_CARACTERES_COMENTARIO, stdin);
+    util_removeQuebraLinhaFinal(ponteiro_postagem[index][index].comentario.mensagem);
     printf("Comentario feito!\n");
     printf("SEU COMENTARIO:\n");
-    printf("%s: %s\n", ponteiro_perfil[posicao_usuario_logado].ID ,ponteiro_postagem[posicao_usuario_logado][index].comentario.mensagem);
+    printf("%s: %s\n", ponteiro_perfil[posicao_usuario_logado].ID ,ponteiro_postagem[index][index].comentario.mensagem);
 
     return SUCESSO;
 }
-int listar_comentario(posts_t **ponteiro_postagem, int num_postagens, int posicao_usuario_logado,perfil_t * ponteiro_perfil)
+int listar_comentario(posts_t **ponteiro_postagem, int num_postagens, int posicao_usuario_logado,perfil_t * ponteiro_perfil,int num_perfis)
 {
-    int i, escolha;
+    int i, j, escolha;
     if (num_postagens < 1)
     {
         printf("Voce nao postou posts!\n");
         return ERRO;
     }
     printf("Qual postagem voce deseja acessar?\n");
-    for (i = 0; i < num_postagens; i++)
-    {
-        printf("%d.%s\n", i + 1, ponteiro_postagem[posicao_usuario_logado][i].ID_post);
+    for (i = 0;i< num_perfis;i++){
+        for (j = 0; j < num_postagens; i++){
+            printf ("%s:\n", ponteiro_perfil[i].ID);
+            printf("%d.%s\n", j + 1, ponteiro_postagem[i][j].ID_post);
+        }
     }
     printf("SUA ESCOLHA:\n");
     scanf("%d%*c", &escolha);
     escolha--;
-    if (escolha < 0 || escolha >= num_postagens)
-    {
+    if (escolha < 0 || escolha >= num_postagens){
         printf("Opcao invalida!\n");
         return ERRO;
     }
@@ -1055,7 +1057,7 @@ int listar_comentario(posts_t **ponteiro_postagem, int num_postagens, int posica
 // Função principal
 int main(int argc, char **argv)
 {
-    int opcao, escolha1, escolha2, escolha3;
+    int opcao,opcao2, escolha1, escolha2, escolha3;
     perfil_t *ponteiro_perfil = NULL;
     posts_t **ponteiro_postagem = NULL;
     login_t login_info;
@@ -1155,7 +1157,7 @@ int main(int argc, char **argv)
                     do
                     {
                         printf("Acoes do usuario:\n");
-                        printf("(1) <Postar Posts>\n(2) <Editar Posts>\n(3) <Listar Posts>\n(4) <Detalhar Posts>\n(5) <Apagar posts>\n(6) <Deslogar>\n(0) <Sair>\n");
+                        printf("(1) <POSTAR POSTS>\n(2) <EDITAR POSTS>\n(3) <LISTAR POSTS>\n(4) <DETALHAR POSTS>\n(5) <APAGAR POSTS>\n(6) <COMENTARIOS>\n(7) <DESLOGAR>\n(0) <Sair>\n");
                         printf("O que voce deseja fazer?\n");
                         scanf("%d%*c", &escolha2);
                         switch (escolha2)
@@ -1181,8 +1183,6 @@ int main(int argc, char **argv)
                         case 4:
                         {
                             // Detalhar posts
-                            comentarios(ponteiro_postagem, num_postagens, ponteiro_perfil, posicao_usuario_logado);
-                            listar_comentario(ponteiro_postagem, num_postagens, posicao_usuario_logado,ponteiro_perfil);
                             break;
                         }
                         case 5:
@@ -1193,8 +1193,35 @@ int main(int argc, char **argv)
                             */
                             break;
                         }
-                        case 6:
-                        {
+                        case 6:{
+                            do {
+                                printf ("\t\tCOMENTARIOS:\n");
+                                printf ("O que voce deseja fazer?\n");
+                                printf ("(1) <COMENTAR EM UM POST>\n(2) <LISTAR COMENTARIOS>\n(0) <SAIR>\n");
+                                printf ("Sua opcao: ");
+                                scanf ("%d%*c", &opcao2);
+
+                                switch (opcao2){
+                                    case 1:{
+                                        comentarios(ponteiro_postagem,num_postagens,ponteiro_perfil,posicao_usuario_logado, num_perfis);
+                                        break;
+                                    }
+                                    case 2:{
+                                        listar_comentario(ponteiro_postagem,num_postagens,posicao_usuario_logado,ponteiro_perfil, num_perfis);
+                                        break;
+                                    }
+                                    case 0:{
+                                        printf ("Saindo...");
+                                        break;
+                                    }
+                                    default:{
+                                        printf ("Opcao invalida!\n");
+                                    }
+                                }
+                            }while (opcao2 != 0);
+                            break;
+                        }
+                        case 7:{
                             printf("Saindo do perfil...\n");
                             posicao_usuario_logado = USUARIO_INVALIDO;
                             break;
