@@ -997,7 +997,6 @@ void excluir_posts(posts_t * ponteiro_postagem,int num_postagens){
 int comentarios(posts_t **ponteiro_postagem, int num_postagens, perfil_t *ponteiro_perfil, int posicao_usuario_logado)
 {
     int i, index;
-    char id[NUM_MAX_CARACTERES_ID];
     if (num_postagens < 1)
     {
         printf("Voce nao postou posts!\n");
@@ -1019,13 +1018,12 @@ int comentarios(posts_t **ponteiro_postagem, int num_postagens, perfil_t *pontei
     fgets(ponteiro_postagem[posicao_usuario_logado][index].comentario.mensagem, NUM_MAX_CARACTERES_COMENTARIO, stdin);
     util_removeQuebraLinhaFinal(ponteiro_postagem[posicao_usuario_logado][index].comentario.mensagem);
     printf("Comentario feito!\n");
-    *ponteiro_perfil[posicao_usuario_logado].ID = id[NUM_MAX_CARACTERES_ID];
     printf("SEU COMENTARIO:\n");
-    printf("%s: %s\n", id ,ponteiro_postagem[posicao_usuario_logado][index].comentario.mensagem);
+    printf("%s: %s\n", ponteiro_perfil[posicao_usuario_logado].ID ,ponteiro_postagem[posicao_usuario_logado][index].comentario.mensagem);
 
     return SUCESSO;
 }
-int listar_comentario(posts_t **ponteiro_postagem, int num_postagens, int posicao_usuario_logado)
+int listar_comentario(posts_t **ponteiro_postagem, int num_postagens, int posicao_usuario_logado,perfil_t * ponteiro_perfil)
 {
     int i, escolha;
     if (num_postagens < 1)
@@ -1046,10 +1044,10 @@ int listar_comentario(posts_t **ponteiro_postagem, int num_postagens, int posica
         printf("Opcao invalida!\n");
         return ERRO;
     }
-    printf("Comentarios para a postagem %-30s\n", ponteiro_postagem[posicao_usuario_logado][escolha].ID_post);
+    printf("Comentarios para a postagem %s\n", ponteiro_postagem[posicao_usuario_logado][escolha].ID_post);
     for (i = 0; i < num_postagens; i++)
     {
-        printf("%s.%s\n", ponteiro_postagem[posicao_usuario_logado][i].comentario.perfil_que_comentou, ponteiro_postagem[posicao_usuario_logado][i].comentario.mensagem);
+        printf("%s:%s\n", ponteiro_perfil[posicao_usuario_logado].ID, ponteiro_postagem[posicao_usuario_logado][i].comentario.mensagem);
     }
 
     return SUCESSO;
@@ -1184,7 +1182,7 @@ int main(int argc, char **argv)
                         {
                             // Detalhar posts
                             comentarios(ponteiro_postagem, num_postagens, ponteiro_perfil, posicao_usuario_logado);
-                            listar_comentario(ponteiro_postagem, num_postagens, posicao_usuario_logado);
+                            listar_comentario(ponteiro_postagem, num_postagens, posicao_usuario_logado,ponteiro_perfil);
                             break;
                         }
                         case 5:
