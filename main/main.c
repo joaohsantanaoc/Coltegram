@@ -640,7 +640,6 @@ asciiImg_t *insta_carregaImagem(char url[], bool colorido, int largura)
     img = malloc(sizeof(asciiImg_t));
     if (img == NULL)
         return NULL;
-    printf("se passou do 1 alocou certo\n");
     // Inicializa a estrutura
     img->bytes = NULL;
     img->nBytes = 0;
@@ -688,7 +687,6 @@ asciiImg_t *insta_carregaImagem(char url[], bool colorido, int largura)
     }
 
     // Verifica se a imagem é válida
-    printf("verificando se a imagem eh valida\n");
     if (img->nBytes < LIMIAR_INFERIOR_TAMANHO_IMAGEM)
     {
         // Libera todo o espaço alocado
@@ -697,7 +695,6 @@ asciiImg_t *insta_carregaImagem(char url[], bool colorido, int largura)
 
         return NULL;
     }
-    printf("se chegou aqui o retorno esta correto\n");
     // Retorna a imagem carregada
     return img;
 }
@@ -820,17 +817,6 @@ int imprime_posts(posts_t **ponteiro_postagem, int num_postagem, int posicao_usu
 
         for (j = 0; j < ponteiro_postagem[posicao_usuario_logado][i].num_imagens; j++)
         {
-
-            ponteiro_postagem[posicao_usuario_logado][i].img[j] = malloc(sizeof(asciiImg_t *));
-
-            ponteiro_postagem[posicao_usuario_logado][i].img[j] = insta_carregaImagem(ponteiro_postagem[posicao_usuario_logado][i].url[j], MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
-            if (ponteiro_postagem[posicao_usuario_logado][i].img[j] == NULL)
-            {
-                // Falha ao carregar a imagem
-                fprintf(stderr, "Falha ao carregar a imagem da URL %s\n", ponteiro_postagem[posicao_usuario_logado][i].url[j]);
-                return ERRO_CARREGAR_IMAGEM;
-            }
-            
             // Mostra a imagem, o número de bytes e libera a memória
             insta_imprimeImagem(ponteiro_postagem[posicao_usuario_logado][i].img[j]);
         }
