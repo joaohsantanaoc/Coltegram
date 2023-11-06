@@ -731,7 +731,7 @@ void alocarMatriz(posts_t ***ponteiro_postagem, int num_postagens, int posicao_u
 }
 
 // Função para cadastro de uma postagem
-int cadastro_postagem(posts_t * **ponteiro_postagem, int *num_postagens, int posicao_usuario_logado, int num_perfis)
+int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posicao_usuario_logado, int num_perfis)
 {
     posts_t postagens;
     int i;
@@ -1055,16 +1055,86 @@ int listar_comentario(posts_t **ponteiro_postagem, int num_postagens, int posica
 
     return SUCESSO;
 }
+
+int buscar_perfis_ID(perfil_t * ponteiro_perfil,int num_perfis,char busca[]){
+    int i;
+
+    printf ("Resultados para a busca %s:\n", busca);
+
+    for (i = 0;i < num_perfis;i++){
+        if (strstr(ponteiro_perfil[i].ID, busca)){
+            printf ("Perfis: %s\n", ponteiro_perfil[i].ID);
+        }
+    }
+
+    return SUCESSO;
+}
+int buscar_perfis_email(perfil_t * ponteiro_perfil,int num_perfis,char busca[]){
+    int i;
+
+    printf ("Resultados para a busca %s:\n", busca);
+
+    for (i = 0;i < num_perfis;i++){
+        if (strstr(ponteiro_perfil[i].email, busca)){
+            printf ("Perfis: %s\n", ponteiro_perfil[i].email);
+        }
+    }
+
+    return SUCESSO;
+}
+int buscar_perfis_ID_ordenado(perfil_t * ponteiro_perfil,int num_perfis,char busca[]){
+    int i, j;
+    perfil_t tmp;
+    // Listar Ids de forma ordenada
+    printf ("Resultados para a busca %s:\n", busca);
+    for (i = 0; i < (num_perfis - 1); i++){
+        if (strstr(ponteiro_perfil[i].ID, busca)){
+            for (j = 0; j < (num_perfis - 1); j++){
+                // Se estiver fora de ordem...
+                if (strcmp(ponteiro_perfil[j].ID, ponteiro_perfil[j + 1].ID) > 0){
+                    // ... troca de posicao
+                    tmp = ponteiro_perfil[j];
+                    ponteiro_perfil[j] = ponteiro_perfil[j + 1];
+                    ponteiro_perfil[j + 1] = tmp;
+                }
+            }
+        } 
+    }
+    return SUCESSO;
+}
+int buscar_perfis_email_ordenado(perfil_t * ponteiro_perfil,int num_perfis,char busca[]){
+    int i, j;
+    perfil_t tmp;
+
+    printf ("Resultados para a busca %s\n", busca);
+    // Listar Ids de forma ordenada
+    for (i = 0; i < (num_perfis); i++){
+        if (strstr(ponteiro_perfil[i].email, busca)){
+            for (j = 0; j < (num_perfis); j++){
+                // Se estiver fora de ordem...
+                if (strcmp(ponteiro_perfil[j].email, ponteiro_perfil[j + 1].email) > 0){
+                    // ... troca de posicao
+                    tmp = ponteiro_perfil[j];
+                    ponteiro_perfil[j] = ponteiro_perfil[j + 1];
+                    ponteiro_perfil[j + 1] = tmp;
+                }
+            }
+        } 
+    }
+    return SUCESSO;
+}
+
 // Função principal
 int main(int argc, char **argv)
 {
-    int opcao, opcao2, escolha1, escolha2, escolha3;
+    int opcao, opcao2, escolha1, escolha2, escolha3, escolha_buscar;
     perfil_t *ponteiro_perfil = NULL;
     posts_t **ponteiro_postagem = NULL;
     login_t login_info;
     int num_perfis = 0;
     int num_postagens = 0;
     int posicao_usuario_logado;
+    char busca[NUM_MAX_CARACTERES_ID];
 
     // fgets(url, tamanhourl, perfilselecionado);
     // ponteiro_postagem[0].img = insta_carregaImagem(url, modoImagem, numerodecolunas);
@@ -1101,6 +1171,53 @@ int main(int argc, char **argv)
                 case 1:
                 {
                     // Buscar perfis
+                    do {
+                        printf ("\t\tBUSCAR PERFIS\n");
+                        printf (".....................................................................\n\n");
+                        printf ("O que voce deseja buscar:\n");
+                        printf ("(1) <PERFIS>\n(2) <E-MAILS>\n(3) <PERFIS ORDENADOS>\n(4) <E-MAILS ORDENADOS>\n(0) <SAIR>\n");
+                        printf ("Sua opcao: ");
+                        scanf ("%d%*c", &escolha_buscar);
+
+                        switch (escolha_buscar){
+                            case 1:{
+                                printf ("Digite o ID:\n");
+                                fgets (busca, NUM_MAX_CARACTERES_ID, stdin);
+                                util_removeQuebraLinhaFinal(busca);
+                                buscar_perfis_ID(ponteiro_perfil,num_perfis,busca);
+                                break;
+                            }
+                            case 2:{
+                                printf ("Digite o e-mail:\n");
+                                fgets (busca, NUM_MAX_CARACTERES_ID, stdin);
+                                util_removeQuebraLinhaFinal(busca);
+                                buscar_perfis_email(ponteiro_perfil,num_perfis,busca);
+                                break;
+                            }
+                            case 3:{
+                                printf ("Digite o ID:\n");
+                                fgets (busca, NUM_MAX_CARACTERES_ID, stdin);
+                                util_removeQuebraLinhaFinal(busca);
+                                buscar_perfis_ID_ordenado(ponteiro_perfil,num_perfis,busca);
+                                break;
+                            }
+                            case 4:{
+                                printf ("Digite o email:\n");
+                                fgets (busca, NUM_MAX_CARACTERES_ID, stdin);
+                                util_removeQuebraLinhaFinal(busca);
+                                buscar_perfis_email_ordenado(ponteiro_perfil,num_perfis,busca);
+                                break;
+                            }
+                            case 0:{
+                                printf ("Saindo...\n");
+                                break;
+                            }
+                            default:{
+                                printf ("Opcao invalida!\n");
+                            }
+                        }
+
+                    }while (escolha_buscar != 0);
                     break;
                 }
                 case 2:
