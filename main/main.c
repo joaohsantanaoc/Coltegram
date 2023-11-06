@@ -217,6 +217,8 @@ int funcaoLerArquivo(perfil_t **ponteiro_perfil, int *num_perfis)
         }
 
         (*num_perfis)++;
+
+        //lerPostagensArquivo(&ponteiro_perfil, num_perfis);
     }
 
     fclose(arquivo);
@@ -265,73 +267,7 @@ int funcaoEscreveArquivo(perfil_t *dadosNaMemoria, int num_perfis)
     return SUCESSO;
 }
 
-int lerPostagensArquivo(posts_t **ponteiro_postagem, int numeroPerfil)
-{
 
-    FILE *arquivoPostagem;
-    int indice = 0;
-    int i;
-
-    char nome_Do_Arquivo[Tamanho_Maximo];
-
-    sprintf(nome_Do_Arquivo, "%d.txt", numeroPerfil);
-
-    arquivoPostagem = fopen(nome_Do_Arquivo, "r");
-
-    if (arquivoPostagem == NULL)
-    {
-
-        printf("Erro ao abrir postagens ou postagens inexistentes!\n");
-        return ERRO;
-    }
-
-    if (feof(arquivoPostagem))
-    {
-        printf("Nao há postagens cadastradas\n");
-    }
-
-    while (true)
-    {
-
-        if (feof(arquivoPostagem))
-        {
-            break;
-        }
-
-        (*ponteiro_postagem) = (posts_t *)realloc(*ponteiro_postagem, sizeof(posts_t) * (indice + 1));
-
-        fgets((*ponteiro_postagem)[indice].ID_post, NUM_MAX_IMAGEM, arquivoPostagem);
-        util_removeQuebraLinhaFinal((*ponteiro_postagem)[indice].ID_post);
-
-        fgets((*ponteiro_postagem)[indice].url[indice], NUM_MAX_IMAGEM, arquivoPostagem);
-        util_removeQuebraLinhaFinal((*ponteiro_postagem)[indice].url[indice]);
-
-        fgets((*ponteiro_postagem)[indice].legenda, NUM_MAX_IMAGEM, arquivoPostagem);
-        util_removeQuebraLinhaFinal((*ponteiro_postagem)[indice].legenda);
-
-        if (feof(arquivoPostagem))
-        {
-            break;
-        }
-
-        indice++;
-    }
-
-    for (i = 0; i < indice; i++)
-    {
-        printf("%s", (*ponteiro_postagem)[i].ID_post);
-        printf("%s", (*ponteiro_postagem)[i].url[indice]);
-        printf("%s", (*ponteiro_postagem)[i].legenda);
-    }
-    return SUCESSO;
-}
-
-/*void escreverPostagensArquivo(){
-
-    FILE * arquivoPostagem;
-
-
-}*/
 
 // Função para verificar se já existe um mesmo ID de usuário no programa
 int usuario_existente(perfil_t *perfis, int num_perfis, char *nome)
@@ -729,6 +665,99 @@ void alocarMatriz(posts_t ***ponteiro_postagem, int num_postagens, int posicao_u
 
     (*ponteiro_postagem)[posicao_usuario_logado] = (posts_t *)realloc((*ponteiro_postagem), (num_postagens + 1) * sizeof(posts_t));
 }
+
+int lerPostagensArquivo(posts_t * **ponteiro_postagem, int *numeroPerfil){
+
+    FILE * arquivoPostagem;
+    int indice = 0;
+
+    char nome_Do_Arquivo[Tamanho_Maximo];
+    char string[Tamanho_Maximo];
+
+    int nLinhas = 0;
+    int totalDePostagens = 0;
+
+    sprintf(nome_Do_Arquivo, "%d.txt", (*numeroPerfil));
+
+    arquivoPostagem = fopen(nome_Do_Arquivo, "r");
+
+    if (arquivoPostagem == NULL)
+    {
+
+        printf("Erro ao abrir postagens ou postagens inexistentes!\n");
+        return ERRO;
+    }
+
+    if (feof(arquivoPostagem))
+    {
+        printf("Nao há postagens cadastradas\n");
+    }
+
+    while (fgets(string, Tamanho_Maximo, arquivoPostagem) != NULL);
+    {
+        nLinhas++;
+    }
+
+    totalDePostagens = nLinhas / 3;
+    
+    *ponteiro_postagem = (posts_t **)realloc(*ponteiro_postagem, (*numeroPerfil) * sizeof(posts_t *));
+
+    for(int i = 0; i < (*numeroPerfil); i++){
+
+    (*ponteiro_postagem)[i] = (posts_t *)realloc((*ponteiro_postagem), (totalDePostagens + 1) * sizeof(posts_t));
+
+    }
+    // pesquisar fseek()
+
+    /*for (int i = 0; i < num_perfis; i++){
+
+    alocarMatriz(ponteiro_postagem, totalDePostagens, i, num_perfis);
+
+    }
+    while (true)
+    {
+
+        if (feof(arquivoPostagem))
+        {
+            break;
+        }
+
+        (*ponteiro_postagem) = (posts_t *)realloc(*ponteiro_postagem, sizeof(posts_t) * (indice + 1));
+    }
+    */
+/*(*ponteiro_postagem) = (posts_t *)realloc(*ponteiro_postagem, sizeof(posts_t) * (indice + 1));
+
+        fgets((*ponteiro_postagem)[indice].ID_post, NUM_MAX_IMAGEM, arquivoPostagem);
+        util_removeQuebraLinhaFinal((*ponteiro_postagem)[indice].ID_post);
+
+        fgets((*ponteiro_postagem)[indice].url[indice], NUM_MAX_IMAGEM, arquivoPostagem);
+        util_removeQuebraLinhaFinal((*ponteiro_postagem)[indice].url[indice]);
+
+        fgets((*ponteiro_postagem)[indice].legenda, NUM_MAX_IMAGEM, arquivoPostagem);
+        util_removeQuebraLinhaFinal((*ponteiro_postagem)[indice].legenda);
+
+        if (feof(arquivoPostagem))
+        {
+            break;
+        }
+
+        indice++;
+    for (i = 0; i < indice; i++)
+    {
+        printf("%s", (*ponteiro_postagem)[i].ID_post);
+        printf("%s", (*ponteiro_postagem)[i].url[indice]);
+        printf("%s", (*ponteiro_postagem)[i].legenda);
+    }
+    */
+    return SUCESSO;
+}
+
+/*void escreverPostagensArquivo(){
+
+    FILE * arquivoPostagem;
+
+
+}*/
 
 // Função para cadastro de uma postagem
 int cadastro_postagem(posts_t * **ponteiro_postagem, int *num_postagens, int posicao_usuario_logado, int num_perfis)
