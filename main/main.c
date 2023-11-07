@@ -64,6 +64,7 @@ LEMBRETES:
 #define NUM_MAX_IMAGEM (999 + 1)
 // Define o erro
 #define USUARIO_INVALIDO -1
+#define MAX_NUMERO_COMENTARIOS 100
 
 /**
  *  \brief Função principal.
@@ -111,11 +112,9 @@ typedef struct login_s
 } login_t;
 
 // Estrutura para comentarios
-typedef struct comentario_s
-{
-    char id_comentario[NUM_MAX_CARACTERES_ID];
-    char perfil_que_comentou[NUM_MAX_CARACTERES_ID];
-    char mensagem[NUM_MAX_CARACTERES_COMENTARIO];
+typedef struct comentario_s{
+    char mensagem[NUM_MAX_CARACTERES_COMENTARIO][MAX_NUMERO_COMENTARIOS];
+    int numero_comentarios;
 } comentario_t;
 
 // Estrutura para curtidas
@@ -153,9 +152,13 @@ void util_removeQuebraLinhaFinal(char dados[])
         dados[tamanho - 1] = '\0';
     }
 }
+void comecar_usuario_com_NULL(posts_t *** ponteiro_postagem,int num_perfis){
 
-int funcaoLerArquivo(perfil_t **ponteiro_perfil, int *num_perfis)
-{
+    *ponteiro_postagem = (posts_t **) realloc (*ponteiro_postagem,num_perfis * sizeof (posts_t *));
+    (*ponteiro_postagem)[num_perfis - 1] = NULL;
+
+}
+int funcaoLerArquivo(perfil_t **ponteiro_perfil, int *num_perfis,posts_t *** ponteiro_postagem){
 
     perfil_t *VetorPerfil = NULL;
 
@@ -217,7 +220,7 @@ int funcaoLerArquivo(perfil_t **ponteiro_perfil, int *num_perfis)
         }
 
         (*num_perfis)++;
-
+        comecar_usuario_com_NULL(ponteiro_postagem,*num_perfis);
         //lerPostagensArquivo(&ponteiro_perfil, num_perfis);
     }
 
@@ -230,22 +233,19 @@ int funcaoLerArquivo(perfil_t **ponteiro_perfil, int *num_perfis)
     return SUCESSO;
 }
 
-int funcaoEscreveArquivo(perfil_t *dadosNaMemoria, int num_perfis)
-{
+int funcaoEscreveArquivo(perfil_t *dadosNaMemoria, int num_perfis){
 
     FILE *arquivo;
     int i;
 
     arquivo = fopen("dadosColtegram.txt", "w");
 
-    if (arquivo == NULL)
-    {
+    if (arquivo == NULL){
         printf("Erro ao abrir o arquivo");
         return ERRO;
     }
 
-    for (i = 0; i < num_perfis; i++)
-    {
+    for (i = 0; i < num_perfis; i++){
 
         util_removeQuebraLinhaFinal(dadosNaMemoria[i].ID);
         util_removeQuebraLinhaFinal(dadosNaMemoria[i].nome_usuario);
@@ -253,8 +253,7 @@ int funcaoEscreveArquivo(perfil_t *dadosNaMemoria, int num_perfis)
         util_removeQuebraLinhaFinal(dadosNaMemoria[i].senha);
     }
 
-    for (i = 0; i < num_perfis; i++)
-    {
+    for (i = 0; i < num_perfis; i++){
 
         fprintf(arquivo, "%s\n", dadosNaMemoria[i].ID);
         fprintf(arquivo, "%s\n", dadosNaMemoria[i].nome_usuario);
@@ -309,8 +308,7 @@ int email_existente(perfil_t *perfis, int num_perfis, char *email)
     return 0;
 }
 // Função para o cadastro do perfil
-void cadastro_perfil(perfil_t **ponteiro_perfil, int *num_perfis)
-{
+void cadastro_perfil(perfil_t **ponteiro_perfil, int *num_perfis,posts_t *** ponteiro_postagem){
     perfil_t perfis;
     perfis.numeroDePostagens = 0;
     int i;
@@ -401,6 +399,7 @@ void cadastro_perfil(perfil_t **ponteiro_perfil, int *num_perfis)
     (*num_perfis)++;
     *ponteiro_perfil = realloc(*ponteiro_perfil, (*num_perfis) * sizeof(perfil_t));
     (*ponteiro_perfil)[*num_perfis - 1] = perfis;
+    comecar_usuario_com_NULL(ponteiro_postagem,*num_perfis);
     printf("Cadastro concluido!!!\n");
 }
 // Função para fazer login no sistema
@@ -652,21 +651,18 @@ void insta_imprimeImagem(asciiImg_t *img)
  *
  *  \param [in] img Endereço da estrutura com os dados da imagem a ser liberada.
  */
-void insta_liberaImagem(asciiImg_t *img)
-{
+void insta_liberaImagem(asciiImg_t *img){
     free(img->bytes);
     free(img);
 }
 
-void alocarMatriz(posts_t ***ponteiro_postagem, int num_postagens, int posicao_usuario_logado, int num_perfis)
-{ // deixa o asterisco do jeito que ta
-
-    *ponteiro_postagem = (posts_t **)realloc(*ponteiro_postagem, num_perfis * sizeof(posts_t *));
-
-    (*ponteiro_postagem)[posicao_usuario_logado] = (posts_t *)realloc((*ponteiro_postagem), (num_postagens + 1) * sizeof(posts_t));
+void alocarMatriz(posts_t ***ponteiro_postagem, int num_postagens, int posicao_usuario_logado){ 
+ 
+    (*ponteiro_postagem)[posicao_usuario_logado] = (posts_t *)realloc((*ponteiro_postagem)[posicao_usuario_logado], (num_postagens + 1) * sizeof(posts_t));
 }
 
-int lerPostagensArquivo(posts_t * **ponteiro_postagem, int *numeroPerfil){
+
+int lerPostagensArquivo(posts_t ***ponteiro_postagem, int numeroPerfil){
 
     FILE * arquivoPostagem;
     int indice = 0;
@@ -677,36 +673,32 @@ int lerPostagensArquivo(posts_t * **ponteiro_postagem, int *numeroPerfil){
     int nLinhas = 0;
     int totalDePostagens = 0;
 
-    sprintf(nome_Do_Arquivo, "%d.txt", (*numeroPerfil));
+    sprintf(nome_Do_Arquivo, "%d.txt", (numeroPerfil));
 
     arquivoPostagem = fopen(nome_Do_Arquivo, "r");
 
-    if (arquivoPostagem == NULL)
-    {
+    if (arquivoPostagem == NULL){
 
         printf("Erro ao abrir postagens ou postagens inexistentes!\n");
         return ERRO;
     }
 
-    if (feof(arquivoPostagem))
-    {
+    if (feof(arquivoPostagem)){
         printf("Nao há postagens cadastradas\n");
     }
 
-    while (fgets(string, Tamanho_Maximo, arquivoPostagem) != NULL);
-    {
+    while (fgets(string, Tamanho_Maximo, arquivoPostagem) != NULL);{
         nLinhas++;
-    }
+    };
 
     totalDePostagens = nLinhas / 3;
     
-    *ponteiro_postagem = (posts_t **)realloc(*ponteiro_postagem, (*numeroPerfil) * sizeof(posts_t *));
+    //*ponteiro_postagem = (posts_t **)realloc(*ponteiro_postagem, (*numeroPerfil) * sizeof(posts_t *));
 
-    for(int i = 0; i < (*numeroPerfil); i++){
+    
 
-    (*ponteiro_postagem)[i] = (posts_t *)realloc((*ponteiro_postagem), (totalDePostagens + 1) * sizeof(posts_t));
+    (*ponteiro_postagem)[numeroPerfil] = (posts_t *)realloc((*ponteiro_postagem)[numeroPerfil], (totalDePostagens + 1) * sizeof(posts_t));
 
-    }
     // pesquisar fseek()
 
     /*for (int i = 0; i < num_perfis; i++){
@@ -760,8 +752,7 @@ int lerPostagensArquivo(posts_t * **ponteiro_postagem, int *numeroPerfil){
 }*/
 
 // Função para cadastro de uma postagem
-int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posicao_usuario_logado, int num_perfis)
-{
+int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posicao_usuario_logado){
     posts_t postagens;
     int i;
 
@@ -795,8 +786,7 @@ int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posi
     printf("Exemplo: https://img.freepik.com/fotos-premium/fundo-de-rosas-bonitas_534373-220.jpg\n");
     // https://static.todamateria.com.br/upload/ba/sq/basquetebol-og.jpg
 
-    for (i = 0; i < postagens.num_imagens; i++)
-    {
+    for (i = 0; i < postagens.num_imagens; i++){
         printf("URL: ");
         fgets(postagens.url[i], NUM_MAX_IMAGEM, stdin);
         util_removeQuebraLinhaFinal(postagens.url[i]);
@@ -818,7 +808,7 @@ int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posi
 
     (*num_postagens)++;
 
-    alocarMatriz(ponteiro_postagem, *num_postagens, posicao_usuario_logado, num_perfis);
+    alocarMatriz(ponteiro_postagem, *num_postagens, posicao_usuario_logado);
 
     (*ponteiro_postagem)[posicao_usuario_logado][*num_postagens - 1] = postagens;
 
@@ -826,26 +816,22 @@ int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posi
 }
 
 // Função para imprimir informações de posts
-int imprime_posts(posts_t **ponteiro_postagem, int num_postagem, int posicao_usuario_logado)
-{
+int imprime_posts_do_usuario_logado(posts_t **ponteiro_postagem, int num_postagem, int posicao_usuario_logado){
     int i, j;
 
-    if (num_postagem < 1)
-    {
+    if (num_postagem < 1){
         printf("Voce nao postou posts ainda!\n");
         return ERRO;
     }
 
     printf("SEUS POSTS\n");
 
-    for (i = 0; i < num_postagem; i++)
-    {
+    for (i = 0; i < num_postagem; i++){
         printf("Titulo\n");
         printf("%s\n", ponteiro_postagem[posicao_usuario_logado][i].ID_post);
         printf("IMAGEM:\n");
 
-        for (j = 0; j < ponteiro_postagem[posicao_usuario_logado][i].num_imagens; j++)
-        {
+        for (j = 0; j < ponteiro_postagem[posicao_usuario_logado][i].num_imagens; j++){
             // Mostra a imagem, o número de bytes e libera a memória
             insta_imprimeImagem(ponteiro_postagem[posicao_usuario_logado][i].img[j]);
         }
@@ -855,25 +841,36 @@ int imprime_posts(posts_t **ponteiro_postagem, int num_postagem, int posicao_usu
     }
     return SUCESSO;
 }
+int imprime_posts_da_sua_escolha(posts_t ** ponteiro_postagem, int numero_do_usuario, int numero_da_postagem){
+    int i;
 
-int editar_posts(posts_t **ponteiro_postagem, int num_postagens, int posicao_usuario_logado)
-{
+    printf("Titulo\n");
+    printf("%s\n", ponteiro_postagem[numero_do_usuario][numero_da_postagem].ID_post);
+    printf("IMAGEM:\n");
+
+    for (i = 0; i < ponteiro_postagem[numero_do_usuario][numero_da_postagem].num_imagens; i++){
+        // Mostra a imagem, o número de bytes e libera a memória
+        insta_imprimeImagem(ponteiro_postagem[numero_do_usuario][numero_da_postagem].img[i]);
+    }
+
+    printf("Legenda:\n");
+    printf("%s\n", ponteiro_postagem[numero_do_usuario][numero_da_postagem].legenda);
+    return SUCESSO;
+}
+int editar_posts(posts_t **ponteiro_postagem, int num_postagens, int posicao_usuario_logado){
     int i;
     int opcao, index;
 
-    if (num_postagens < 1)
-    {
+    if (num_postagens < 1){
         printf("Voce nao postou posts ainda!\n");
         return ERRO;
     }
     printf("\t\tSEUS POSTS:\n");
 
-    for (i = 0; i < num_postagens; i++)
-    {
+    for (i = 0; i < num_postagens; i++){
         printf("%d. %-30s\n", i + 1, ponteiro_postagem[posicao_usuario_logado][i].ID_post);
     }
-    do
-    {
+    do{
         printf("O que voce deseja editar no seu post?\n");
         printf("(1) <TITULO DO MEU POST>\n(2) <IMAGEM DO POST>\n(3) <LEGENDA DO POST>\n(0) <SAIR>\n");
         printf("Digite o numero correspondente a sua opcao:\n");
@@ -1018,70 +1015,126 @@ void excluir_posts(posts_t * ponteiro_postagem,int num_postagens){
     }
 }
 */
-int comentarios(posts_t **ponteiro_postagem, int num_postagens, perfil_t *ponteiro_perfil, int posicao_usuario_logado, int num_perfis)
-{
-    int i, j, index;
-    if (num_postagens < 1)
-    {
+int comentar_em_seu_propio_post(posts_t **ponteiro_postagem, int num_postagens, perfil_t *ponteiro_perfil, int posicao_usuario_logado){
+    int i,j, index;
+    if (num_postagens < 1){
         printf("Voce nao postou posts!\n");
         return ERRO;
     }
-    for (i = 0; i < num_perfis; i++)
-    {
-        for (j = 0; j < num_postagens; j++)
-        {
-            printf("%s:\n", ponteiro_perfil[i].ID);
-            printf("%d.%s\n", j + 1, ponteiro_postagem[i][j].ID_post);
-        }
+    
+    for (j = 0; j < num_postagens; j++){
+        printf("%d.%s\n", j + 1, ponteiro_postagem[posicao_usuario_logado][j].ID_post);
     }
     printf("Digite qual post voce deseja acessar e comentar:\n");
     scanf("%d%*c", &index);
     index--;
-    if (index < 0 || index >= num_postagens)
-    {
+    if (index < 0 || index >= num_postagens){
         printf("Opcao invalida!\n");
         return ERRO;
     }
-    printf("O que voce deseja comentar no post %s?\n", ponteiro_postagem[index][index].ID_post);
-    fgets(ponteiro_postagem[index][index].comentario.mensagem, NUM_MAX_CARACTERES_COMENTARIO, stdin);
-    util_removeQuebraLinhaFinal(ponteiro_postagem[index][index].comentario.mensagem);
+    ponteiro_postagem[posicao_usuario_logado][index].comentario.numero_comentarios = 0;
+    for (i = 0;i < ponteiro_postagem[posicao_usuario_logado][index].comentario.numero_comentarios;i++){
+        printf("O que voce deseja comentar no post %s?\n", ponteiro_postagem[posicao_usuario_logado][index].ID_post);
+        fgets(ponteiro_postagem[posicao_usuario_logado][index].comentario.mensagem[i], NUM_MAX_CARACTERES_COMENTARIO, stdin);
+        util_removeQuebraLinhaFinal(ponteiro_postagem[posicao_usuario_logado][index].comentario.mensagem[i]);
+    }
+    
+    ponteiro_postagem[posicao_usuario_logado][index].comentario.numero_comentarios++;
     printf("Comentario feito!\n");
     printf("SEU COMENTARIO:\n");
-    printf("%s: %s\n", ponteiro_perfil[posicao_usuario_logado].ID, ponteiro_postagem[index][index].comentario.mensagem);
+    for (i = 0;i < ponteiro_postagem[posicao_usuario_logado][index].comentario.numero_comentarios;i++){
+        printf("%s: %s\n", ponteiro_perfil[posicao_usuario_logado].ID, ponteiro_postagem[posicao_usuario_logado][index].comentario.mensagem[i]);
+    }
+    
 
     return SUCESSO;
 }
-int listar_comentario(posts_t **ponteiro_postagem, int num_postagens, int posicao_usuario_logado, perfil_t *ponteiro_perfil, int num_perfis)
-{
-    int i, j, escolha;
-    if (num_postagens < 1)
-    {
-        printf("Voce nao postou posts!\n");
+int comentar_no_post_dos_outros(posts_t ** ponteiro_postagem, int num_postagens, int posicao_usuario_logado,perfil_t * ponteiro_perfil,int num_perfis){
+    int i;
+    int escolha_perfil, escolha_postagem;
+    if (num_postagens < 1){
+        printf ("Nao ha posts no sistema!\n");
         return ERRO;
     }
-    printf("Qual postagem voce deseja acessar?\n");
-    for (i = 0; i < num_perfis; i++)
-    {
-        for (j = 0; j < num_postagens; i++)
-        {
-            printf("%s:\n", ponteiro_perfil[i].ID);
-            printf("%d.%s\n", j + 1, ponteiro_postagem[i][j].ID_post);
-        }
+    
+    printf ("Qual perfil voce deseja acessar?\n");
+    for (i = 0;i < num_perfis;i++){
+        printf ("%d.%s\n", i + 1,ponteiro_perfil[i].ID);
     }
-    printf("SUA ESCOLHA:\n");
-    scanf("%d%*c", &escolha);
-    escolha--;
-    if (escolha < 0 || escolha >= num_postagens)
-    {
+
+    printf ("Sua opcao: ");
+    scanf ("%d%*c", &escolha_perfil);
+    escolha_perfil--;
+
+     if (escolha_perfil < 0 || escolha_perfil >= num_perfis){
         printf("Opcao invalida!\n");
         return ERRO;
     }
-    printf("Comentarios para a postagem %s\n", ponteiro_postagem[posicao_usuario_logado][escolha].ID_post);
-    for (i = 0; i < num_postagens; i++)
-    {
-        printf("%s:%s\n", ponteiro_perfil[posicao_usuario_logado].ID, ponteiro_postagem[posicao_usuario_logado][i].comentario.mensagem);
+
+    printf ("Em qual post desse perfil voce quer acessar?\n");
+    for (i = 0;i < num_postagens;i++){
+        printf ("%d.%s\n", i + 1,ponteiro_postagem[escolha_perfil][i].ID_post);
+    }
+    printf ("Sua opcao: ");
+    scanf ("%d", &escolha_postagem);
+    escolha_postagem--;
+     if (escolha_postagem < 0 || escolha_postagem >= num_postagens){
+        printf("Opcao invalida!\n");
+        return ERRO;
     }
 
+    imprime_posts_da_sua_escolha(ponteiro_postagem,escolha_perfil,escolha_postagem);
+
+    printf("O que voce deseja comentar no post %s?\n", ponteiro_postagem[escolha_perfil][escolha_postagem].ID_post);
+    fgets(ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.mensagem[ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.numero_comentarios], NUM_MAX_CARACTERES_COMENTARIO, stdin);
+    util_removeQuebraLinhaFinal(ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.mensagem[ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.numero_comentarios]);
+    ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.numero_comentarios++;
+    printf("Comentario feito!\n");
+    printf("SEU COMENTARIO:\n");
+    for (i = 0;i < ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.numero_comentarios;i++){
+        printf("%s: %s\n", ponteiro_perfil[posicao_usuario_logado].ID, ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.mensagem[i]);
+    }
+
+    return SUCESSO;
+}
+int listar_comentario(posts_t **ponteiro_postagem, int num_postagens, perfil_t *ponteiro_perfil, int num_perfis){
+    int i;
+    int escolha_perfil;
+    int escolha_postagem;
+    if (num_postagens < 1){
+        printf("Voce nao postou posts!\n");
+        return ERRO;
+    }
+    printf ("Qual perfil voce deseja acessar?\n");
+    for (i = 0;i < num_perfis;i++){
+        printf ("%d.%s\n", i + 1, ponteiro_perfil[i].ID);
+    }
+    printf ("Sua opcao: ");
+    scanf ("%d%*c", &escolha_perfil);
+    escolha_perfil--;
+    if (escolha_perfil < 0 || escolha_perfil >= num_perfis){
+        printf("Opcao invalida!\n");
+        return ERRO;
+    }
+    printf("Qual postagem voce deseja acessar do perfil %s?\n", ponteiro_perfil[escolha_perfil].ID);
+    for (i = 0;i < num_postagens;i++){
+        printf ("%d.%s\n", i + 1,ponteiro_postagem[escolha_perfil][i].ID_post);
+    }
+    printf("SUA ESCOLHA: ");
+    scanf("%d%*c", &escolha_postagem);
+    escolha_postagem--;
+    if (escolha_postagem < 0 || escolha_postagem >= num_postagens){
+        printf("Opcao invalida!\n");
+        return ERRO;
+    }
+
+    imprime_posts_da_sua_escolha(ponteiro_postagem,escolha_perfil,escolha_postagem);
+    printf ("Comentarios:\n");
+    for (i = 0;i < ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.numero_comentarios;i++){
+        printf ("Numero de comentarios: %d\n", ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.numero_comentarios);
+        printf ("%d.%s: %s\n", i + 1,ponteiro_perfil[escolha_perfil].ID,ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.mensagem[i]);
+    }
+    
     return SUCESSO;
 }
 
@@ -1168,7 +1221,7 @@ int main(int argc, char **argv)
     // fgets(url, tamanhourl, perfilselecionado);
     // ponteiro_postagem[0].img = insta_carregaImagem(url, modoImagem, numerodecolunas);
 
-    funcaoLerArquivo(&ponteiro_perfil, &num_perfis);
+    funcaoLerArquivo(&ponteiro_perfil, &num_perfis, &ponteiro_postagem);
 
     // lerPostagensArquivo(&ponteiro_postagem, 1);
 
@@ -1184,7 +1237,7 @@ int main(int argc, char **argv)
         {
         case 1:
         {
-            cadastro_perfil(&ponteiro_perfil, &num_perfis);
+            cadastro_perfil(&ponteiro_perfil, &num_perfis,&ponteiro_postagem);
             break;
         }
         case 2:
@@ -1309,68 +1362,60 @@ int main(int argc, char **argv)
                         scanf("%d%*c", &escolha2);
                         switch (escolha2)
                         {
-                        case 1:
-                        {
+                        case 1:{
                             // Postar posts
-                            cadastro_postagem(&ponteiro_postagem, &num_postagens, posicao_usuario_logado, num_perfis); // Aqui você vai incluir a variavel posicao_usuario_logado como parametro
+                            cadastro_postagem(&ponteiro_postagem, &num_postagens, posicao_usuario_logado); // Aqui você vai incluir a variavel posicao_usuario_logado como parametro
                             break;
                         }
-                        case 2:
-                        {
+                        case 2:{
                             // Editar posts
                             editar_posts(ponteiro_postagem, num_postagens, posicao_usuario_logado);
                             break;
                         }
-                        case 3:
-                        {
+                        case 3:{
                             // Listar posts
-                            imprime_posts(ponteiro_postagem, num_postagens, posicao_usuario_logado);
+                            imprime_posts_do_usuario_logado(ponteiro_postagem, num_postagens, posicao_usuario_logado);
                             break;
                         }
-                        case 4:
-                        {
+                        case 4:{
                             // Detalhar posts
                             break;
                         }
-                        case 5:
-                        {
+                        case 5:{
                             // Apagar posts
                             /*
                             excluir_posts(ponteiro_postagem,num_postagens);
                             */
                             break;
                         }
-                        case 6:
-                        {
-                            do
-                            {
+                        case 6:{
+                            do{
                                 printf("\t\tCOMENTARIOS:\n");
                                 printf("O que voce deseja fazer?\n");
-                                printf("(1) <COMENTAR EM UM POST>\n(2) <LISTAR COMENTARIOS>\n(0) <SAIR>\n");
+                                printf("(1) <COMENTAR EM SEU PROPIO POST>\n(2) <COMENTAR_POST_DE_OUTROS_PERFIS>\n(3) <LISTAR COMENTARIOS>\n(0) <SAIR>\n");
                                 printf("Sua opcao: ");
                                 scanf("%d%*c", &opcao2);
 
-                                switch (opcao2)
-                                {
-                                case 1:
-                                {
-                                    comentarios(ponteiro_postagem, num_postagens, ponteiro_perfil, posicao_usuario_logado, num_perfis);
-                                    break;
-                                }
-                                case 2:
-                                {
-                                    listar_comentario(ponteiro_postagem, num_postagens, posicao_usuario_logado, ponteiro_perfil, num_perfis);
-                                    break;
-                                }
-                                case 0:
-                                {
-                                    printf("Saindo...");
-                                    break;
-                                }
-                                default:
-                                {
-                                    printf("Opcao invalida!\n");
-                                }
+                                switch (opcao2){
+                                    case 1:{
+                                        comentar_em_seu_propio_post(ponteiro_postagem, num_postagens, ponteiro_perfil, posicao_usuario_logado);
+                                        break;
+                                    }
+                                    case 2:{
+                                        comentar_no_post_dos_outros(ponteiro_postagem,num_postagens,posicao_usuario_logado,ponteiro_perfil,num_perfis);
+                                        break;
+                                    }
+                                    case 3:{
+                                        listar_comentario(ponteiro_postagem, num_postagens, ponteiro_perfil, num_perfis);
+                                        break;
+                                    }
+                                    case 0:{
+                                        printf("Saindo...");
+                                        break;
+                                    }
+                                    default:{
+                                        printf("Opcao invalida!\n");
+                                    }
                                 }
                             } while (opcao2 != 0);
                             break;
