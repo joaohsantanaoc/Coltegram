@@ -20,6 +20,7 @@ LEMBRETES:
 // Constantes presentes
 #define SUCESSO 0
 #define ERRO 1
+#define Sem_Postagens 1
 #define Tamanho_Maximo 100
 #define NUM_MAX_CARACTERES_NOME_USUARIO (99 + 1)
 #define NUM_MAX_CARACTERES_EMAIL (50 + 1)
@@ -145,7 +146,59 @@ void util_removeQuebraLinhaFinal(char dados[]){
     }
 }
 
-int funcaoLerArquivo(perfil_t **ponteiro_perfil, int *num_perfis){
+/*int lerPostagensArquivo(posts_t * **ponteiro_postagem, int *numeroPerfil, int totalDePostagens){
+
+    FILE * arquivoPostagem;
+
+    char nome_Do_Arquivo[Tamanho_Maximo];
+
+    posts_t * postagens_Perfil = NULL;
+
+    int posicao_Da_Postagem = 0;
+
+    sprintf(nome_Do_Arquivo, "%d.txt", (*numeroPerfil));
+
+    arquivoPostagem = fopen(nome_Do_Arquivo, "r");
+
+    if (arquivoPostagem == NULL){
+        printf("Erro ao abrir postagens ou postagens inexistentes!\n");
+        return ERRO;
+    }
+
+    if (totalDePostagens == 0){
+        return Sem_Postagens;
+    }
+
+    //Início da leitura
+
+    while (posicao_Da_Postagem < totalDePostagens)
+    {
+        postagens_Perfil = (posts_t*)realloc(postagens_Perfil, totalDePostagens * sizeof(posts_t));
+
+            fgets(postagens_Perfil[posicao_Da_Postagem].ID_post, NUM_MAX_CARACTERES_ID, arquivoPostagem);
+
+            //fgets(postagens_Perfil[posicao_Da_Postagem].url, MAX_IMAGENS, arquivoPostagem);
+
+            fgets(postagens_Perfil[posicao_Da_Postagem].legenda, NUM_MAX_CARACTERES_LEGENDA, arquivoPostagem);
+        
+        posicao_Da_Postagem ++;
+    }
+
+    *ponteiro_postagem = (posts_t **)realloc(*ponteiro_postagem, (*numeroPerfil) * sizeof(posts_t *));
+
+    (*ponteiro_postagem)[(*numeroPerfil)] = (posts_t *)realloc((*ponteiro_postagem), totalDePostagens * sizeof(posts_t));
+
+    (*ponteiro_postagem)[(*numeroPerfil)] = postagens_Perfil;
+    
+    // pesquisar fseek()
+
+    fclose(arquivoPostagem);
+    
+    return SUCESSO;
+}
+*/
+
+int funcaoLerArquivo(perfil_t **ponteiro_perfil, posts_t ***ponteiro_Postagem, int *num_perfis){
 
     perfil_t *VetorPerfil = NULL;
 
@@ -197,9 +250,11 @@ int funcaoLerArquivo(perfil_t **ponteiro_perfil, int *num_perfis){
             break;
         }
 
+        //lerPostagensArquivo(&ponteiro_Postagem, num_perfis, VetorPerfil[*num_perfis].numeroDePostagens);
+
         (*num_perfis)++;
 
-        //lerPostagensArquivo(&ponteiro_perfil, num_perfis);
+        
     }
 
     fclose(arquivo);
@@ -585,83 +640,7 @@ void alocarMatriz(posts_t ***ponteiro_postagem, int num_postagens, int posicao_u
     (*ponteiro_postagem)[posicao_usuario_logado] = (posts_t *)realloc((*ponteiro_postagem), (num_postagens + 1) * sizeof(posts_t));
 }
 
-int lerPostagensArquivo(posts_t * **ponteiro_postagem, int *numeroPerfil){
 
-    FILE * arquivoPostagem;
-    int indice = 0;
-
-    char nome_Do_Arquivo[Tamanho_Maximo];
-    char string[Tamanho_Maximo];
-
-    int nLinhas = 0;
-    int totalDePostagens = 0;
-
-    sprintf(nome_Do_Arquivo, "%d.txt", (*numeroPerfil));
-
-    arquivoPostagem = fopen(nome_Do_Arquivo, "r");
-
-    if (arquivoPostagem == NULL){
-        printf("Erro ao abrir postagens ou postagens inexistentes!\n");
-        return ERRO;
-    }
-
-    if (feof(arquivoPostagem)){
-        printf("Nao há postagens cadastradas\n");
-    }
-
-    while (fgets(string, Tamanho_Maximo, arquivoPostagem) != NULL){
-        nLinhas++;
-    };
-
-    totalDePostagens = nLinhas / 3;
-    
-    *ponteiro_postagem = (posts_t **)realloc(*ponteiro_postagem, (*numeroPerfil) * sizeof(posts_t *));
-
-    for(int i = 0; i < (*numeroPerfil); i++){
-
-    (*ponteiro_postagem)[i] = (posts_t *)realloc((*ponteiro_postagem), (totalDePostagens + 1) * sizeof(posts_t));
-
-    }
-    // pesquisar fseek()
-
-    /*for (int i = 0; i < num_perfis; i++){
-
-    alocarMatriz(ponteiro_postagem, totalDePostagens, i, num_perfis);
-
-    }
-    while (true){
-
-        if (feof(arquivoPostagem)){
-            break;
-        }
-
-        (*ponteiro_postagem) = (posts_t *)realloc(*ponteiro_postagem, sizeof(posts_t) * (indice + 1));
-    }
-    */
-/*(*ponteiro_postagem) = (posts_t *)realloc(*ponteiro_postagem, sizeof(posts_t) * (indice + 1));
-
-        fgets((*ponteiro_postagem)[indice].ID_post, NUM_MAX_IMAGEM, arquivoPostagem);
-        util_removeQuebraLinhaFinal((*ponteiro_postagem)[indice].ID_post);
-
-        fgets((*ponteiro_postagem)[indice].url[indice], NUM_MAX_IMAGEM, arquivoPostagem);
-        util_removeQuebraLinhaFinal((*ponteiro_postagem)[indice].url[indice]);
-
-        fgets((*ponteiro_postagem)[indice].legenda, NUM_MAX_IMAGEM, arquivoPostagem);
-        util_removeQuebraLinhaFinal((*ponteiro_postagem)[indice].legenda);
-
-        if (feof(arquivoPostagem)){
-            break;
-        }
-
-        indice++;
-    for (i = 0; i < indice; i++){
-        printf("%s", (*ponteiro_postagem)[i].ID_post);
-        printf("%s", (*ponteiro_postagem)[i].url[indice]);
-        printf("%s", (*ponteiro_postagem)[i].legenda);
-    }
-    */
-    return SUCESSO;
-}
 
 /*void escreverPostagensArquivo(){
 
@@ -1039,13 +1018,16 @@ int main(int argc, char **argv){
     int posicao_usuario_logado;
     char busca[NUM_MAX_CARACTERES_ID];
 
-    // fgets(url, tamanhourl, perfilselecionado);
-    // ponteiro_postagem[0].img = insta_carregaImagem(url, modoImagem, numerodecolunas);
+    funcaoLerArquivo(&ponteiro_perfil, &ponteiro_postagem, &num_perfis);
 
-    funcaoLerArquivo(&ponteiro_perfil, &num_perfis);
-
-    // lerPostagensArquivo(&ponteiro_postagem, 1);
-
+    /*  printf("%s", ponteiro_postagem[0][0].ID_post);
+        //printf("%s", ponteiro_postagem[0][0].url);
+        printf("%s", ponteiro_postagem[0][0].legenda);
+        printf("%s", ponteiro_postagem[1][0].ID_post);
+        //printf("%s", ponteiro_postagem[1][0].url);
+        printf("%s", ponteiro_postagem[1][0].legenda);
+    */
+   
     printf("Bem vindo ao Coltegram!\n");
     printf("Instagram feito por:\nIcaro Cardoso Nascimento\nJoao Henrique Santana Oliveira Campos\nMatheus Fernandes de Oliveira Brandemburg\n");
     do{
