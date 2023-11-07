@@ -1017,6 +1017,7 @@ void excluir_posts(posts_t * ponteiro_postagem,int num_postagens){
 */
 int comentar_em_seu_propio_post(posts_t **ponteiro_postagem, int num_postagens, perfil_t *ponteiro_perfil, int posicao_usuario_logado){
     int i,j, index;
+    int k;
     if (num_postagens < 1){
         printf("Voce nao postou posts!\n");
         return ERRO;
