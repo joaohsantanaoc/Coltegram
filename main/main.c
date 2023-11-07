@@ -146,6 +146,95 @@ void util_removeQuebraLinhaFinal(char dados[]){
     }
 }
 
+asciiImg_t *insta_carregaImagem(char url[], bool colorido, int largura){
+
+    FILE *arquivo;
+    char buffer[BUFFER_TAMANHO];
+    int nBytes, nBytesTotal = 0;
+    char linhaComando[LINHA_COMANDO];
+
+    asciiImg_t *img;
+
+    // Aloca espaço para uma imagem
+    img = malloc(sizeof(asciiImg_t));
+    if (img == NULL)
+        return NULL;
+    // Inicializa a estrutura
+    img->bytes = NULL;
+    img->nBytes = 0;
+
+    // Monta a linha de comando
+    (void)sprintf(linhaComando, "%s %s %s -W %d -c > %s", FERRAMENTA_IMAGEM, url, (colorido ? "-C" : ""), largura, ARQUIVO_IMAGEM_TMP);
+
+    // Chama o programa para fazer o download da imagem
+    (void)system(linhaComando);
+
+    // Tenta abrir o arquivo recem criado
+    arquivo = fopen(ARQUIVO_IMAGEM_TMP, "r");
+    if (arquivo != NULL){
+
+        while (!feof(arquivo)){
+            // Limpa a linha
+            (void)memset(buffer, 0, sizeof(buffer));
+
+            // Tenta ler uma linha
+            if (fgets(buffer, BUFFER_TAMANHO, arquivo) == NULL)
+                continue;
+
+            // Descobre o número de bytes da linha
+            for (nBytes = 0; buffer[nBytes] != 0; nBytes++)
+                ;
+
+            // Aloca o espaço
+            img->bytes = realloc(img->bytes, sizeof(unsigned char) * (nBytesTotal + nBytes));
+
+            // Copia para o espaço alocado
+            (void)memcpy(&(img->bytes[nBytesTotal]), buffer, nBytes);
+            nBytesTotal += nBytes;
+        }
+
+        // Finaliza a imagem colocando o \0 final e o tamanho
+        img->bytes = realloc(img->bytes, sizeof(unsigned char) * (nBytesTotal + 1));
+        img->bytes[nBytesTotal++] = '\0';
+        img->nBytes = nBytesTotal;
+
+        // Fecha o arquivo
+        fclose(arquivo);
+    }
+
+    // Verifica se a imagem é válida
+    if (img->nBytes < LIMIAR_INFERIOR_TAMANHO_IMAGEM){
+        // Libera todo o espaço alocado
+        free(img->bytes);
+        free(img);
+
+        return NULL;
+    }
+    // Retorna a imagem carregada
+    return img;
+}
+
+/**
+ *  \brief Função que imprime uma Imagem ASCII.
+ *
+ *  \param [in] img Endereço da estrutura com os dados da imagem.
+ */
+void insta_imprimeImagem(asciiImg_t *img){
+    if (img == NULL)
+        return;
+    printf("%s", img->bytes);
+}
+
+/**
+ *  \brief Função que libera a memória alocada por uma imagem.
+ *
+ *  \param [in] img Endereço da estrutura com os dados da imagem a ser liberada.
+ */
+void insta_liberaImagem(asciiImg_t *img){
+    free(img->bytes);
+    free(img);
+}
+
 int lerPostagensArquivo(posts_t * **ponteiro_postagem, int *numeroPerfil, int totalDePostagens){
 
     FILE * arquivoPostagem;
@@ -182,16 +271,24 @@ int lerPostagensArquivo(posts_t * **ponteiro_postagem, int *numeroPerfil, int to
             util_removeQuebraLinhaFinal(postagens_Perfil[posicao_Da_Postagem].url[0]);
 
             fgets(postagens_Perfil[posicao_Da_Postagem].legenda, NUM_MAX_CARACTERES_LEGENDA, arquivoPostagem);
-            //util_removeQuebraLinhaFinal(postagens_Perfil[posicao_Da_Postagem].legenda);
-        
+
+            postagens_Perfil[posicao_Da_Postagem].img = malloc(sizeof(asciiImg_t *));
+
+            postagens_Perfil[posicao_Da_Postagem].img[0] = insta_carregaImagem(postagens_Perfil[posicao_Da_Postagem].url[0], MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
+            //insta_imprimeImagem(postagens_Perfil[posicao_Da_Postagem].img[0]);
+            
         posicao_Da_Postagem ++;
     }
+
+        
 
     *ponteiro_postagem = (posts_t **)realloc(*ponteiro_postagem, (*numeroPerfil + 1) * sizeof(posts_t *));
 
     (*ponteiro_postagem)[(*numeroPerfil)] = (posts_t *)realloc((*ponteiro_postagem)[(*numeroPerfil)], totalDePostagens * sizeof(posts_t));
     
     (*ponteiro_postagem)[(*numeroPerfil)] = postagens_Perfil;
+
+    //insta_imprimeImagem((*ponteiro_postagem)[(*numeroPerfil)][0].img[0]);
     
     // pesquisar fseek()
 
@@ -255,7 +352,7 @@ int funcaoLerArquivo(perfil_t **ponteiro_perfil, posts_t ***ponteiro_Postagem, i
             break;
         }
 
-        //lerPostagensArquivo(ponteiro_Postagem, num_perfis, VetorPerfil[*num_perfis].numeroDePostagens);
+        lerPostagensArquivo(ponteiro_Postagem, num_perfis, VetorPerfil[*num_perfis].numeroDePostagens);
 
         numero_de_postagens += VetorPerfil[*num_perfis].numeroDePostagens;
 
@@ -551,94 +648,7 @@ void imprimir_tudo_cadastrado(perfil_t *ponteiro_perfil, int num_perfis){
     }
 }
 
-asciiImg_t *insta_carregaImagem(char url[], bool colorido, int largura){
 
-    FILE *arquivo;
-    char buffer[BUFFER_TAMANHO];
-    int nBytes, nBytesTotal = 0;
-    char linhaComando[LINHA_COMANDO];
-
-    asciiImg_t *img;
-
-    // Aloca espaço para uma imagem
-    img = malloc(sizeof(asciiImg_t));
-    if (img == NULL)
-        return NULL;
-    // Inicializa a estrutura
-    img->bytes = NULL;
-    img->nBytes = 0;
-
-    // Monta a linha de comando
-    (void)sprintf(linhaComando, "%s %s %s -W %d -c > %s", FERRAMENTA_IMAGEM, url, (colorido ? "-C" : ""), largura, ARQUIVO_IMAGEM_TMP);
-
-    // Chama o programa para fazer o download da imagem
-    (void)system(linhaComando);
-
-    // Tenta abrir o arquivo recem criado
-    arquivo = fopen(ARQUIVO_IMAGEM_TMP, "r");
-    if (arquivo != NULL){
-
-        while (!feof(arquivo)){
-            // Limpa a linha
-            (void)memset(buffer, 0, sizeof(buffer));
-
-            // Tenta ler uma linha
-            if (fgets(buffer, BUFFER_TAMANHO, arquivo) == NULL)
-                continue;
-
-            // Descobre o número de bytes da linha
-            for (nBytes = 0; buffer[nBytes] != 0; nBytes++)
-                ;
-
-            // Aloca o espaço
-            img->bytes = realloc(img->bytes, sizeof(unsigned char) * (nBytesTotal + nBytes));
-
-            // Copia para o espaço alocado
-            (void)memcpy(&(img->bytes[nBytesTotal]), buffer, nBytes);
-            nBytesTotal += nBytes;
-        }
-
-        // Finaliza a imagem colocando o \0 final e o tamanho
-        img->bytes = realloc(img->bytes, sizeof(unsigned char) * (nBytesTotal + 1));
-        img->bytes[nBytesTotal++] = '\0';
-        img->nBytes = nBytesTotal;
-
-        // Fecha o arquivo
-        fclose(arquivo);
-    }
-
-    // Verifica se a imagem é válida
-    if (img->nBytes < LIMIAR_INFERIOR_TAMANHO_IMAGEM){
-        // Libera todo o espaço alocado
-        free(img->bytes);
-        free(img);
-
-        return NULL;
-    }
-    // Retorna a imagem carregada
-    return img;
-}
-
-/**
- *  \brief Função que imprime uma Imagem ASCII.
- *
- *  \param [in] img Endereço da estrutura com os dados da imagem.
- */
-void insta_imprimeImagem(asciiImg_t *img){
-    if (img == NULL)
-        return;
-    printf("%s", img->bytes);
-}
-
-/**
- *  \brief Função que libera a memória alocada por uma imagem.
- *
- *  \param [in] img Endereço da estrutura com os dados da imagem a ser liberada.
- */
-void insta_liberaImagem(asciiImg_t *img){
-    free(img->bytes);
-    free(img);
-}
 
 void alocarMatriz(posts_t ***ponteiro_postagem, int num_postagens, int posicao_usuario_logado, int num_perfis){ // deixa o asterisco do jeito que ta
 
@@ -721,12 +731,12 @@ int imprime_posts(posts_t **ponteiro_postagem, int num_postagem, int posicao_usu
 
     printf("SEUS POSTS\n");
 
-    for (i = 0; i < num_postagem; i++){
+    for (i = 0; i <= ponteiro_postagem[posicao_usuario_logado][i].num_imagens; i++){
         printf("Titulo\n");
         printf("%s\n", ponteiro_postagem[posicao_usuario_logado][i].ID_post);
         printf("IMAGEM:\n");    
-        for (j = 0; j < ponteiro_postagem[posicao_usuario_logado][i].num_imagens; j++){
-            ponteiro_postagem[posicao_usuario_logado][i].img[j] = insta_carregaImagem(ponteiro_postagem[posicao_usuario_logado][i].url[j], MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
+        for (j = 0; j <= ponteiro_postagem[posicao_usuario_logado][i].num_imagens; j++){
+            //ponteiro_postagem[posicao_usuario_logado][i].img[j] = insta_carregaImagem(ponteiro_postagem[posicao_usuario_logado][i].url[j], MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
             // Mostra a imagem, o número de bytes e libera a memória
             insta_imprimeImagem(ponteiro_postagem[posicao_usuario_logado][i].img[j]);
         }
@@ -1016,20 +1026,14 @@ int main(int argc, char **argv){
     int posicao_usuario_logado;
     char busca[NUM_MAX_CARACTERES_ID];
 
-    funcaoLerArquivo(&ponteiro_perfil, &ponteiro_postagem, &num_perfis);
+    num_postagens = funcaoLerArquivo(&ponteiro_perfil, &ponteiro_postagem, &num_perfis);
 
-    /*num_postagens = funcaoLerArquivo(&ponteiro_perfil, &ponteiro_postagem, &num_perfis);
-
-        printf("%s", ponteiro_postagem[0][0].ID_post);
-        printf("%s", ponteiro_postagem[0][0].url);
+        printf("%s\n", ponteiro_postagem[0][0].ID_post);
+        printf("%s\n", ponteiro_postagem[0][0].url);
         printf("%s", ponteiro_postagem[0][0].legenda);
-        printf("%s", ponteiro_postagem[1][0].ID_post);
-        printf("%s", ponteiro_postagem[1][0].url);
+        printf("%s\n", ponteiro_postagem[1][0].ID_post);
+        printf("%s\n", ponteiro_postagem[1][0].url);
         printf("%s", ponteiro_postagem[1][0].legenda);
-
-        printf("Variavel local numero postagens igual a %d\n", num_postagens);
-
-    */
 
     printf("Bem vindo ao Coltegram!\n");
     printf("Instagram feito por:\nIcaro Cardoso Nascimento\nJoao Henrique Santana Oliveira Campos\nMatheus Fernandes de Oliveira Brandemburg\n");
