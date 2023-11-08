@@ -1252,9 +1252,24 @@ int main(int argc, char **argv)
     int num_perfis = 0;
     int num_postagens = 0;
     int posicao_usuario_logado;
+    int * vetor_Numero_Postagens_Usuarios = NULL;  //minha ideia aqui é ter um vetor que cada posição dele tem um numero representando a quantidade de postagens que um perfil tem.
     char busca[NUM_MAX_CARACTERES_ID];
 
     num_postagens = funcaoLerArquivo(&ponteiro_perfil, &num_perfis, &ponteiro_postagem);
+
+    vetor_Numero_Postagens_Usuarios = (int *)calloc(num_perfis, sizeof(int));
+
+    for (int i = 0; i < num_perfis; i++){
+
+        vetor_Numero_Postagens_Usuarios[i] += ponteiro_perfil[i].numeroDePostagens; 
+
+    }
+
+    for (int i = 0; i < num_perfis; i++){
+
+    printf("o vetor na posiçao %d vale %d\n", i, vetor_Numero_Postagens_Usuarios[i]);
+
+    }
 
     printf("Bem vindo ao Coltegram!\n");
     printf("Instagram feito por:\nIcaro Cardoso Nascimento\nJoao Henrique Santana Oliveira Campos\nMatheus Fernandes de Oliveira Brandemburg\n");
@@ -1274,6 +1289,9 @@ int main(int argc, char **argv)
         case 2:
         {
             posicao_usuario_logado = login(ponteiro_perfil, num_perfis, &login_info); // Aqui a variavel posicao_usuario_logado recebe o valor escolha, que deverá ser a posiçao do perfil.
+            
+            num_postagens = vetor_Numero_Postagens_Usuarios[posicao_usuario_logado];
+
             while (posicao_usuario_logado != USUARIO_INVALIDO)
             {
                 printf("Quais acoes voce deseja executar:\n");
