@@ -1,3 +1,0 @@
-Error: Need at least 1 input path/url or piped input
-Use the -h flag for more info
-
