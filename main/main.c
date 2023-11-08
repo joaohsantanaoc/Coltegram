@@ -1004,7 +1004,6 @@ void excluir_posts(posts_t * ponteiro_postagem,int num_postagens){
 int comentar_em_seu_propio_post(posts_t **ponteiro_postagem, int num_postagens, perfil_t *ponteiro_perfil, int posicao_usuario_logado)
 {
     int i, j, index;
-    int k;
     if (num_postagens < 1)
     {
         printf("Voce nao postou posts!\n");
@@ -1024,12 +1023,10 @@ int comentar_em_seu_propio_post(posts_t **ponteiro_postagem, int num_postagens, 
         return ERRO;
     }
     ponteiro_postagem[posicao_usuario_logado][index].comentario.numero_comentarios = 0;
-    for (i = 0; i < ponteiro_postagem[posicao_usuario_logado][index].comentario.numero_comentarios; i++)
-    {
-        printf("O que voce deseja comentar no post %s?\n", ponteiro_postagem[posicao_usuario_logado][index].ID_post);
-        fgets(ponteiro_postagem[posicao_usuario_logado][index].comentario.mensagem[i], NUM_MAX_CARACTERES_COMENTARIO, stdin);
-        util_removeQuebraLinhaFinal(ponteiro_postagem[posicao_usuario_logado][index].comentario.mensagem[i]);
-    }
+
+    printf("O que voce deseja comentar no post %s?\n", ponteiro_postagem[posicao_usuario_logado][index].ID_post);
+    fgets(ponteiro_postagem[posicao_usuario_logado][index].comentario.mensagem[ponteiro_postagem[posicao_usuario_logado][index].comentario.numero_comentarios], NUM_MAX_CARACTERES_COMENTARIO, stdin);
+    util_removeQuebraLinhaFinal(ponteiro_postagem[posicao_usuario_logado][index].comentario.mensagem[ponteiro_postagem[posicao_usuario_logado][index].comentario.numero_comentarios]);
 
     ponteiro_postagem[posicao_usuario_logado][index].comentario.numero_comentarios++;
     printf("Comentario feito!\n");
@@ -1275,7 +1272,7 @@ int buscar_perfis_email_ordenado(perfil_t *ponteiro_perfil, int num_perfis, char
 // Função principal
 int main(int argc, char **argv)
 {
-    int opcao, opcao2, opcao3, escolha1, escolha2, escolha3, escolha_buscar;
+    int opcao, opcao2, opcao3, escolha1, escolha2, escolha3, escolha_buscar, num_curtidas;
     perfil_t *ponteiro_perfil = NULL;
     posts_t **ponteiro_postagem = NULL;
     login_t login_info;
@@ -1518,7 +1515,8 @@ int main(int argc, char **argv)
                         case 7:
                         {
                              do{
-                                        printf("CURTIDAS:\n");
+                                        num_curtidas++;
+                                        printf("CURTIDAS: %d\n", num_curtidas);
                                         printf("Oque voce deseja fazer?:\n");
                                         printf("(1) <CURTIR>\n (2) <LISTAR CURTIDAS>\n (3) <SAIR>\n");
                                         printf("Digite sua opcao: ");
