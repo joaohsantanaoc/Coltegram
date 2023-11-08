@@ -289,16 +289,11 @@ int lerPostagensArquivo(posts_t ***ponteiro_postagem, int numeroPerfil, int tota
         return Sem_Postagens;
     }
 
-
-    printf("Antes de entrar na alocaçao de memoria local da funçao\n");
     postagens_Perfil = (posts_t *)malloc(totalDePostagens * sizeof(posts_t));
-    printf("Logo apos entrar\n");
-
-    printf("Valor de posiçao da postagem eh %d e o valor do total de postagem eh %d\n", posicao_Da_Postagem, totalDePostagens);
 
     while (posicao_Da_Postagem <= totalDePostagens)
     {
-        printf("To preso\n");
+
         fgets(postagens_Perfil[posicao_Da_Postagem].ID_post, NUM_MAX_CARACTERES_ID, arquivoPostagem);
         util_removeQuebraLinhaFinal(postagens_Perfil[posicao_Da_Postagem].ID_post);
 
@@ -308,32 +303,18 @@ int lerPostagensArquivo(posts_t ***ponteiro_postagem, int numeroPerfil, int tota
         fgets(postagens_Perfil[posicao_Da_Postagem].legenda, NUM_MAX_CARACTERES_LEGENDA, arquivoPostagem);
         // util_removeQuebraLinhaFinal(postagens_Perfil[posicao_Da_Postagem].legenda);
 
-
-        printf("Entrando no malloc\n");
         postagens_Perfil[posicao_Da_Postagem].img = malloc(sizeof(asciiImg_t *));
-        printf("Passou do malloc\n");
-
-
-        printf("Eu to mandando isso %s para a funçao insta carregar imagem\n", postagens_Perfil[posicao_Da_Postagem].url[0]);
 
         postagens_Perfil[posicao_Da_Postagem].img[0] = insta_carregaImagem(postagens_Perfil[posicao_Da_Postagem].url[0], MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
 
-        insta_imprimeImagem(postagens_Perfil[posicao_Da_Postagem].img[0]);
-
         posicao_Da_Postagem++;
     }
-
-    printf("to aqui fora do while ja\n");
 
     *ponteiro_postagem = (posts_t **)realloc(*ponteiro_postagem, (numeroPerfil + 1) * sizeof(posts_t *));
 
     (*ponteiro_postagem)[numeroPerfil] = (posts_t *)realloc((*ponteiro_postagem)[numeroPerfil], totalDePostagens * sizeof(posts_t));
 
     (*ponteiro_postagem)[numeroPerfil] = postagens_Perfil;
-
-
-
-    insta_imprimeImagem((*ponteiro_postagem)[numeroPerfil][0].img[0]);
 
     fclose(arquivoPostagem);
 
@@ -417,6 +398,8 @@ int funcaoLerArquivo(perfil_t **ponteiro_perfil, int *num_perfis, posts_t ***pon
     (*ponteiro_perfil) = (perfil_t *)realloc(*ponteiro_perfil, sizeof(perfil_t) * (*num_perfis + 1));
 
     (*ponteiro_perfil) = VetorPerfil;
+
+        insta_imprimeImagem((*ponteiro_postagem)[2][0].img[0]);
 
     return numero_de_postagens;
 }
@@ -774,6 +757,7 @@ int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posi
     printf("Para isso digite o url de sua imagem com o jpg no final\n");
     printf("Exemplo: https://img.freepik.com/fotos-premium/fundo-de-rosas-bonitas_534373-220.jpg\n");
     // https://static.todamateria.com.br/upload/ba/sq/basquetebol-og.jpg
+    //https://www.coltec.ufmg.br/coltec-ufmg/wp-content/uploads/2018/06/leandro.jpg
 
     for (i = 0; i < postagens.num_imagens; i++)
     {
@@ -808,7 +792,7 @@ int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posi
 // Função para imprimir informações de posts
 int imprime_posts_do_usuario_logado(posts_t **ponteiro_postagem, int num_postagem, int posicao_usuario_logado)
 {
-    int i, j;
+    int i = 0, j = 0;
 
     if (num_postagem < 1)
     {
@@ -824,10 +808,11 @@ int imprime_posts_do_usuario_logado(posts_t **ponteiro_postagem, int num_postage
         printf("%s\n", ponteiro_postagem[posicao_usuario_logado][i].ID_post);
         printf("IMAGEM:\n");
 
-        for (j = 0; j < ponteiro_postagem[posicao_usuario_logado][i].num_imagens; j++)
+        for (j = 0; j <= ponteiro_postagem[posicao_usuario_logado][i].num_imagens; j++)
         {
             // Mostra a imagem, o número de bytes e libera a memória
-            insta_imprimeImagem(ponteiro_postagem[posicao_usuario_logado][i].img[j]);
+            insta_imprimeImagem((ponteiro_postagem)[posicao_usuario_logado][i].img[j]);
+            
         }
 
         printf("Legenda:\n");
@@ -1251,25 +1236,20 @@ int main(int argc, char **argv)
     login_t login_info;
     int num_perfis = 0;
     int num_postagens = 0;
+    int num_total_postagens = 0;  //Variavel para alguem utilizar na funçao que lista todas as postagens
     int posicao_usuario_logado;
     int * vetor_Numero_Postagens_Usuarios = NULL;  //minha ideia aqui é ter um vetor que cada posição dele tem um numero representando a quantidade de postagens que um perfil tem.
     char busca[NUM_MAX_CARACTERES_ID];
 
-    num_postagens = funcaoLerArquivo(&ponteiro_perfil, &num_perfis, &ponteiro_postagem);
+    num_total_postagens = funcaoLerArquivo(&ponteiro_perfil, &num_perfis, &ponteiro_postagem);
 
     vetor_Numero_Postagens_Usuarios = (int *)calloc(num_perfis, sizeof(int));
 
     for (int i = 0; i < num_perfis; i++){
 
-        vetor_Numero_Postagens_Usuarios[i] += ponteiro_perfil[i].numeroDePostagens; 
-
+        vetor_Numero_Postagens_Usuarios[i] += ponteiro_perfil[i].numeroDePostagens;
     }
 
-    for (int i = 0; i < num_perfis; i++){
-
-    printf("o vetor na posiçao %d vale %d\n", i, vetor_Numero_Postagens_Usuarios[i]);
-
-    }
 
     printf("Bem vindo ao Coltegram!\n");
     printf("Instagram feito por:\nIcaro Cardoso Nascimento\nJoao Henrique Santana Oliveira Campos\nMatheus Fernandes de Oliveira Brandemburg\n");
