@@ -124,6 +124,7 @@ typedef struct curtida_s
 {
     char id_curtida[NUM_MAX_CARACTERES_ID];
     bool curtida;
+    int num_curtidas;
 } curtida_t;
 
 // Estrutura para posts
@@ -1142,6 +1143,50 @@ int listar_comentario(posts_t **ponteiro_postagem, int num_postagens, perfil_t *
 
     return SUCESSO;
 }
+bool curtida_ID(posts_t ** ponteiro_postagem, int num_postagens, int posicao_usuario_logado,int num_perfis,perfil_t * ponteiro_perfil){
+    int i, j;
+    int escolha_perfil, escolha_postagem;
+    char c;
+    if(num_postagens < 1){
+        printf("voce nao postou posts ainda!\n");
+        return ERRO;
+    }
+    printf ("Qual perfil voce quer acessar:\n");
+    for (i = 0;i < num_perfis;i++){
+        printf ("%d.%s\n", i + 1,ponteiro_perfil[i].ID);
+    }
+    printf("Sua escolha:\n");
+    scanf("%d%*c", &escolha_perfil);
+    escolha_perfil--;
+    
+    if(escolha_perfil < 0 || escolha_perfil > num_perfis){
+        printf("Voce nao pode acessar as postagens!\n");
+        return ERRO;
+    }
+    printf ("Qual postagem desse perfil voce deseja acessar?\n");
+    for (j = 0;j < num_postagens;j++){
+        printf ("%d.%s\n", j + 1, ponteiro_postagem[escolha_perfil][j].ID_post);
+    }
+    printf("Qual post voce deseja acessar?\n");
+    scanf ("%d%*c", &escolha_postagem);
+    escolha_postagem--;
+
+    if(escolha_postagem < 0 || escolha_postagem > num_postagens){
+        printf("Voce nao pode acessar as postagens!\n");
+        return ERRO;
+    }
+
+    printf ("Voce deseja curtir essa postagem?\n");
+    scanf ("%c%*c", &c);
+
+    if (c == 's' || c == 'S'){
+        ponteiro_postagem[escolha_perfil][escolha_postagem].curtidas.curtida = true;
+        ponteiro_postagem[escolha_perfil][escolha_postagem].curtidas.num_curtidas++;
+    }else {
+        ponteiro_postagem[escolha_perfil][escolha_postagem].curtidas.curtida = false;
+    }
+    return SUCESSO;
+}
 
 int buscar_perfis_ID(perfil_t *ponteiro_perfil, int num_perfis, char busca[])
 {
@@ -1230,7 +1275,7 @@ int buscar_perfis_email_ordenado(perfil_t *ponteiro_perfil, int num_perfis, char
 // Função principal
 int main(int argc, char **argv)
 {
-    int opcao, opcao2, escolha1, escolha2, escolha3, escolha_buscar;
+    int opcao, opcao2, opcao3, escolha1, escolha2, escolha3, escolha_buscar;
     perfil_t *ponteiro_perfil = NULL;
     posts_t **ponteiro_postagem = NULL;
     login_t login_info;
@@ -1394,7 +1439,7 @@ int main(int argc, char **argv)
                     do
                     {
                         printf("Acoes do usuario:\n");
-                        printf("(1) <POSTAR POSTS>\n(2) <EDITAR POSTS>\n(3) <LISTAR POSTS>\n(4) <DETALHAR POSTS>\n(5) <APAGAR POSTS>\n(6) <COMENTARIOS>\n(7) <DESLOGAR>\n(0) <Sair>\n");
+                        printf("(1) <POSTAR POSTS>\n(2) <EDITAR POSTS>\n(3) <LISTAR POSTS>\n(4) <DETALHAR POSTS>\n(5) <APAGAR POSTS>\n(6) <COMENTARIOS>\n(7) <CURTIR>\n(8) <DESLOGAR>\n(0) <Sair>\n");
                         printf("O que voce deseja fazer?\n");
                         scanf("%d%*c", &escolha2);
                         switch (escolha2)
@@ -1472,6 +1517,25 @@ int main(int argc, char **argv)
                         }
                         case 7:
                         {
+                             do{
+                                        printf("CURTIDAS:\n");
+                                        printf("Oque voce deseja fazer?:\n");
+                                        printf("(1) <CURTIR>\n (2) <LISTAR CURTIDAS>\n (3) <SAIR>\n");
+                                        printf("Digite sua opcao: ");
+                                        scanf("%d", &opcao3);
+                                        switch(opcao3){
+                                            case 1:{
+                                                curtida_ID(ponteiro_postagem,num_postagens,posicao_usuario_logado,num_perfis,ponteiro_perfil);
+                                                break;
+                                            }
+                                            case 2:{
+                                                
+                                            }
+                                        }
+                                        }while(opcao3 != 0);
+                                        break;
+                        }
+                        case 8:{
                             printf("Saindo do perfil...\n");
                             posicao_usuario_logado = USUARIO_INVALIDO;
                             break;
