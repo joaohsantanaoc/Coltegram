@@ -1182,12 +1182,10 @@ int listar_comentario(posts_t **ponteiro_postagem, int num_postagens, perfil_t *
 
     return SUCESSO;
 }
-/*
 bool curtida_ID(posts_t ** ponteiro_postagem, int num_postagens, int posicao_usuario_logado,int num_perfis,perfil_t * ponteiro_perfil){
     int i, j;
     int escolha_perfil, escolha_postagem;
     char c;
-    curtida_t num_curtidas;
     if(num_postagens < 1){
         printf("voce nao postou posts ainda!\n");
         return ERRO;
@@ -1226,14 +1224,9 @@ bool curtida_ID(posts_t ** ponteiro_postagem, int num_postagens, int posicao_usu
     }else {
         ponteiro_postagem[escolha_perfil][escolha_postagem].curtidas.curtida = false;
     }
-    if(c){
-        ṕrintf("IMPOSSIVEL CURTIR DENOVO!\n");
-        return c;
-    }
-
     return SUCESSO;
 }
-*/
+
 int buscar_perfis_ID(perfil_t *ponteiro_perfil, int num_perfis, char busca[])
 {
     int i;
@@ -1486,7 +1479,7 @@ int main(int argc, char **argv)
                     do
                     {
                         printf("Acoes do usuario:\n");
-                        printf("(1) <POSTAR POSTS>\n(2) <EDITAR POSTS>\n(3) <LISTAR POSTS>\n(4) <DETALHAR POSTS>\n(5) <APAGAR POSTS>\n(6) <COMENTARIOS>\n(7) <CURTIDAS>\n(8) <DESLOGAR>\n(0) <Sair>\n");
+                        printf("(1) <POSTAR POSTS>\n(2) <EDITAR POSTS>\n(3) <LISTAR POSTS>\n(4) <DETALHAR POSTS>\n(5) <APAGAR POSTS>\n(6) <COMENTARIOS>\n(7) <CURTIR>\n(8) <DESLOGAR>\n(0) <Sair>\n");
                         printf("O que voce deseja fazer?\n");
                         scanf("%d%*c", &escolha2);
                         switch (escolha2)
@@ -1513,7 +1506,7 @@ int main(int argc, char **argv)
                             break;
                         }
                         case 4:
-                        {https://img.freepik.com/fotos-premium/fundo-de-rosas-bonitas_534373-220.jpg
+                        {
                             // Detalhar posts
                             break;
                         }
@@ -1567,15 +1560,16 @@ int main(int argc, char **argv)
                         }
                         case 7:
                         {
-                             do{        
+                             do{
+                                        num_curtidas++;
+                                        printf("CURTIDAS: %d\n", num_curtidas);
                                         printf("Oque voce deseja fazer?:\n");
-                                        printf("(1) <CURTIR>\n (2) <LISTAR CURTIDAS>\n (0) <SAIR>\n");
+                                        printf("(1) <CURTIR>\n (2) <LISTAR CURTIDAS>\n (3) <SAIR>\n");
                                         printf("Digite sua opcao: ");
                                         scanf("%d", &opcao3);
                                         switch(opcao3){
                                             case 1:{
                                                 curtida_ID(ponteiro_postagem,num_postagens,posicao_usuario_logado,num_perfis,ponteiro_perfil);
-                                                printf("Curtidas: %d\n", num_curtidas);
                                                 break;
                                             }
                                             case 2:{
