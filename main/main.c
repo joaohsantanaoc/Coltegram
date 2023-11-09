@@ -427,11 +427,7 @@ for(postagem = 0; postagem < totalDePostagens; postagem++){
     util_removeQuebraLinhaFinal(ponteiro_postagem[numeroPerfil][postagem].url[0]);
     util_removeQuebraLinhaFinal(ponteiro_postagem[numeroPerfil][postagem].legenda);
 
-    printf("%s\n", ponteiro_postagem[numeroPerfil][postagem].ID_post);
-    printf("%s\n", ponteiro_postagem[numeroPerfil][postagem].url[0]);
-    printf("%s\n", ponteiro_postagem[numeroPerfil][postagem].legenda);
 }
-/*
 
 for(postagem = 0; postagem < totalDePostagens; postagem++){
 
@@ -440,9 +436,11 @@ for(postagem = 0; postagem < totalDePostagens; postagem++){
     fprintf(arquivoPostagem, "%s\n", ponteiro_postagem[numeroPerfil][postagem].legenda);
 
 }
-*/
+
 
 fclose(arquivoPostagem);
+
+return SUCESSO;
 
 }
 
@@ -478,7 +476,7 @@ int funcaoEscreveArquivo(perfil_t *dadosNaMemoria, int num_perfis, posts_t **pon
         fprintf(arquivo, "%s\n", dadosNaMemoria[i].senha);
         fprintf(arquivo, "%d\n", dadosNaMemoria[i].numeroDePostagens);
 
-        //funcaoEscrevePostagem(ponteiro_postagem, i, vetorComNumeroPostagens[i]);
+        funcaoEscrevePostagem(ponteiro_postagem, i, vetorComNumeroPostagens[i]);
     }
 
     fclose(arquivo);
@@ -802,6 +800,7 @@ int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posi
     printf("Exemplo: https://img.freepik.com/fotos-premium/fundo-de-rosas-bonitas_534373-220.jpg\n");
     // https://static.todamateria.com.br/upload/ba/sq/basquetebol-og.jpg
     //https://www.coltec.ufmg.br/coltec-ufmg/wp-content/uploads/2018/06/leandro.jpg
+    //https://profrancis.com.br/wp-content/uploads/2021/10/WhatsApp-Image-2021-09-06-at-11.51.44-1-1000x1000.jpeg
 
     for (i = 0; i < postagens.num_imagens; i++)
     {
@@ -1321,6 +1320,7 @@ int main(int argc, char **argv)
     login_t login_info;
     int num_perfis = 0;
     int num_postagens = 0;
+    int num_postagens_anterior = 0;
     int num_total_postagens = 0;  //Variavel para alguem utilizar na funçao que lista todas as postagens
     int posicao_usuario_logado;
     int * vetor_Numero_Postagens_Usuarios = NULL;  //minha ideia aqui é ter um vetor que cada posição dele tem um numero representando a quantidade de postagens que um perfil tem.
@@ -1488,6 +1488,9 @@ int main(int argc, char **argv)
                         {
                             // Postar posts
                             cadastro_postagem(&ponteiro_postagem, &num_postagens, posicao_usuario_logado); // Aqui você vai incluir a variavel posicao_usuario_logado como parametro
+                            vetor_Numero_Postagens_Usuarios[posicao_usuario_logado] ++;
+                            ponteiro_perfil[posicao_usuario_logado].numeroDePostagens ++;
+                            num_total_postagens ++;
                             break;
                         }
                         case 2:
