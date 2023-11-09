@@ -113,9 +113,8 @@ typedef struct login_s
 } login_t;
 
 // Estrutura para comentarios
-typedef struct comentario_s
-{
-    char mensagem[NUM_MAX_CARACTERES_COMENTARIO][MAX_NUMERO_COMENTARIOS];
+typedef struct comentario_s{
+    char ** mensagem;
     int numero_comentarios;
 } comentario_t;
 
@@ -1043,56 +1042,51 @@ void excluir_posts(posts_t * ponteiro_postagem,int num_postagens){
     }
 }
 */
-int comentar_em_seu_propio_post(posts_t **ponteiro_postagem, int num_postagens, perfil_t *ponteiro_perfil, int posicao_usuario_logado)
-{
+int comentar_em_seu_propio_post(posts_t **ponteiro_postagem, int num_postagens, perfil_t *ponteiro_perfil, int posicao_usuario_logado){
     int i, j, index;
-    if (num_postagens < 1)
-    {
+    if (num_postagens < 1){
         printf("Voce nao postou posts!\n");
         return ERRO;
     }
 
-    for (j = 0; j < num_postagens; j++)
-    {
+    for (j = 0; j < num_postagens; j++){
         printf("%d.%s\n", j + 1, ponteiro_postagem[posicao_usuario_logado][j].ID_post);
     }
     printf("Digite qual post voce deseja acessar e comentar:\n");
     scanf("%d%*c", &index);
     index--;
-    if (index < 0 || index >= num_postagens)
-    {
+    if (index < 0 || index >= num_postagens){
         printf("Opcao invalida!\n");
         return ERRO;
     }
+    ponteiro_postagem[posicao_usuario_logado][index].comentario.mensagem = NULL;
     ponteiro_postagem[posicao_usuario_logado][index].comentario.numero_comentarios = 0;
 
     printf("O que voce deseja comentar no post %s?\n", ponteiro_postagem[posicao_usuario_logado][index].ID_post);
     fgets(ponteiro_postagem[posicao_usuario_logado][index].comentario.mensagem[ponteiro_postagem[posicao_usuario_logado][index].comentario.numero_comentarios], NUM_MAX_CARACTERES_COMENTARIO, stdin);
     util_removeQuebraLinhaFinal(ponteiro_postagem[posicao_usuario_logado][index].comentario.mensagem[ponteiro_postagem[posicao_usuario_logado][index].comentario.numero_comentarios]);
 
-    ponteiro_postagem[posicao_usuario_logado][index].comentario.numero_comentarios++;
     printf("Comentario feito!\n");
     printf("SEU COMENTARIO:\n");
-    for (i = 0; i < ponteiro_postagem[posicao_usuario_logado][index].comentario.numero_comentarios; i++)
-    {
+    for (i = 0; i < ponteiro_postagem[posicao_usuario_logado][index].comentario.numero_comentarios; i++){
         printf("%s: %s\n", ponteiro_perfil[posicao_usuario_logado].ID, ponteiro_postagem[posicao_usuario_logado][index].comentario.mensagem[i]);
     }
 
+    ponteiro_postagem[posicao_usuario_logado][index].comentario.mensagem[ponteiro_postagem[posicao_usuario_logado][index].comentario.numero_comentarios] = realloc (ponteiro_postagem[posicao_usuario_logado][index].comentario.mensagem[ponteiro_postagem[posicao_usuario_logado][index].comentario.numero_comentarios] , (ponteiro_postagem[posicao_usuario_logado][index].comentario.numero_comentarios + 1) * sizeof (char *));
+    ponteiro_postagem[posicao_usuario_logado][index].comentario.numero_comentarios++;
+
     return SUCESSO;
 }
-int comentar_no_post_dos_outros(posts_t **ponteiro_postagem, int num_postagens, int posicao_usuario_logado, perfil_t *ponteiro_perfil, int num_perfis)
-{
+int comentar_no_post_dos_outros(posts_t **ponteiro_postagem, int num_postagens, int posicao_usuario_logado, perfil_t *ponteiro_perfil, int num_perfis){
     int i;
     int escolha_perfil, escolha_postagem;
-    if (num_postagens < 1)
-    {
+    if (num_postagens < 1){
         printf("Nao ha posts no sistema!\n");
         return ERRO;
     }
 
     printf("Qual perfil voce deseja acessar?\n");
-    for (i = 0; i < num_perfis; i++)
-    {
+    for (i = 0; i < num_perfis; i++){
         printf("%d.%s\n", i + 1, ponteiro_perfil[i].ID);
     }
 
@@ -1100,22 +1094,19 @@ int comentar_no_post_dos_outros(posts_t **ponteiro_postagem, int num_postagens, 
     scanf("%d%*c", &escolha_perfil);
     escolha_perfil--;
 
-    if (escolha_perfil < 0 || escolha_perfil >= num_perfis)
-    {
+    if (escolha_perfil < 0 || escolha_perfil >= num_perfis){
         printf("Opcao invalida!\n");
         return ERRO;
     }
 
     printf("Em qual post desse perfil voce quer acessar?\n");
-    for (i = 0; i < num_postagens; i++)
-    {
+    for (i = 0; i < num_postagens; i++){
         printf("%d.%s\n", i + 1, ponteiro_postagem[escolha_perfil][i].ID_post);
     }
     printf("Sua opcao: ");
     scanf("%d", &escolha_postagem);
     escolha_postagem--;
-    if (escolha_postagem < 0 || escolha_postagem >= num_postagens)
-    {
+    if (escolha_postagem < 0 || escolha_postagem >= num_postagens){
         printf("Opcao invalida!\n");
         return ERRO;
     }
