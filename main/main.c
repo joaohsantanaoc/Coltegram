@@ -85,27 +85,23 @@ LEMBRETES:
  */
 
 /// Estrutura que representa uma imagem em Ascii
-struct asciiImg_s
-{
+struct asciiImg_s{
     uint8_t *bytes;
     int nBytes;
 };
 /// Tipo "Imagem ASCII"
 typedef struct asciiImg_s asciiImg_t;
 // Estrutura para o perfil
-typedef struct perfil_s
-{
+typedef struct perfil_s{
     char ID[NUM_MAX_CARACTERES_ID];
     char nome_usuario[NUM_MAX_CARACTERES_NOME_USUARIO];
     char email[NUM_MAX_CARACTERES_EMAIL];
     char senha[NUM_MAX_CARACTERES_SENHA];
     char senha_confirmada[NUM_MAX_CARACTERES_SENHA];
     int numeroDePostagens;
-    bool logado;
 } perfil_t;
 // Estrutura para login
-typedef struct login_s
-{
+typedef struct login_s{
     char ID_login[NUM_MAX_CARACTERES_ID];
     char nome_usuario_login[NUM_MAX_CARACTERES_NOME_USUARIO];
     char email_login[NUM_MAX_CARACTERES_EMAIL];
@@ -119,16 +115,14 @@ typedef struct comentario_s{
 } comentario_t;
 
 // Estrutura para curtidas
-typedef struct curtida_s
-{
+typedef struct curtida_s{
     char id_curtida[NUM_MAX_CARACTERES_ID];
     bool curtida;
     int num_curtidas;
 } curtida_t;
 
 // Estrutura para posts
-typedef struct posts_s
-{
+typedef struct posts_s{
     char ID_post[NUM_MAX_CARACTERES_ID];
     asciiImg_t **img;
     char url[NUM_MAX_IMAGEM][MAX_IMAGENS];
@@ -138,25 +132,21 @@ typedef struct posts_s
     int num_imagens;
 } posts_t;
 // Estrutura análoga para matriz de ponteiros
-typedef struct copia_post_s
-{
+typedef struct copia_post_s{
     posts_t *ponteiro_post;
     int n_posts;
 
 } copia_post_t;
 // Função para tirar o '\n' das strings
-void util_removeQuebraLinhaFinal(char dados[])
-{
+void util_removeQuebraLinhaFinal(char dados[]){
     int tamanho;
     tamanho = strlen(dados);
-    if ((tamanho > 0) && (dados[tamanho - 1] == '\n'))
-    {
+    if ((tamanho > 0) && (dados[tamanho - 1] == '\n')){
         dados[tamanho - 1] = '\0';
     }
 }
 
-asciiImg_t *insta_carregaImagem(char url[], bool colorido, int largura)
-{
+asciiImg_t *insta_carregaImagem(char url[], bool colorido, int largura){
 
     FILE *arquivo;
     char buffer[BUFFER_TAMANHO];
@@ -181,11 +171,9 @@ asciiImg_t *insta_carregaImagem(char url[], bool colorido, int largura)
 
     // Tenta abrir o arquivo recem criado
     arquivo = fopen(ARQUIVO_IMAGEM_TMP, "r");
-    if (arquivo != NULL)
-    {
+    if (arquivo != NULL){
 
-        while (!feof(arquivo))
-        {
+        while (!feof(arquivo)){
 
             // Limpa a linha
             (void)memset(buffer, 0, sizeof(buffer));
@@ -216,8 +204,7 @@ asciiImg_t *insta_carregaImagem(char url[], bool colorido, int largura)
     }
 
     // Verifica se a imagem é válida
-    if (img->nBytes < LIMIAR_INFERIOR_TAMANHO_IMAGEM)
-    {
+    if (img->nBytes < LIMIAR_INFERIOR_TAMANHO_IMAGEM){
         // Libera todo o espaço alocado
         free(img->bytes);
         free(img);
@@ -233,8 +220,7 @@ asciiImg_t *insta_carregaImagem(char url[], bool colorido, int largura)
  *
  *  \param [in] img Endereço da estrutura com os dados da imagem.
  */
-void insta_imprimeImagem(asciiImg_t *img)
-{
+void insta_imprimeImagem(asciiImg_t *img){
     if (img == NULL)
         return;
     printf("%s", img->bytes);
@@ -245,26 +231,22 @@ void insta_imprimeImagem(asciiImg_t *img)
  *
  *  \param [in] img Endereço da estrutura com os dados da imagem a ser liberada.
  */
-void insta_liberaImagem(asciiImg_t *img)
-{
+void insta_liberaImagem(asciiImg_t *img){
     free(img->bytes);
     free(img);
 }
-void comecar_usuario_com_NULL(posts_t ***ponteiro_postagem, int num_perfis)
-{
+void comecar_usuario_com_NULL(posts_t ***ponteiro_postagem, int num_perfis){
 
     *ponteiro_postagem = (posts_t **)realloc(*ponteiro_postagem, num_perfis * sizeof(posts_t *));
     (*ponteiro_postagem)[num_perfis - 1] = NULL;
 }
 
-void alocarMatriz(posts_t ***ponteiro_postagem, int num_postagens, int posicao_usuario_logado)
-{
+void alocarMatriz(posts_t ***ponteiro_postagem, int num_postagens, int posicao_usuario_logado){
 
     (*ponteiro_postagem)[posicao_usuario_logado] = (posts_t *)realloc((*ponteiro_postagem)[posicao_usuario_logado], (num_postagens + 1) * sizeof(posts_t));
 }
 
-int lerPostagensArquivo(posts_t ***ponteiro_postagem, int numeroPerfil, int totalDePostagens)
-{
+int lerPostagensArquivo(posts_t ***ponteiro_postagem, int numeroPerfil, int totalDePostagens){
 
     FILE *arquivoPostagem;
 
@@ -278,21 +260,18 @@ int lerPostagensArquivo(posts_t ***ponteiro_postagem, int numeroPerfil, int tota
 
     arquivoPostagem = fopen(nome_Do_Arquivo, "r");
 
-    if (arquivoPostagem == NULL)
-    {
+    if (arquivoPostagem == NULL){
         printf("Erro ao abrir postagens ou postagens inexistentes!\n");
         return ERRO;
     }
 
-    if (totalDePostagens == 0)
-    {
+    if (totalDePostagens == 0){
         return Sem_Postagens;
     }
 
     postagens_Perfil = (posts_t *)malloc(totalDePostagens * sizeof(posts_t));
 
-    while (posicao_Da_Postagem <= totalDePostagens)
-    {
+    while (posicao_Da_Postagem <= totalDePostagens){
 
         fgets(postagens_Perfil[posicao_Da_Postagem].ID_post, NUM_MAX_CARACTERES_ID, arquivoPostagem);
         util_removeQuebraLinhaFinal(postagens_Perfil[posicao_Da_Postagem].ID_post);
@@ -321,8 +300,7 @@ int lerPostagensArquivo(posts_t ***ponteiro_postagem, int numeroPerfil, int tota
     return SUCESSO;
 }
 
-int funcaoLerArquivo(perfil_t **ponteiro_perfil, int *num_perfis, posts_t ***ponteiro_postagem)
-{
+int funcaoLerArquivo(perfil_t **ponteiro_perfil, int *num_perfis, posts_t ***ponteiro_postagem){
 
     perfil_t *VetorPerfil = NULL;
 
@@ -332,57 +310,48 @@ int funcaoLerArquivo(perfil_t **ponteiro_perfil, int *num_perfis, posts_t ***pon
 
     arquivo = fopen("dadosColtegram.txt", "r+");
 
-    if (arquivo == NULL)
-    {
+    if (arquivo == NULL){
         printf("Erro ao abrir o arquivo");
         return ERRO;
     }
 
     // Lê os dados
-    while (true)
-    {
+    while (true){
 
-        if (feof(arquivo))
-        {
+        if (feof(arquivo)){
             break;
         }
 
         VetorPerfil = (perfil_t *)realloc(VetorPerfil, sizeof(perfil_t) * (*num_perfis + 1));
 
-        if (fgets(VetorPerfil[*num_perfis].ID, NUM_MAX_CARACTERES_ID, arquivo) == NULL)
-        {
+        if (fgets(VetorPerfil[*num_perfis].ID, NUM_MAX_CARACTERES_ID, arquivo) == NULL){
             break;
         };
 
         util_removeQuebraLinhaFinal(VetorPerfil[*num_perfis].ID);
 
-        if (fgets(VetorPerfil[*num_perfis].nome_usuario, NUM_MAX_CARACTERES_NOME_USUARIO, arquivo) == NULL)
-        {
+        if (fgets(VetorPerfil[*num_perfis].nome_usuario, NUM_MAX_CARACTERES_NOME_USUARIO, arquivo) == NULL){
             break;
         };
 
         util_removeQuebraLinhaFinal(VetorPerfil[*num_perfis].nome_usuario);
 
-        if (fgets(VetorPerfil[*num_perfis].email, NUM_MAX_CARACTERES_EMAIL, arquivo) == NULL)
-        {
+        if (fgets(VetorPerfil[*num_perfis].email, NUM_MAX_CARACTERES_EMAIL, arquivo) == NULL){
             break;
         };
         util_removeQuebraLinhaFinal(VetorPerfil[*num_perfis].email);
 
-        if (fgets(VetorPerfil[*num_perfis].senha, NUM_MAX_CARACTERES_SENHA, arquivo) == NULL)
-        {
+        if (fgets(VetorPerfil[*num_perfis].senha, NUM_MAX_CARACTERES_SENHA, arquivo) == NULL){
             break;
         };
         util_removeQuebraLinhaFinal(VetorPerfil[*num_perfis].senha);
 
-        if (fscanf(arquivo, "%d", &VetorPerfil[*num_perfis].numeroDePostagens) != true)
-        {
+        if (fscanf(arquivo, "%d", &VetorPerfil[*num_perfis].numeroDePostagens) != true){
             break;
         };
         fgetc(arquivo);
 
-        if (feof(arquivo))
-        {
+        if (feof(arquivo)){
             break;
         }
 
@@ -414,8 +383,7 @@ int funcaoEscrevePostagem(posts_t **ponteiro_postagem, int numeroPerfil, int tot
     arquivoPostagem = fopen(nome_Arquivo, "w");
 
 
-    if (arquivoPostagem == NULL)
-    {
+    if (arquivoPostagem == NULL){
         printf("Erro ao abrir postagens ou postagens inexistentes!\n");
         return ERRO;
     }
@@ -443,22 +411,19 @@ return SUCESSO;
 
 }
 
-int funcaoEscreveArquivo(perfil_t *dadosNaMemoria, int num_perfis, posts_t **ponteiro_postagem, int *vetorComNumeroPostagens)
-{
+int funcaoEscreveArquivo(perfil_t *dadosNaMemoria, int num_perfis, posts_t **ponteiro_postagem, int *vetorComNumeroPostagens){
 
     FILE *arquivo;
     int i;
 
     arquivo = fopen("dadosColtegram.txt", "w");
 
-    if (arquivo == NULL)
-    {
+    if (arquivo == NULL){
         printf("Erro ao abrir o arquivo");
         return ERRO;
     }
 
-    for (i = 0; i < num_perfis; i++)
-    {
+    for (i = 0; i < num_perfis; i++){
 
         util_removeQuebraLinhaFinal(dadosNaMemoria[i].ID);
         util_removeQuebraLinhaFinal(dadosNaMemoria[i].nome_usuario);
@@ -466,8 +431,7 @@ int funcaoEscreveArquivo(perfil_t *dadosNaMemoria, int num_perfis, posts_t **pon
         util_removeQuebraLinhaFinal(dadosNaMemoria[i].senha);
     }
 
-    for (i = 0; i < num_perfis; i++)
-    {
+    for (i = 0; i < num_perfis; i++){
 
         fprintf(arquivo, "%s\n", dadosNaMemoria[i].ID);
         fprintf(arquivo, "%s\n", dadosNaMemoria[i].nome_usuario);
@@ -483,112 +447,89 @@ int funcaoEscreveArquivo(perfil_t *dadosNaMemoria, int num_perfis, posts_t **pon
 }
 
 // Função para verificar se já existe um mesmo ID de usuário no programa
-int usuario_existente(perfil_t *perfis, int num_perfis, char *nome)
-{
+int usuario_existente(perfil_t *perfis, int num_perfis, char *nome){
     int i;
-    for (i = 0; i < num_perfis; i++)
-    {
-        if (strcmp(perfis[i].nome_usuario, nome) == 0)
-        {
+    for (i = 0; i < num_perfis; i++){
+        if (strcmp(perfis[i].nome_usuario, nome) == 0){
             return 1;
         }
     }
     return 0;
 }
 // Função para verificar se já existe um mesmo nome de usuário no programa
-int id_existente(perfil_t *perfis, int num_perfis, char *ID)
-{
+int id_existente(perfil_t *perfis, int num_perfis, char *ID){
     int i;
-    for (i = 0; i < num_perfis; i++)
-    {
-        if (strcmp(perfis[i].ID, ID) == 0)
-        {
+    for (i = 0; i < num_perfis; i++){
+        if (strcmp(perfis[i].ID, ID) == 0){
             return 1;
         }
     }
     return 0;
 }
 // Função para verificar se já existe um mesmo e-mail no programa
-int email_existente(perfil_t *perfis, int num_perfis, char *email)
-{
+int email_existente(perfil_t *perfis, int num_perfis, char *email){
     int i;
-    for (i = 0; i < num_perfis; i++)
-    {
-        if (strcmp(perfis[i].email, email) == 0)
-        {
+    for (i = 0; i < num_perfis; i++){
+        if (strcmp(perfis[i].email, email) == 0){
             return 1;
         }
     }
     return 0;
 }
 // Função para o cadastro do perfil
-void cadastro_perfil(perfil_t **ponteiro_perfil, int *num_perfis, posts_t ***ponteiro_postagem)
-{
+void cadastro_perfil(perfil_t **ponteiro_perfil, int *num_perfis, posts_t ***ponteiro_postagem){
     perfil_t perfis;
     perfis.numeroDePostagens = 0;
     int i;
     int contador_espaco = 0;
     bool contador_arroba = false, contador_ponto = false;
     printf("\t\tBem vindo ao cadastro do seu perfil!!!\t\t\n");
-    do
-    {
+    do{
         printf("Digite o ID do seu usuario: (o @ do seu usuario)\n");
         fgets(perfis.ID, NUM_MAX_CARACTERES_ID, stdin);
         util_removeQuebraLinhaFinal(perfis.ID);
         contador_espaco = 0;
-        for (i = 0; perfis.ID[i] != '\0'; i++)
-        {
-            if (perfis.ID[i] == ' ')
-            {
+        for (i = 0; perfis.ID[i] != '\0'; i++){
+            if (perfis.ID[i] == ' '){
                 contador_espaco++;
             }
         }
-        if (contador_espaco > 0)
-        {
+        if (contador_espaco > 0){
             printf("O nome do usuario nao pode conter espacos!!!\n");
         }
-        if (id_existente(*ponteiro_perfil, *num_perfis, perfis.ID))
-        {
+        if (id_existente(*ponteiro_perfil, *num_perfis, perfis.ID)){
             printf("ID ja existe!!!\n");
         }
     } while (contador_espaco > 0 || id_existente(*ponteiro_perfil, *num_perfis, perfis.ID));
     printf("Digite o nome do seu usuario:\n");
     fgets(perfis.nome_usuario, NUM_MAX_CARACTERES_NOME_USUARIO, stdin);
     util_removeQuebraLinhaFinal(perfis.nome_usuario);
-    if (usuario_existente(*ponteiro_perfil, *num_perfis, perfis.nome_usuario))
-    {
+    if (usuario_existente(*ponteiro_perfil, *num_perfis, perfis.nome_usuario)){
         printf("Ja existe um usuario com o mesmo nome. Digite novamente o nome do seu usuario:\n");
         fgets(perfis.nome_usuario, NUM_MAX_CARACTERES_NOME_USUARIO, stdin);
         util_removeQuebraLinhaFinal(perfis.nome_usuario);
     }
-    do
-    {
+    do{
         printf("Agora digite o seu e-mail:\n");
         fgets(perfis.email, NUM_MAX_CARACTERES_EMAIL, stdin);
         util_removeQuebraLinhaFinal(perfis.email);
-        for (i = 0; perfis.email[i] != '\0'; i++)
-        {
-            if (perfis.email[i] == '@')
-            {
+        for (i = 0; perfis.email[i] != '\0'; i++){
+            if (perfis.email[i] == '@'){
                 contador_arroba = true;
             }
-            if (perfis.email[i] == '.')
-            {
+            if (perfis.email[i] == '.'){
                 contador_ponto = true;
             }
         }
-        if (contador_arroba == false)
-        {
+        if (contador_arroba == false){
             printf("E-mail invalido ou inexistente!!!\n");
             contador_ponto = false;
         }
-        if (contador_ponto == false)
-        {
+        if (contador_ponto == false){
             printf("E-mail invalido ou inexistente!!!\n");
             contador_arroba = false;
         }
-        if (email_existente(*ponteiro_perfil, *num_perfis, perfis.email))
-        {
+        if (email_existente(*ponteiro_perfil, *num_perfis, perfis.email)){
             printf("Email ja existe em outra conta:\n");
             printf("Digite um email valido:\n");
             fgets(perfis.email, NUM_MAX_CARACTERES_EMAIL, stdin);
@@ -601,8 +542,7 @@ void cadastro_perfil(perfil_t **ponteiro_perfil, int *num_perfis, posts_t ***pon
     printf("Agora confirme sua senha:\n");
     fgets(perfis.senha_confirmada, NUM_MAX_CARACTERES_SENHA, stdin);
     util_removeQuebraLinhaFinal(perfis.senha_confirmada);
-    while (strcmp(perfis.senha, perfis.senha_confirmada) != 0)
-    {
+    while (strcmp(perfis.senha, perfis.senha_confirmada) != 0){
         printf("Senha incorreta! Tente novamente!\n");
         printf("Digite sua senha:\n");
         fgets(perfis.senha, NUM_MAX_CARACTERES_SENHA, stdin);
@@ -618,25 +558,21 @@ void cadastro_perfil(perfil_t **ponteiro_perfil, int *num_perfis, posts_t ***pon
     printf("Cadastro concluido!!!\n");
 }
 // Função para fazer login no sistema
-int login(perfil_t *ponteiro_perfil, int num_perfis, login_t *ponteiro_login)
-{
+int login(perfil_t *ponteiro_perfil, int num_perfis, login_t *ponteiro_login){
     int i, escolha;
-    if (num_perfis < 1)
-    {
+    if (num_perfis < 1){
         printf("Nao ha perfis cadastrados nesse instagram!\n");
         return USUARIO_INVALIDO;
     }
     printf("\t\tLOGIN:\n");
     printf("ID do usuario:\n");
-    for (i = 0; i < num_perfis; i++)
-    {
+    for (i = 0; i < num_perfis; i++){
         printf("%d.%-51s\n", i + 1, ponteiro_perfil[i].ID);
     }
     printf("Qual perfil voce deseja fazer login (digite o numero corrrespondente):\n");
     scanf("%d%*c", &escolha);
     escolha--;
-    if (escolha < 0 || escolha >= num_perfis)
-    {
+    if (escolha < 0 || escolha >= num_perfis){
         printf("Opcao invalida!\n");
         return USUARIO_INVALIDO;
     }
@@ -647,32 +583,26 @@ int login(perfil_t *ponteiro_perfil, int num_perfis, login_t *ponteiro_login)
     fgets(ponteiro_login->senha_login, NUM_MAX_CARACTERES_SENHA, stdin);
     util_removeQuebraLinhaFinal(ponteiro_login->senha_login);
     if ((strcmp(ponteiro_perfil[escolha].senha, ponteiro_login->senha_login) == 0) &&
-        (strcmp(ponteiro_perfil[escolha].email, ponteiro_login->email_login) == 0))
-    {
+        (strcmp(ponteiro_perfil[escolha].email, ponteiro_login->email_login) == 0)){
         printf("Perfil Acessado!\n");
         printf("Login realizado!!!\n");
         printf("Bem vindo ao Coltegram %-51s\n", ponteiro_perfil[escolha].ID);
         return escolha;
     }
-    else
-    {
+    else{
         printf("Perfil incorreto!!!\n");
         return USUARIO_INVALIDO;
     }
 }
 // Função bubble sort para ordenar as strings dos IDs
-void listar_IDs_cadastrados(perfil_t *ponteiro_perfil, int num_perfis)
-{
+void listar_IDs_cadastrados(perfil_t *ponteiro_perfil, int num_perfis){
     int i, j;
     perfil_t tmp;
     // Listar Ids de forma ordenada
-    for (i = 0; i < (num_perfis - 1); i++)
-    {
-        for (j = 0; j < (num_perfis - 1); j++)
-        {
+    for (i = 0; i < (num_perfis - 1); i++){
+        for (j = 0; j < (num_perfis - 1); j++){
             // Se estiver fora de ordem...
-            if (strcmp(ponteiro_perfil[j].ID, ponteiro_perfil[j + 1].ID) > 0)
-            {
+            if (strcmp(ponteiro_perfil[j].ID, ponteiro_perfil[j + 1].ID) > 0){
                 // ... troca de posicao
                 tmp = ponteiro_perfil[j];
                 ponteiro_perfil[j] = ponteiro_perfil[j + 1];
@@ -682,30 +612,24 @@ void listar_IDs_cadastrados(perfil_t *ponteiro_perfil, int num_perfis)
     }
 }
 // Função que imprime os IDs em ordem alfabética e formato de tabela
-void imprimir_IDs_cadastrados(perfil_t *ponteiro_perfil, int num_perfis)
-{
+void imprimir_IDs_cadastrados(perfil_t *ponteiro_perfil, int num_perfis){
     int i;
     // Chamar a função bubble sort para ordenar os Ids
     listar_IDs_cadastrados(ponteiro_perfil, num_perfis);
     printf("Ids\n");
-    for (i = 0; i < num_perfis; i++)
-    {
+    for (i = 0; i < num_perfis; i++){
         printf("@%-51s\n", ponteiro_perfil[i].ID);
     }
 }
 // Função bubble sort que ordena os nomes de usuários cadastrados em ordem alfabética
-void listar_nomes_cadastrados(perfil_t *ponteiro_perfil, int num_perfis)
-{
+void listar_nomes_cadastrados(perfil_t *ponteiro_perfil, int num_perfis){
     int i, j;
     perfil_t tmp;
     // Listar Ids de forma ordenada
-    for (i = 0; i < (num_perfis - 1); i++)
-    {
-        for (j = 0; j < (num_perfis - 1); j++)
-        {
+    for (i = 0; i < (num_perfis - 1); i++){
+        for (j = 0; j < (num_perfis - 1); j++){
             // Se estiver fora de ordem...
-            if (strcmp(ponteiro_perfil[j].nome_usuario, ponteiro_perfil[j + 1].nome_usuario) > 0)
-            {
+            if (strcmp(ponteiro_perfil[j].nome_usuario, ponteiro_perfil[j + 1].nome_usuario) > 0){
                 // ... troca de posicao
                 tmp = ponteiro_perfil[j];
                 ponteiro_perfil[j] = ponteiro_perfil[j + 1];
@@ -715,30 +639,24 @@ void listar_nomes_cadastrados(perfil_t *ponteiro_perfil, int num_perfis)
     }
 }
 // Função que imprime os nomes de usuario em ordem alfabética e formato de tabela
-void imprimir_nomes_cadastrados(perfil_t *ponteiro_perfil, int num_perfis)
-{
+void imprimir_nomes_cadastrados(perfil_t *ponteiro_perfil, int num_perfis){
     int i;
     // Chamar a função bubble sort para ordenar os nomes de usuario
     listar_nomes_cadastrados(ponteiro_perfil, num_perfis);
     printf("Nomes de Usuario\n");
-    for (i = 0; i < num_perfis; i++)
-    {
+    for (i = 0; i < num_perfis; i++){
         printf("%-51s\n", ponteiro_perfil[i].nome_usuario);
     }
 }
 // Função Bubble sort que ordena os e-mails cadastrados em ordem alfabetica
-void listar_emails_cadastrados(perfil_t *ponteiro_perfil, int num_perfis)
-{
+void listar_emails_cadastrados(perfil_t *ponteiro_perfil, int num_perfis){
     int i, j;
     perfil_t tmp;
     // Listar Ids de forma ordenada
-    for (i = 0; i < (num_perfis - 1); i++)
-    {
-        for (j = 0; j < (num_perfis - 1); j++)
-        {
+    for (i = 0; i < (num_perfis - 1); i++){
+        for (j = 0; j < (num_perfis - 1); j++){
             // Se estiver fora de ordem...
-            if (strcmp(ponteiro_perfil[j].email, ponteiro_perfil[j + 1].email) > 0)
-            {
+            if (strcmp(ponteiro_perfil[j].email, ponteiro_perfil[j + 1].email) > 0){
                 // ... troca de posicao
                 tmp = ponteiro_perfil[j];
                 ponteiro_perfil[j] = ponteiro_perfil[j + 1];
@@ -748,20 +666,17 @@ void listar_emails_cadastrados(perfil_t *ponteiro_perfil, int num_perfis)
     }
 }
 // Função que imprime os e-mails em ordem alfabética e formato de tabela
-void imprimir_emails_cadastrados(perfil_t *ponteiro_perfil, int num_perfis)
-{
+void imprimir_emails_cadastrados(perfil_t *ponteiro_perfil, int num_perfis){
     int i;
     // Chamar a função bubble sort para ordenar os e-mails
     listar_emails_cadastrados(ponteiro_perfil, num_perfis);
     printf("Emails\n");
-    for (i = 0; i < num_perfis; i++)
-    {
+    for (i = 0; i < num_perfis; i++){
         printf("%-51s\n", ponteiro_perfil[i].email);
     }
 }
 // Função que imprime tudo em ordem alfabética e formato de tabela
-void imprimir_tudo_cadastrado(perfil_t *ponteiro_perfil, int num_perfis)
-{
+void imprimir_tudo_cadastrado(perfil_t *ponteiro_perfil, int num_perfis){
     int i;
     // Chamar a função bubble sort para ordenar os Ids
     listar_IDs_cadastrados(ponteiro_perfil, num_perfis);
@@ -770,16 +685,14 @@ void imprimir_tudo_cadastrado(perfil_t *ponteiro_perfil, int num_perfis)
     // Chamar a função bubble sort para ordenar os nomes dos usuários
     listar_nomes_cadastrados(ponteiro_perfil, num_perfis);
     printf("Ids                                              E-mails                                             Nomes de usuarios\n");
-    for (i = 0; i < num_perfis; i++)
-    {
+    for (i = 0; i < num_perfis; i++){
         printf("@%-51s %-51s %-51s\n", ponteiro_perfil[i].ID, ponteiro_perfil[i].email, ponteiro_perfil[i].nome_usuario);
     }
 }
 
 
 // Função para cadastro de uma postagem
-int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posicao_usuario_logado)
-{
+int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posicao_usuario_logado){
     posts_t postagens;
     int i;
 
@@ -801,15 +714,13 @@ int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posi
     //https://www.coltec.ufmg.br/coltec-ufmg/wp-content/uploads/2018/06/leandro.jpg
     //https://profrancis.com.br/wp-content/uploads/2021/10/WhatsApp-Image-2021-09-06-at-11.51.44-1-1000x1000.jpeg
 
-    for (i = 0; i < postagens.num_imagens; i++)
-    {
+    for (i = 0; i < postagens.num_imagens; i++){
         printf("URL: ");
         fgets(postagens.url[i], NUM_MAX_IMAGEM, stdin);
         util_removeQuebraLinhaFinal(postagens.url[i]);
 
         postagens.img[i] = insta_carregaImagem(postagens.url[i], MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
-        if (postagens.img[i] == NULL)
-        {
+        if (postagens.img[i] == NULL){
             // Falha ao carregar a imagem
             fprintf(stderr, "Falha ao carregar a imagem da URL %s\n", postagens.url[i]);
             return ERRO_CARREGAR_IMAGEM;
@@ -832,8 +743,7 @@ int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posi
 }
 
 // Função para imprimir informações de posts
-int imprime_posts_do_usuario_logado(posts_t **ponteiro_postagem, int num_postagem, int posicao_usuario_logado)
-{
+int imprime_posts_do_usuario_logado(posts_t **ponteiro_postagem, int num_postagem, int posicao_usuario_logado){
     int i = 0, j = 0;
 
     if (num_postagem < 1)
@@ -844,14 +754,12 @@ int imprime_posts_do_usuario_logado(posts_t **ponteiro_postagem, int num_postage
 
     printf("SEUS POSTS\n");
 
-    for (i = 0; i < num_postagem; i++)
-    {
+    for (i = 0; i < num_postagem; i++){
         printf("Titulo\n");
         printf("%s\n", ponteiro_postagem[posicao_usuario_logado][i].ID_post);
         printf("IMAGEM:\n");
 
-        for (j = 0; j <= ponteiro_postagem[posicao_usuario_logado][i].num_imagens; j++)
-        {
+        for (j = 0; j <= ponteiro_postagem[posicao_usuario_logado][i].num_imagens; j++){
             // Mostra a imagem, o número de bytes e libera a memória
             insta_imprimeImagem((ponteiro_postagem)[posicao_usuario_logado][i].img[j]);
             
@@ -862,16 +770,14 @@ int imprime_posts_do_usuario_logado(posts_t **ponteiro_postagem, int num_postage
     }
     return SUCESSO;
 }
-int imprime_posts_da_sua_escolha(posts_t **ponteiro_postagem, int numero_do_usuario, int numero_da_postagem)
-{
+int imprime_posts_da_sua_escolha(posts_t **ponteiro_postagem, int numero_do_usuario, int numero_da_postagem){
     int i;
 
     printf("Titulo\n");
     printf("%s\n", ponteiro_postagem[numero_do_usuario][numero_da_postagem].ID_post);
     printf("IMAGEM:\n");
 
-    for (i = 0; i < ponteiro_postagem[numero_do_usuario][numero_da_postagem].num_imagens; i++)
-    {
+    for (i = 0; i < ponteiro_postagem[numero_do_usuario][numero_da_postagem].num_imagens; i++){
         // Mostra a imagem, o número de bytes e libera a memória
         insta_imprimeImagem(ponteiro_postagem[numero_do_usuario][numero_da_postagem].img[i]);
     }
@@ -880,133 +786,114 @@ int imprime_posts_da_sua_escolha(posts_t **ponteiro_postagem, int numero_do_usua
     printf("%s\n", ponteiro_postagem[numero_do_usuario][numero_da_postagem].legenda);
     return SUCESSO;
 }
-int editar_posts(posts_t **ponteiro_postagem, int num_postagens, int posicao_usuario_logado)
-{
+int editar_posts(posts_t **ponteiro_postagem, int num_postagens, int posicao_usuario_logado){
     int i;
     int opcao, index;
 
-    if (num_postagens < 1)
-    {
+    if (num_postagens < 1){
         printf("Voce nao postou posts ainda!\n");
         return ERRO;
     }
     printf("\t\tSEUS POSTS:\n");
 
-    for (i = 0; i < num_postagens; i++)
-    {
+    for (i = 0; i < num_postagens; i++){
         printf("%d. %-30s\n", i + 1, ponteiro_postagem[posicao_usuario_logado][i].ID_post);
     }
-    do
-    {
+    do{
         printf("O que voce deseja editar no seu post?\n");
         printf("(1) <TITULO DO MEU POST>\n(2) <IMAGEM DO POST>\n(3) <LEGENDA DO POST>\n(0) <SAIR>\n");
         printf("Digite o numero correspondente a sua opcao:\n");
         scanf("%d%*c", &opcao);
-        switch (opcao)
-        {
-        case 1:
-        {
-            printf("Qual titulo voce deseja mudar?\n");
-            for (i = 0; i < num_postagens; i++)
-            {
-                printf("%d. %-30s\n", i + 1, ponteiro_postagem[posicao_usuario_logado][i].ID_post);
-            }
-            printf("Digite o numero do titulo correspondente ao post que voce quer alterar:\n");
-            scanf("%d%*c", &index);
-            index--;
-            if (index < 0 || index >= num_postagens)
-            {
-                printf("Opcao invalida!\n");
-                return ERRO;
-            }
-            printf("Titulo do seu post:\n");
-            printf("%-30s\n", ponteiro_postagem[posicao_usuario_logado][index].ID_post);
-            printf("Digite o que voce quer mudar no titulo:\n");
-            fgets(ponteiro_postagem[posicao_usuario_logado][index].ID_post, NUM_MAX_CARACTERES_ID, stdin);
-            util_removeQuebraLinhaFinal(ponteiro_postagem[posicao_usuario_logado][index].ID_post);
-            printf("Seu novo titulo do post:\n");
-            printf("%-30s\n", ponteiro_postagem[posicao_usuario_logado][index].ID_post);
-            break;
-        }
-        case 2:
-        {
-            printf("Digite o post que voce deseja acessar:\n");
-            for (i = 0; i < num_postagens; i++)
-            {
-                printf("%d. %-30s\n", i + 1, ponteiro_postagem[posicao_usuario_logado][i].ID_post);
-            }
-            scanf("%d%*c", &index);
-            index--;
-            if (index < 0 || index >= num_postagens)
-            {
-                printf("Opcao invalida!\n");
-                return ERRO;
-            }
-            printf("Imagem do seu post:\n");
-            for (i = 0; i < ponteiro_postagem[posicao_usuario_logado][index].num_imagens; i++)
-            {
-                ponteiro_postagem[posicao_usuario_logado][index].img[i] = insta_carregaImagem(ponteiro_postagem[posicao_usuario_logado][index].url[i], MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
-                if (ponteiro_postagem[posicao_usuario_logado][index].img[i] == NULL)
-                {
-                    // Falha ao carregar a imagem
-                    fprintf(stderr, "Falha ao carregar a imagem da URL %s\n", ponteiro_postagem[posicao_usuario_logado][index].url[i]);
-                    return ERRO_CARREGAR_IMAGEM;
+        switch (opcao){
+            case 1:{
+                printf("Qual titulo voce deseja mudar?\n");
+                for (i = 0; i < num_postagens; i++){
+                    printf("%d. %-30s\n", i + 1, ponteiro_postagem[posicao_usuario_logado][i].ID_post);
                 }
-                // Mostra a imagem, o número de bytes e libera a memória
-                insta_imprimeImagem(ponteiro_postagem[posicao_usuario_logado][index].img[i]);
-            }
-            printf("Digite quantas imagens voce vai querer inserir:\n");
-            scanf("%d%*c", &ponteiro_postagem[posicao_usuario_logado][index].num_imagens);
-
-            for (i = 0; i < ponteiro_postagem[posicao_usuario_logado][index].num_imagens; i++)
-            {
-                printf("Digite a nova url:\n");
-                fgets(ponteiro_postagem[posicao_usuario_logado][index].url[i], NUM_MAX_IMAGEM, stdin);
-                util_removeQuebraLinhaFinal(ponteiro_postagem[posicao_usuario_logado][index].url[i]);
-
-                ponteiro_postagem[posicao_usuario_logado][index].img[i] = insta_carregaImagem(ponteiro_postagem[posicao_usuario_logado][index].url[i], MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
-                if (ponteiro_postagem[posicao_usuario_logado][index].img[i] == NULL)
-                {
-                    // Falha ao carregar a imagem
-                    fprintf(stderr, "Falha ao carregar a imagem da URL %s\n", ponteiro_postagem[posicao_usuario_logado][index].url[i]);
-                    return ERRO_CARREGAR_IMAGEM;
+                printf("Digite o numero do titulo correspondente ao post que voce quer alterar:\n");
+                scanf("%d%*c", &index);
+                index--;
+                if (index < 0 || index >= num_postagens){
+                    printf("Opcao invalida!\n");
+                    return ERRO;
                 }
-                insta_imprimeImagem(ponteiro_postagem[posicao_usuario_logado][index].img[i]);
+                printf("Titulo do seu post:\n");
+                printf("%-30s\n", ponteiro_postagem[posicao_usuario_logado][index].ID_post);
+                printf("Digite o que voce quer mudar no titulo:\n");
+                fgets(ponteiro_postagem[posicao_usuario_logado][index].ID_post, NUM_MAX_CARACTERES_ID, stdin);
+                util_removeQuebraLinhaFinal(ponteiro_postagem[posicao_usuario_logado][index].ID_post);
+                printf("Seu novo titulo do post:\n");
+                printf("%-30s\n", ponteiro_postagem[posicao_usuario_logado][index].ID_post);
+                break;
             }
-            break;
-        }
-        case 3:
-        {
-            printf("Digite o post que voce deseja acessar:\n");
-            for (i = 0; i < num_postagens; i++)
-            {
-                printf("%d. %-30s\n", i + 1, ponteiro_postagem[posicao_usuario_logado][i].ID_post);
+            case 2:{
+                printf("Digite o post que voce deseja acessar:\n");
+                for (i = 0; i < num_postagens; i++){
+                    printf("%d. %-30s\n", i + 1, ponteiro_postagem[posicao_usuario_logado][i].ID_post);
+                }
+                scanf("%d%*c", &index);
+                index--;
+                if (index < 0 || index >= num_postagens){
+                    printf("Opcao invalida!\n");
+                    return ERRO;
+                }
+                printf("Imagem do seu post:\n");
+                for (i = 0; i < ponteiro_postagem[posicao_usuario_logado][index].num_imagens; i++){
+                    ponteiro_postagem[posicao_usuario_logado][index].img[i] = insta_carregaImagem(ponteiro_postagem[posicao_usuario_logado][index].url[i], MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
+                    if (ponteiro_postagem[posicao_usuario_logado][index].img[i] == NULL){
+                        // Falha ao carregar a imagem
+                        fprintf(stderr, "Falha ao carregar a imagem da URL %s\n", ponteiro_postagem[posicao_usuario_logado][index].url[i]);
+                        return ERRO_CARREGAR_IMAGEM;
+                    }
+                    // Mostra a imagem, o número de bytes e libera a memória
+                    insta_imprimeImagem(ponteiro_postagem[posicao_usuario_logado][index].img[i]);
+                }
+                printf("Digite quantas imagens voce vai querer inserir:\n");
+                scanf("%d%*c", &ponteiro_postagem[posicao_usuario_logado][index].num_imagens);
+
+                for (i = 0; i < ponteiro_postagem[posicao_usuario_logado][index].num_imagens; i++){
+                    printf("Digite a nova url:\n");
+                    fgets(ponteiro_postagem[posicao_usuario_logado][index].url[i], NUM_MAX_IMAGEM, stdin);
+                    util_removeQuebraLinhaFinal(ponteiro_postagem[posicao_usuario_logado][index].url[i]);
+
+                    ponteiro_postagem[posicao_usuario_logado][index].img[i] = insta_carregaImagem(ponteiro_postagem[posicao_usuario_logado][index].url[i], MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
+                    if (ponteiro_postagem[posicao_usuario_logado][index].img[i] == NULL){
+                        // Falha ao carregar a imagem
+                        fprintf(stderr, "Falha ao carregar a imagem da URL %s\n", ponteiro_postagem[posicao_usuario_logado][index].url[i]);
+                        return ERRO_CARREGAR_IMAGEM;
+                    }
+                    insta_imprimeImagem(ponteiro_postagem[posicao_usuario_logado][index].img[i]);
+                }
+                break;
             }
-            scanf("%d%*c", &index);
-            index--;
-            if (index < 0 || index >= num_postagens)
-            {
-                printf("Opcao invalida!\n");
-                return ERRO;
+            case 3:{
+                printf("Digite o post que voce deseja acessar:\n");
+                for (i = 0; i < num_postagens; i++){
+                    printf("%d. %-30s\n", i + 1, ponteiro_postagem[posicao_usuario_logado][i].ID_post);
+                }
+                scanf("%d%*c", &index);
+                index--;
+                if (index < 0 || index >= num_postagens){
+                    printf("Opcao invalida!\n");
+                    return ERRO;
+                }
+                printf("Legenda do seu post:\n");
+                printf("LEGENDA:\n");
+                printf("%s\n", ponteiro_postagem[posicao_usuario_logado][index].legenda);
+                printf("Digite o que voce quer mudar na legenda:\n");
+                fgets(ponteiro_postagem[posicao_usuario_logado][index].legenda, NUM_MAX_CARACTERES_LEGENDA, stdin);
+                util_removeQuebraLinhaFinal(ponteiro_postagem[posicao_usuario_logado][index].legenda);
+                printf("Sua nova legenda:\n");
+                printf("%s\n", ponteiro_postagem[posicao_usuario_logado][index].legenda);
+                break;
             }
-            printf("Legenda do seu post:\n");
-            printf("LEGENDA:\n");
-            printf("%s\n", ponteiro_postagem[posicao_usuario_logado][index].legenda);
-            printf("Digite o que voce quer mudar na legenda:\n");
-            fgets(ponteiro_postagem[posicao_usuario_logado][index].legenda, NUM_MAX_CARACTERES_LEGENDA, stdin);
-            util_removeQuebraLinhaFinal(ponteiro_postagem[posicao_usuario_logado][index].legenda);
-            printf("Sua nova legenda:\n");
-            printf("%s\n", ponteiro_postagem[posicao_usuario_logado][index].legenda);
-            break;
-        }
-        case 0:
-        {
-            break;
-        }
-        default:
-        {
-            printf("Opcao invalida!!!\n");
-        }
+            case 0:{
+                printf ("Saindo...\n");
+                break;
+            }
+            default:{
+                printf("Opcao invalida!!!\n");
+            }
         }
 
     } while (opcao != 0);
@@ -1126,47 +1013,40 @@ int comentar_no_post_dos_outros(posts_t **ponteiro_postagem, int num_postagens, 
 
     return SUCESSO;
 }
-int listar_comentario(posts_t **ponteiro_postagem, int num_postagens, perfil_t *ponteiro_perfil, int num_perfis)
-{
+int listar_comentario(posts_t **ponteiro_postagem, int num_postagens, perfil_t *ponteiro_perfil, int num_perfis){
     int i;
     int escolha_perfil;
     int escolha_postagem;
-    if (num_postagens < 1)
-    {
+    if (num_postagens < 1){
         printf("Voce nao postou posts!\n");
         return ERRO;
     }
     printf("Qual perfil voce deseja acessar?\n");
-    for (i = 0; i < num_perfis; i++)
-    {
+    for (i = 0; i < num_perfis; i++){
         printf("%d.%s\n", i + 1, ponteiro_perfil[i].ID);
     }
     printf("Sua opcao: ");
     scanf("%d%*c", &escolha_perfil);
     escolha_perfil--;
-    if (escolha_perfil < 0 || escolha_perfil >= num_perfis)
-    {
+    if (escolha_perfil < 0 || escolha_perfil >= num_perfis){
         printf("Opcao invalida!\n");
         return ERRO;
     }
     printf("Qual postagem voce deseja acessar do perfil %s?\n", ponteiro_perfil[escolha_perfil].ID);
-    for (i = 0; i < num_postagens; i++)
-    {
+    for (i = 0; i < num_postagens; i++){
         printf("%d.%s\n", i + 1, ponteiro_postagem[escolha_perfil][i].ID_post);
     }
     printf("SUA ESCOLHA: ");
     scanf("%d%*c", &escolha_postagem);
     escolha_postagem--;
-    if (escolha_postagem < 0 || escolha_postagem >= num_postagens)
-    {
+    if (escolha_postagem < 0 || escolha_postagem >= num_postagens){
         printf("Opcao invalida!\n");
         return ERRO;
     }
 
     imprime_posts_da_sua_escolha(ponteiro_postagem, escolha_perfil, escolha_postagem);
     printf("Comentarios:\n");
-    for (i = 0; i < ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.numero_comentarios; i++)
-    {
+    for (i = 0; i < ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.numero_comentarios; i++){
         printf("Numero de comentarios: %d\n", ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.numero_comentarios);
         printf("%d.%s: %s\n", i + 1, ponteiro_perfil[escolha_perfil].ID, ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.mensagem[i]);
     }
@@ -1218,53 +1098,42 @@ bool curtida_ID(posts_t ** ponteiro_postagem, int num_postagens, int posicao_usu
     return SUCESSO;
 }
 
-int buscar_perfis_ID(perfil_t *ponteiro_perfil, int num_perfis, char busca[])
-{
+int buscar_perfis_ID(perfil_t *ponteiro_perfil, int num_perfis, char busca[]){
     int i;
 
     printf("Resultados para a busca %s:\n", busca);
 
-    for (i = 0; i < num_perfis; i++)
-    {
-        if (strstr(ponteiro_perfil[i].ID, busca))
-        {
+    for (i = 0; i < num_perfis; i++){
+        if (strstr(ponteiro_perfil[i].ID, busca)){
             printf("Perfis: %s\n", ponteiro_perfil[i].ID);
         }
     }
 
     return SUCESSO;
 }
-int buscar_perfis_email(perfil_t *ponteiro_perfil, int num_perfis, char busca[])
-{
+int buscar_perfis_email(perfil_t *ponteiro_perfil, int num_perfis, char busca[]){
     int i;
 
     printf("Resultados para a busca %s:\n", busca);
 
-    for (i = 0; i < num_perfis; i++)
-    {
-        if (strstr(ponteiro_perfil[i].email, busca))
-        {
+    for (i = 0; i < num_perfis; i++){
+        if (strstr(ponteiro_perfil[i].email, busca)){
             printf("Perfis: %s\n", ponteiro_perfil[i].email);
         }
     }
 
     return SUCESSO;
 }
-int buscar_perfis_ID_ordenado(perfil_t *ponteiro_perfil, int num_perfis, char busca[])
-{
+int buscar_perfis_ID_ordenado(perfil_t *ponteiro_perfil, int num_perfis, char busca[]){
     int i, j;
     perfil_t tmp;
     // Listar Ids de forma ordenada
     printf("Resultados para a busca %s:\n", busca);
-    for (i = 0; i < (num_perfis - 1); i++)
-    {
-        if (strstr(ponteiro_perfil[i].ID, busca))
-        {
-            for (j = 0; j < (num_perfis - 1); j++)
-            {
+    for (i = 0; i < (num_perfis - 1); i++){
+        if (strstr(ponteiro_perfil[i].ID, busca)){
+            for (j = 0; j < (num_perfis - 1); j++){
                 // Se estiver fora de ordem...
-                if (strcmp(ponteiro_perfil[j].ID, ponteiro_perfil[j + 1].ID) > 0)
-                {
+                if (strcmp(ponteiro_perfil[j].ID, ponteiro_perfil[j + 1].ID) > 0){
                     // ... troca de posicao
                     tmp = ponteiro_perfil[j];
                     ponteiro_perfil[j] = ponteiro_perfil[j + 1];
@@ -1275,22 +1144,17 @@ int buscar_perfis_ID_ordenado(perfil_t *ponteiro_perfil, int num_perfis, char bu
     }
     return SUCESSO;
 }
-int buscar_perfis_email_ordenado(perfil_t *ponteiro_perfil, int num_perfis, char busca[])
-{
+int buscar_perfis_email_ordenado(perfil_t *ponteiro_perfil, int num_perfis, char busca[]){
     int i, j;
     perfil_t tmp;
 
     printf("Resultados para a busca %s\n", busca);
     // Listar Ids de forma ordenada
-    for (i = 0; i < (num_perfis); i++)
-    {
-        if (strstr(ponteiro_perfil[i].email, busca))
-        {
-            for (j = 0; j < (num_perfis); j++)
-            {
+    for (i = 0; i < (num_perfis); i++){
+        if (strstr(ponteiro_perfil[i].email, busca)){
+            for (j = 0; j < (num_perfis); j++){
                 // Se estiver fora de ordem...
-                if (strcmp(ponteiro_perfil[j].email, ponteiro_perfil[j + 1].email) > 0)
-                {
+                if (strcmp(ponteiro_perfil[j].email, ponteiro_perfil[j + 1].email) > 0){
                     // ... troca de posicao
                     tmp = ponteiro_perfil[j];
                     ponteiro_perfil[j] = ponteiro_perfil[j + 1];
@@ -1303,8 +1167,7 @@ int buscar_perfis_email_ordenado(perfil_t *ponteiro_perfil, int num_perfis, char
 }
 
 // Função principal
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv){
     int opcao, opcao2, opcao3, escolha1, escolha2, escolha3, escolha_buscar, num_curtidas;
     perfil_t *ponteiro_perfil = NULL;
     posts_t **ponteiro_postagem = NULL;
@@ -1329,109 +1192,88 @@ int main(int argc, char **argv)
 
     printf("Bem vindo ao Coltegram!\n");
     printf("Instagram feito por:\nIcaro Cardoso Nascimento\nJoao Henrique Santana Oliveira Campos\nMatheus Fernandes de Oliveira Brandemburg\n");
-    do
-    {
+    do{
         printf("Bem vindo ao Coltegram!!!\n");
         printf("Digite sua opcao:\n");
         printf("<Cadastar> (1)\n<Login> (2)\n<Sair> (0)\n");
         scanf("%d%*c", &opcao);
-        switch (opcao)
-        {
-        case 1:
-        {
-            cadastro_perfil(&ponteiro_perfil, &num_perfis, &ponteiro_postagem);
-            break;
-        }
-        case 2:
-        {
-            posicao_usuario_logado = login(ponteiro_perfil, num_perfis, &login_info); // Aqui a variavel posicao_usuario_logado recebe o valor escolha, que deverá ser a posiçao do perfil.
-            
-            num_postagens = vetor_Numero_Postagens_Usuarios[posicao_usuario_logado];
+        switch (opcao){
+            case 1:{
+                cadastro_perfil(&ponteiro_perfil, &num_perfis, &ponteiro_postagem);
+                break;
+            }
+            case 2:{
+                posicao_usuario_logado = login(ponteiro_perfil, num_perfis, &login_info); // Aqui a variavel posicao_usuario_logado recebe o valor escolha, que deverá ser a posiçao do perfil.
+                num_postagens = vetor_Numero_Postagens_Usuarios[posicao_usuario_logado];
 
-            while (posicao_usuario_logado != USUARIO_INVALIDO)
-            {
-                printf("Quais acoes voce deseja executar:\n");
-                printf("(1) <Buscar perfis>\n(2) <Visitar perfis>\n(3) <Listar perfis cadastrados>\n(4) <Acoes do usuario>\n");
-                scanf("%d%*c", &escolha1);
-                switch (escolha1)
-                {
-                case 1:
-                {
-                    // Buscar perfis
-                    do
-                    {
-                        printf("\t\tBUSCAR PERFIS\n");
-                        printf(".....................................................................\n\n");
-                        printf("O que voce deseja buscar:\n");
-                        printf("(1) <PERFIS>\n(2) <E-MAILS>\n(3) <PERFIS ORDENADOS>\n(4) <E-MAILS ORDENADOS>\n(0) <SAIR>\n");
-                        printf("Sua opcao: ");
-                        scanf("%d%*c", &escolha_buscar);
+                while (posicao_usuario_logado != USUARIO_INVALIDO){
+                    printf("Quais acoes voce deseja executar:\n");
+                    printf("(1) <Buscar perfis>\n(2) <Visitar perfis>\n(3) <Listar perfis cadastrados>\n(4) <Acoes do usuario>\n");
+                    scanf("%d%*c", &escolha1);
+                    switch (escolha1){
+                        case 1:{
+                            // Buscar perfis
+                            do{
+                                printf("\t\tBUSCAR PERFIS\n");
+                                printf(".....................................................................\n\n");
+                                printf("O que voce deseja buscar:\n");
+                                printf("(1) <PERFIS>\n(2) <E-MAILS>\n(3) <PERFIS ORDENADOS>\n(4) <E-MAILS ORDENADOS>\n(0) <SAIR>\n");
+                                printf("Sua opcao: ");
+                                scanf("%d%*c", &escolha_buscar);
 
-                        switch (escolha_buscar)
-                        {
-                        case 1:
-                        {
-                            printf("Digite o ID:\n");
-                            fgets(busca, NUM_MAX_CARACTERES_ID, stdin);
-                            util_removeQuebraLinhaFinal(busca);
-                            buscar_perfis_ID(ponteiro_perfil, num_perfis, busca);
-                            break;
-                        }
-                        case 2:
-                        {
-                            printf("Digite o e-mail:\n");
-                            fgets(busca, NUM_MAX_CARACTERES_ID, stdin);
-                            util_removeQuebraLinhaFinal(busca);
-                            buscar_perfis_email(ponteiro_perfil, num_perfis, busca);
-                            break;
-                        }
-                        case 3:
-                        {
-                            printf("Digite o ID:\n");
-                            fgets(busca, NUM_MAX_CARACTERES_ID, stdin);
-                            util_removeQuebraLinhaFinal(busca);
-                            buscar_perfis_ID_ordenado(ponteiro_perfil, num_perfis, busca);
-                            break;
-                        }
-                        case 4:
-                        {
-                            printf("Digite o email:\n");
-                            fgets(busca, NUM_MAX_CARACTERES_ID, stdin);
-                            util_removeQuebraLinhaFinal(busca);
-                            buscar_perfis_email_ordenado(ponteiro_perfil, num_perfis, busca);
-                            break;
-                        }
-                        case 0:
-                        {
-                            printf("Saindo...\n");
-                            break;
-                        }
-                        default:
-                        {
-                            printf("Opcao invalida!\n");
-                        }
-                        }
+                                switch (escolha_buscar){
+                                    case 1:{
+                                        printf("Digite o ID:\n");
+                                        fgets(busca, NUM_MAX_CARACTERES_ID, stdin);
+                                        util_removeQuebraLinhaFinal(busca);
+                                        buscar_perfis_ID(ponteiro_perfil, num_perfis, busca);
+                                        break;
+                                    }
+                                    case 2:{
+                                        printf("Digite o e-mail:\n");
+                                        fgets(busca, NUM_MAX_CARACTERES_ID, stdin);
+                                        util_removeQuebraLinhaFinal(busca);
+                                        buscar_perfis_email(ponteiro_perfil, num_perfis, busca);
+                                        break;
+                                    }
+                                    case 3:{
+                                        printf("Digite o ID:\n");
+                                        fgets(busca, NUM_MAX_CARACTERES_ID, stdin);
+                                        util_removeQuebraLinhaFinal(busca);
+                                        buscar_perfis_ID_ordenado(ponteiro_perfil, num_perfis, busca);
+                                        break;
+                                    }
+                                    case 4:{
+                                        printf("Digite o email:\n");
+                                        fgets(busca, NUM_MAX_CARACTERES_ID, stdin);
+                                        util_removeQuebraLinhaFinal(busca);
+                                        buscar_perfis_email_ordenado(ponteiro_perfil, num_perfis, busca);
+                                        break;
+                                    }
+                                    case 0:{
+                                        printf("Saindo...\n");
+                                        break;
+                                    }
+                                    default:{
+                                        printf("Opcao invalida!\n");
+                                    }
+                                }
 
-                    } while (escolha_buscar != 0);
-                    break;
-                }
-                case 2:
-                {
-                    // Visitar perfis
-                    break;
-                }
-                case 3:
-                {
-                    // Listar perfis cadastrados
-                    do
-                    {
-                        printf("\t\tLISTAR PERFIS CADASTRADOS NO SISTEMA:\n");
-                        printf("(1) <Listar IDs>\n(2) <Listar e-mails>\n(3) <Listar nome dos usuarios>\n(4) <Listar todas as informacoes>\n(0) <Parar>\n");
-                        printf("O que voce deseja realizar:\n");
-                        scanf("%d", &escolha3);
-                        getchar();
-                        switch (escolha3)
-                        {
+                            } while (escolha_buscar != 0);
+                            break;
+                        }
+                        case 2:{
+                            // Visitar perfis
+                            break;
+                        }
+                        case 3:{
+                            // Listar perfis cadastrados
+                            do{
+                                printf("\t\tLISTAR PERFIS CADASTRADOS NO SISTEMA:\n");
+                                printf("(1) <Listar IDs>\n(2) <Listar e-mails>\n(3) <Listar nome dos usuarios>\n(4) <Listar todas as informacoes>\n(0) <Parar>\n");
+                                printf("O que voce deseja realizar:\n");
+                                scanf("%d%*c", &escolha3);
+                                switch (escolha3){
                         case 1:
                         {
                             // Listar Ids em ordem alfabetica
