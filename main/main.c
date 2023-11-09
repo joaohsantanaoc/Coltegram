@@ -400,12 +400,53 @@ int funcaoLerArquivo(perfil_t **ponteiro_perfil, int *num_perfis, posts_t ***pon
 
     (*ponteiro_perfil) = VetorPerfil;
 
-        insta_imprimeImagem((*ponteiro_postagem)[2][0].img[0]);
-
     return numero_de_postagens;
 }
 
-int funcaoEscreveArquivo(perfil_t *dadosNaMemoria, int num_perfis)
+int funcaoEscrevePostagem(posts_t **ponteiro_postagem, int numeroPerfil, int totalDePostagens){
+
+    FILE * arquivoPostagem;
+
+    char nome_Arquivo[Tamanho_Maximo];
+    int postagem = 0;
+
+    sprintf(nome_Arquivo, "%d.txt", numeroPerfil);
+
+    arquivoPostagem = fopen(nome_Arquivo, "w");
+
+
+    if (arquivoPostagem == NULL)
+    {
+        printf("Erro ao abrir postagens ou postagens inexistentes!\n");
+        return ERRO;
+    }
+
+for(postagem = 0; postagem < totalDePostagens; postagem++){
+
+    util_removeQuebraLinhaFinal(ponteiro_postagem[numeroPerfil][postagem].ID_post);
+    util_removeQuebraLinhaFinal(ponteiro_postagem[numeroPerfil][postagem].url[0]);
+    util_removeQuebraLinhaFinal(ponteiro_postagem[numeroPerfil][postagem].legenda);
+
+    printf("%s\n", ponteiro_postagem[numeroPerfil][postagem].ID_post);
+    printf("%s\n", ponteiro_postagem[numeroPerfil][postagem].url[0]);
+    printf("%s\n", ponteiro_postagem[numeroPerfil][postagem].legenda);
+}
+/*
+
+for(postagem = 0; postagem < totalDePostagens; postagem++){
+
+    fprintf(arquivoPostagem, "%s\n", ponteiro_postagem[numeroPerfil][postagem].ID_post);
+    fprintf(arquivoPostagem, "%s\n", ponteiro_postagem[numeroPerfil][postagem].url[0]);
+    fprintf(arquivoPostagem, "%s\n", ponteiro_postagem[numeroPerfil][postagem].legenda);
+
+}
+*/
+
+fclose(arquivoPostagem);
+
+}
+
+int funcaoEscreveArquivo(perfil_t *dadosNaMemoria, int num_perfis, posts_t **ponteiro_postagem, int *vetorComNumeroPostagens)
 {
 
     FILE *arquivo;
@@ -436,6 +477,8 @@ int funcaoEscreveArquivo(perfil_t *dadosNaMemoria, int num_perfis)
         fprintf(arquivo, "%s\n", dadosNaMemoria[i].email);
         fprintf(arquivo, "%s\n", dadosNaMemoria[i].senha);
         fprintf(arquivo, "%d\n", dadosNaMemoria[i].numeroDePostagens);
+
+        //funcaoEscrevePostagem(ponteiro_postagem, i, vetorComNumeroPostagens[i]);
     }
 
     fclose(arquivo);
@@ -1576,7 +1619,7 @@ int main(int argc, char **argv)
         }
     } while (opcao != 0);
 
-    funcaoEscreveArquivo(ponteiro_perfil, num_perfis);
+    funcaoEscreveArquivo(ponteiro_perfil, num_perfis, ponteiro_postagem, vetor_Numero_Postagens_Usuarios);
 
     // Libera a memória alocada
     free(ponteiro_perfil);
