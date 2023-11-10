@@ -759,17 +759,20 @@ int imprime_posts_do_usuario_logado(posts_t **ponteiro_postagem, int num_postage
         printf("%s\n", ponteiro_postagem[posicao_usuario_logado][i].ID_post);
         printf("IMAGEM:\n");
 
-        for (j = 0; j <= ponteiro_postagem[posicao_usuario_logado][i].num_imagens; j++){
+        /*for (j = 0; j < ponteiro_postagem[posicao_usuario_logado][i].num_imagens; j++){
             // Mostra a imagem, o número de bytes e libera a memória
             insta_imprimeImagem((ponteiro_postagem)[posicao_usuario_logado][i].img[j]);
             
-        }
+        }*/
+
+        insta_imprimeImagem((ponteiro_postagem)[posicao_usuario_logado][i].img[0]);
 
         printf("Legenda:\n");
         printf("%s\n", ponteiro_postagem[posicao_usuario_logado][i].legenda);
     }
     return SUCESSO;
 }
+
 int imprime_posts_da_sua_escolha(posts_t **ponteiro_postagem, int numero_do_usuario, int numero_da_postagem){
     int i;
 
