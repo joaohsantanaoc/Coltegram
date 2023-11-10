@@ -1274,184 +1274,156 @@ int main(int argc, char **argv){
                                 printf("O que voce deseja realizar:\n");
                                 scanf("%d%*c", &escolha3);
                                 switch (escolha3){
-                        case 1:
-                        {
-                            // Listar Ids em ordem alfabetica
-                            imprimir_IDs_cadastrados(ponteiro_perfil, num_perfis);
-                            break;
-                        }
-                        case 2:
-                        {
-                            // Listar e-mails em ordem alfabetica
-                            imprimir_emails_cadastrados(ponteiro_perfil, num_perfis);
-                            break;
-                        }
-                        case 3:
-                        {
-                            // Listar nome dos usuarios em ordem alfabetica
-                            imprimir_nomes_cadastrados(ponteiro_perfil, num_perfis);
-                            break;
-                        }
-                        case 4:
-                        {
-                            // Imprime todas as informações juntas
-                            imprimir_tudo_cadastrado(ponteiro_perfil, num_perfis);
-                            break;
-                        }
+                                    case 1:{
+                                        // Listar Ids em ordem alfabetica
+                                        imprimir_IDs_cadastrados(ponteiro_perfil, num_perfis);
+                                        break;
+                                    }
+                                    case 2:{
+                                        // Listar e-mails em ordem alfabetica
+                                        imprimir_emails_cadastrados(ponteiro_perfil, num_perfis);
+                                        break;
+                                    }
+                                    case 3:{
+                                        // Listar nome dos usuarios em ordem alfabetica
+                                        imprimir_nomes_cadastrados(ponteiro_perfil, num_perfis);
+                                        break;
+                                    }
+                                    case 4:{
+                                        // Imprime todas as informações juntas
+                                        imprimir_tudo_cadastrado(ponteiro_perfil, num_perfis);
+                                        break;
+                                    }
 
-                        default:
-                        {
-                            printf("Opcao invalida!!!\n");
-                        }
-                        }
-                    } while (escolha3 != 0);
-                    break;
-                }
-                case 4:
-                {
-                    do
-                    {
-                        printf("Acoes do usuario:\n");
-                        printf("(1) <POSTAR POSTS>\n(2) <EDITAR POSTS>\n(3) <LISTAR POSTS>\n(4) <DETALHAR POSTS>\n(5) <APAGAR POSTS>\n(6) <COMENTARIOS>\n(7) <CURTIR>\n(8) <DESLOGAR>\n(0) <Sair>\n");
-                        printf("O que voce deseja fazer?\n");
-                        scanf("%d%*c", &escolha2);
-                        switch (escolha2)
-                        {
-                        case 1:
-                        {
-                            // Postar posts
-                            cadastro_postagem(&ponteiro_postagem, &num_postagens, posicao_usuario_logado); // Aqui você vai incluir a variavel posicao_usuario_logado como parametro
-                            vetor_Numero_Postagens_Usuarios[posicao_usuario_logado] ++;
-                            ponteiro_perfil[posicao_usuario_logado].numeroDePostagens ++;
-                            num_total_postagens ++;
+                                    default:{
+                                        printf("Opcao invalida!!!\n");
+                                    }
+                                }
+                            } while (escolha3 != 0);
                             break;
                         }
-                        case 2:
-                        {
-                            // Editar posts
-                            editar_posts(ponteiro_postagem, num_postagens, posicao_usuario_logado);
-                            break;
-                        }
-                        case 3:
-                        {
-                            // Listar posts
-                            imprime_posts_do_usuario_logado(ponteiro_postagem, num_postagens, posicao_usuario_logado);
-                            break;
-                        }
-                        case 4:
-                        {
-                            // Detalhar posts
-                            break;
-                        }
-                        case 5:
-                        {
-                            // Apagar posts
-                            /*
-                            excluir_posts(ponteiro_postagem,num_postagens);
-                            */
-                            break;
-                        }
-                        case 6:
-                        {
-                            do
-                            {
-                                printf("\t\tCOMENTARIOS:\n");
+                        case 4:{
+                            do{
+                                printf("Acoes do usuario:\n");
+                                printf("(1) <POSTAR POSTS>\n(2) <EDITAR POSTS>\n(3) <LISTAR POSTS>\n(4) <DETALHAR POSTS>\n(5) <APAGAR POSTS>\n(6) <COMENTARIOS>\n(7) <CURTIR>\n(8) <DESLOGAR>\n(0) <Sair>\n");
                                 printf("O que voce deseja fazer?\n");
-                                printf("(1) <COMENTAR EM SEU PROPIO POST>\n(2) <COMENTAR_POST_DE_OUTROS_PERFIS>\n(3) <LISTAR COMENTARIOS>\n(0) <SAIR>\n");
-                                printf("Sua opcao: ");
-                                scanf("%d%*c", &opcao2);
+                                scanf("%d%*c", &escolha2);
+                                switch (escolha2){
+                                    case 1:{
+                                        // Postar posts
+                                        cadastro_postagem(&ponteiro_postagem, &num_postagens, posicao_usuario_logado); // Aqui você vai incluir a variavel posicao_usuario_logado como parametro
+                                        vetor_Numero_Postagens_Usuarios[posicao_usuario_logado] ++;
+                                        ponteiro_perfil[posicao_usuario_logado].numeroDePostagens ++;
+                                        num_total_postagens ++;
+                                        break;
+                                    }
+                                    case 2:{
+                                        // Editar posts
+                                        editar_posts(ponteiro_postagem, num_postagens, posicao_usuario_logado);
+                                        break;
+                                    }
+                                    case 3:{
+                                        // Listar posts
+                                        imprime_posts_do_usuario_logado(ponteiro_postagem, num_postagens, posicao_usuario_logado);
+                                        break;
+                                    }
+                                    case 4:{
+                                        // Detalhar posts
+                                        break;
+                                    }
+                                    case 5:{
+                                        // Apagar posts
+                                        /*
+                                        excluir_posts(ponteiro_postagem,num_postagens);
+                                        */
+                                        break;
+                                    }
+                                    case 6:{
+                                        do{
+                                            printf("\t\tCOMENTARIOS:\n");
+                                            printf("O que voce deseja fazer?\n");
+                                            printf("(1) <COMENTAR EM SEU PROPIO POST>\n(2) <COMENTAR_POST_DE_OUTROS_PERFIS>\n(3) <LISTAR COMENTARIOS>\n(0) <SAIR>\n");
+                                            printf("Sua opcao: ");
+                                            scanf("%d%*c", &opcao2);
 
-                                switch (opcao2)
-                                {
-                                case 1:
-                                {
-                                    comentar_em_seu_propio_post(ponteiro_postagem, num_postagens, ponteiro_perfil, posicao_usuario_logado);
-                                    break;
-                                }
-                                case 2:
-                                {
-                                    comentar_no_post_dos_outros(ponteiro_postagem, num_postagens, posicao_usuario_logado, ponteiro_perfil, num_perfis);
-                                    break;
-                                }
-                                case 3:
-                                {
-                                    listar_comentario(ponteiro_postagem, num_postagens, ponteiro_perfil, num_perfis);
-                                    break;
-                                }
-                                case 0:
-                                {
-                                    printf("Saindo...");
-                                    break;
-                                }
-                                default:
-                                {
-                                    printf("Opcao invalida!\n");
-                                }
-                                }
-                            } while (opcao2 != 0);
-                            break;
-                        }
-                        case 7:
-                        {
-                             do{
-                                        num_curtidas++;
-                                        printf("CURTIDAS: %d\n", num_curtidas);
-                                        printf("Oque voce deseja fazer?:\n");
-                                        printf("(1) <CURTIR>\n (2) <LISTAR CURTIDAS>\n (3) <SAIR>\n");
-                                        printf("Digite sua opcao: ");
-                                        scanf("%d", &opcao3);
-                                        switch(opcao3){
-                                            case 1:{
-                                                curtida_ID(ponteiro_postagem,num_postagens,posicao_usuario_logado,num_perfis,ponteiro_perfil);
-                                                break;
+                                            switch (opcao2){
+                                                case 1:{
+                                                    comentar_em_seu_propio_post(ponteiro_postagem, num_postagens, ponteiro_perfil, posicao_usuario_logado);
+                                                    break;
+                                                }
+                                                case 2:{
+                                                    comentar_no_post_dos_outros(ponteiro_postagem, num_postagens, posicao_usuario_logado, ponteiro_perfil, num_perfis);
+                                                    break;
+                                                }
+                                                case 3:{
+                                                    listar_comentario(ponteiro_postagem, num_postagens, ponteiro_perfil, num_perfis);
+                                                    break;
+                                                }
+                                                case 0:{
+                                                    printf("Saindo...\n");
+                                                    break;
+                                                }
+                                                default:{
+                                                    printf("Opcao invalida!\n");
+                                                }
                                             }
-                                            case 2:{
-                                                
+                                        } while (opcao2 != 0);
+                                        break;
+                                    }
+                                    case 7:{
+                                        do{
+                                            num_curtidas++;
+                                            printf("CURTIDAS: %d\n", num_curtidas);
+                                            printf("Oque voce deseja fazer?:\n");
+                                            printf("(1) <CURTIR>\n (2) <LISTAR CURTIDAS>\n (3) <SAIR>\n");
+                                            printf("Digite sua opcao: ");
+                                            scanf("%d%*c", &opcao3);
+                                            switch(opcao3){
+                                                case 1:{
+                                                    curtida_ID(ponteiro_postagem,num_postagens,posicao_usuario_logado,num_perfis,ponteiro_perfil);
+                                                    break;
+                                                }
+                                                case 2:{
+                                                    break;
+                                                }
                                             }
-                                        }
                                         }while(opcao3 != 0);
                                         break;
-                        }
-                        case 8:{
-                            printf("Saindo do perfil...\n");
-                            posicao_usuario_logado = USUARIO_INVALIDO;
+                                    }
+                                    case 8:{
+                                        printf("Saindo do perfil...\n");
+                                        posicao_usuario_logado = USUARIO_INVALIDO;
+                                        break;
+                                    }
+                                    case 0:{
+                                        printf("Voltando ao menu principal!!!\n");
+                                        break;
+                                    }
+                                    default:{
+                                        printf("Opcao invalida!!!\n");
+                                    }
+                                }
+                            } while (escolha2 != 0 && posicao_usuario_logado != USUARIO_INVALIDO);
                             break;
                         }
-                        case 0:
-                        {
-                            printf("Voltando ao menu principal!!!\n");
+                        case 0:{
+                            printf("Saindo...\n");
                             break;
                         }
-                        default:
-                        {
-                            printf("Opcao invalida!!!\n");
+                        default:{
+                            printf("Opcao invalida!\n");
                         }
-                        }
-                    } while (escolha2 != 0 && posicao_usuario_logado != USUARIO_INVALIDO);
-                    break;
+                    }
                 }
-                case 0:
-                {
-                    printf("Saindo...\n");
-                    break;
-                }
-                default:
-                {
-                    printf("Opcao invalida!\n");
-                }
-                }
+                break;
             }
-            break;
-        }
-        case 0:
-        {
-            printf("Volte sempre!!!\n");
-            break;
-        }
-        default:
-        {
-            printf("Opcao invalida!!!\n");
-        }
+            case 0:{
+                printf("Volte sempre!!!\n");
+                break;
+            }
+            default:{
+                printf("Opcao invalida!!!\n");
+            }
         }
     } while (opcao != 0);
 
