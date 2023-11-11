@@ -561,6 +561,7 @@ void cadastro_perfil(perfil_t **ponteiro_perfil, int *num_perfis, posts_t ***pon
         util_removeQuebraLinhaFinal(perfis.senha_confirmada);
     }
     (*num_perfis)++;
+    printf("Numero de perfis = %d", (*num_perfis));
     *ponteiro_perfil = realloc(*ponteiro_perfil, (*num_perfis) * sizeof(perfil_t));
     (*ponteiro_perfil)[*num_perfis - 1] = perfis;
     comecar_usuario_com_NULL(ponteiro_postagem, *num_perfis);
@@ -752,6 +753,9 @@ int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posi
 // Função para imprimir informações de posts
 int imprime_posts_do_usuario_logado(posts_t **ponteiro_postagem, int * vetor_com_numero_de_postagens_do_usuario, int posicao_usuario_logado){
     int i, j;
+
+printf("\nAqui esta chegando: %d\n", vetor_com_numero_de_postagens_do_usuario[posicao_usuario_logado]);
+
 
     if (vetor_com_numero_de_postagens_do_usuario[posicao_usuario_logado] < 1){
         printf("Voce nao postou posts ainda!\n");
@@ -1253,8 +1257,8 @@ int main(int argc, char **argv){
     int num_perfis = 0;
     int num_postagens = 0;
     int num_total_postagens = 0;  //Variavel para alguem utilizar na funçao que lista todas as postagens
-    int posicao_usuario_logado;
-    int * vetor_com_numero_de_postagens;
+    int posicao_usuario_logado = USUARIO_INVALIDO;
+    int * vetor_com_numero_de_postagens = NULL;
     int * vetor_Numero_Postagens_Usuarios = NULL;  //minha ideia aqui é ter um vetor que cada posição dele tem um numero representando a quantidade de postagens que um perfil tem.
     char busca[NUM_MAX_CARACTERES_ID];
     int i;
@@ -1278,6 +1282,9 @@ int main(int argc, char **argv){
         switch (opcao){
             case 1:{
                 cadastro_perfil(&ponteiro_perfil, &num_perfis, &ponteiro_postagem);
+
+                vetor_Numero_Postagens_Usuarios = (int *)realloc(vetor_Numero_Postagens_Usuarios, sizeof(int) * num_perfis);
+                vetor_Numero_Postagens_Usuarios[num_perfis - 1] = 0;
                 break;
             }
             case 2:{
@@ -1397,7 +1404,7 @@ int main(int argc, char **argv){
                                     }
                                     case 2:{
                                         // Editar posts
-                                        editar_posts(ponteiro_postagem,vetor_com_numero_de_postagens, posicao_usuario_logado);
+                                        //editar_posts(ponteiro_postagem,vetor_com_numero_de_postagens, posicao_usuario_logado);
                                         break;
                                     }
                                     case 3:{
@@ -1426,7 +1433,7 @@ int main(int argc, char **argv){
 
                                             switch (opcao2){
                                                 case 1:{
-                                                    comentar_em_seu_propio_post(ponteiro_postagem,vetor_com_numero_de_postagens, ponteiro_perfil, posicao_usuario_logado);
+                                                    //comentar_em_seu_propio_post(ponteiro_postagem,vetor_com_numero_de_postagens, ponteiro_perfil, posicao_usuario_logado);
                                                     break;
                                                 }
                                                 case 2:{
