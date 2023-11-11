@@ -130,6 +130,7 @@ typedef struct posts_s{
     comentario_t comentario;
     curtida_t curtidas;
     int num_imagens;
+    int Numero_De_Fotos;
 } posts_t;
 // Estrutura análoga para matriz de ponteiros
 typedef struct copia_post_s{
@@ -276,6 +277,12 @@ int lerPostagensArquivo(posts_t ***ponteiro_postagem, int numeroPerfil, int tota
 
         fgets(postagens_Perfil[posicao_Da_Postagem].ID_post, NUM_MAX_CARACTERES_ID, arquivoPostagem);
         util_removeQuebraLinhaFinal(postagens_Perfil[posicao_Da_Postagem].ID_post);
+
+        /*if (fscanf(arquivoPostagem, "%d", &postagens_Perfil[posicao_Da_Postagem].Numero_De_Fotos) != true){
+            break;
+        };
+        fgetc(arquivoPostagem);
+        */
 
         fgets(postagens_Perfil[posicao_Da_Postagem].url[0], MAX_IMAGENS, arquivoPostagem);
         util_removeQuebraLinhaFinal(postagens_Perfil[posicao_Da_Postagem].url[0]);
