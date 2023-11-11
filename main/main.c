@@ -361,6 +361,7 @@ int funcaoLerArquivo(perfil_t **ponteiro_perfil, int *num_perfis, posts_t ***pon
         numero_de_postagens += VetorPerfil[*num_perfis].numeroDePostagens;
 
         (*num_perfis)++;
+        comecar_usuario_com_NULL(ponteiro_postagem,*num_perfis);
     }
 
     fclose(arquivo);
@@ -749,7 +750,7 @@ printf("Numero usuario logado: %d\n", posicao_usuario_logado);
 
 // Função para imprimir informações de posts
 int imprime_posts_do_usuario_logado(posts_t **ponteiro_postagem, int num_postagem, int posicao_usuario_logado){
-    int i = 0, j = 0;
+    int i, j;
 
     if (num_postagem < 1)
     {
@@ -764,11 +765,10 @@ int imprime_posts_do_usuario_logado(posts_t **ponteiro_postagem, int num_postage
         printf("%s\n", ponteiro_postagem[posicao_usuario_logado][i].ID_post);
         printf("IMAGEM:\n");
 
-        /*for (j = 0; j < ponteiro_postagem[posicao_usuario_logado][i].num_imagens; j++){
+        for (j = 0; j < ponteiro_postagem[posicao_usuario_logado][i].num_imagens; j++){
             // Mostra a imagem, o número de bytes e libera a memória
-            insta_imprimeImagem((ponteiro_postagem)[posicao_usuario_logado][i].img[j]);
-            
-        }*/
+            insta_imprimeImagem((ponteiro_postagem)[posicao_usuario_logado][i].img[j]);   
+        }
 
         insta_imprimeImagem((ponteiro_postagem)[posicao_usuario_logado][i].img[0]);
 
