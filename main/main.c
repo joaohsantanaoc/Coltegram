@@ -1059,10 +1059,68 @@ int listar_comentario(posts_t **ponteiro_postagem, int num_postagens, perfil_t *
 
     return SUCESSO;
 }
-bool curtida_ID(posts_t ** ponteiro_postagem, int num_postagens, int posicao_usuario_logado,int num_perfis,perfil_t * ponteiro_perfil){
+        // essa funcao vai permitir que o usuario logado curta postagens de outros usuarios!
+
+int curtirPostagem(posts_t **ponteiro_postagem, int escolha_perfil, int escolha_postagem, perfil_t * ponteiro_perfil, int num_perfis, int num_postagens, int posicao_usuario_logado) {
+    int i, j;
+    char c;
+    int num_curtidas = 0;
+
+    // repete o processo para curtir a postagem do outro usuario
+
+    printf("qual perfil voce deseja acessar?\n");
+    for (i = 0;i < num_perfis;i++){
+        printf ("%d.%s\n", i + 1,ponteiro_perfil[i].ID);
+    }
+    printf("Sua escolha:\n");
+    scanf("%d%*c", &escolha_perfil);
+    escolha_perfil--;
+
+    printf ("Qual postagem desse perfil voce deseja acessar?\n");
+    for (j = 0;j < num_postagens;j++){
+        printf ("%d.%s\n", j + 1, ponteiro_postagem[escolha_perfil][j].ID_post);
+    }
+    printf("Qual post voce deseja acessar?\n");
+    scanf ("%d%*c", &escolha_postagem);
+    escolha_postagem--;
+
+     if(escolha_postagem < 0 || escolha_postagem > num_postagens){
+        printf("Voce nao pode acessar as postagens!\n");
+        return ERRO;
+    }
+
+
+    printf ("Voce deseja curtir essa postagem?\n");
+    scanf ("%c%*c", &c);
+
+    // checa se o usuario logado ja curtiu a postagem do outro usuario
+    if (ponteiro_postagem[posicao_usuario_logado][escolha_postagem].curtidas.curtida == true) {
+        printf("IMPOSSIVEL CURTIR DUAS VEZES!\n");
+        return ERRO;
+    }
+    
+    //se for curtir, vai contar mais uma curtida
+        if(c == 's' || c == 'S'){
+        ponteiro_postagem[escolha_perfil][escolha_postagem].curtidas.curtida = true;
+        ponteiro_postagem[escolha_perfil][escolha_postagem].curtidas.num_curtidas++;
+        num_curtidas = ponteiro_postagem[posicao_usuario_logado][escolha_postagem].curtidas.num_curtidas;
+        printf("Curtido por %s\n", ponteiro_perfil[posicao_usuario_logado].ID);
+        printf("Total de curtidas: %d\n", num_curtidas);
+    }else{
+         ponteiro_postagem[escolha_perfil][escolha_postagem].curtidas.curtida = false;
+    }
+    return SUCESSO;
+}
+
+        //funcao das curtidas!
+
+int curtida_ID(posts_t ** ponteiro_postagem, int num_postagens, int posicao_usuario_logado,int num_perfis,perfil_t * ponteiro_perfil){
     int i, j;
     int escolha_perfil, escolha_postagem;
-    char c;
+    char c, s;
+    int num_curtidas = 0;
+
+
     if(num_postagens < 1){
         printf("voce nao postou posts ainda!\n");
         return ERRO;
@@ -1071,6 +1129,7 @@ bool curtida_ID(posts_t ** ponteiro_postagem, int num_postagens, int posicao_usu
     for (i = 0;i < num_perfis;i++){
         printf ("%d.%s\n", i + 1,ponteiro_perfil[i].ID);
     }
+
     printf("Sua escolha:\n");
     scanf("%d%*c", &escolha_perfil);
     escolha_perfil--;
@@ -1091,19 +1150,32 @@ bool curtida_ID(posts_t ** ponteiro_postagem, int num_postagens, int posicao_usu
         printf("Voce nao pode acessar as postagens!\n");
         return ERRO;
     }
-
+    if (ponteiro_postagem[escolha_perfil][escolha_postagem].curtidas.curtida == true) {
+        printf("Impossivel curtir duas vezes.\n");
+        return ERRO;
+    }
     printf ("Voce deseja curtir essa postagem?\n");
     scanf ("%c%*c", &c);
 
     if (c == 's' || c == 'S'){
         ponteiro_postagem[escolha_perfil][escolha_postagem].curtidas.curtida = true;
         ponteiro_postagem[escolha_perfil][escolha_postagem].curtidas.num_curtidas++;
+        printf("curtido por %s\n", ponteiro_perfil[escolha_perfil].ID);
+        num_curtidas = ponteiro_postagem[posicao_usuario_logado][escolha_postagem].curtidas.num_curtidas;
+        printf("Total de curtidas: %d\n", num_curtidas);
     }else {
         ponteiro_postagem[escolha_perfil][escolha_postagem].curtidas.curtida = false;
     }
+    printf("voce deseja curtir posts de outro perfil?");
+    scanf("%c%*c", &s);
+    if(s == 's' || s == 'S'){
+
+        //chamada da funcao "curtirPostagem", para curtir posts de outros usuarios
+
+        curtirPostagem(ponteiro_postagem,escolha_perfil,escolha_postagem,ponteiro_perfil, num_perfis, num_postagens, posicao_usuario_logado);
+    }
     return SUCESSO;
 }
-
 int buscar_perfis_ID(perfil_t *ponteiro_perfil, int num_perfis, char busca[]){
     int i;
 
@@ -1182,6 +1254,7 @@ int main(int argc, char **argv){
     int num_postagens = 0;
     int num_total_postagens = 0;  //Variavel para alguem utilizar na funçao que lista todas as postagens
     int posicao_usuario_logado;
+    int * vetor_com_numero_de_postagens;
     int * vetor_Numero_Postagens_Usuarios = NULL;  //minha ideia aqui é ter um vetor que cada posição dele tem um numero representando a quantidade de postagens que um perfil tem.
     char busca[NUM_MAX_CARACTERES_ID];
     int i;
@@ -1324,7 +1397,7 @@ int main(int argc, char **argv){
                                     }
                                     case 2:{
                                         // Editar posts
-                                        editar_posts(ponteiro_postagem, num_postagens, posicao_usuario_logado);
+                                        editar_posts(ponteiro_postagem,vetor_com_numero_de_postagens, posicao_usuario_logado);
                                         break;
                                     }
                                     case 3:{
@@ -1353,7 +1426,7 @@ int main(int argc, char **argv){
 
                                             switch (opcao2){
                                                 case 1:{
-                                                    comentar_em_seu_propio_post(ponteiro_postagem, num_postagens, ponteiro_perfil, posicao_usuario_logado);
+                                                    comentar_em_seu_propio_post(ponteiro_postagem,vetor_com_numero_de_postagens, ponteiro_perfil, posicao_usuario_logado);
                                                     break;
                                                 }
                                                 case 2:{
@@ -1375,24 +1448,22 @@ int main(int argc, char **argv){
                                         } while (opcao2 != 0);
                                         break;
                                     }
-                                    case 7:{
-                                        do{
-                                            num_curtidas++;
-                                            printf("CURTIDAS: %d\n", num_curtidas);
-                                            printf("Oque voce deseja fazer?:\n");
-                                            printf("(1) <CURTIR>\n (2) <LISTAR CURTIDAS>\n (3) <SAIR>\n");
-                                            printf("Digite sua opcao: ");
-                                            scanf("%d%*c", &opcao3);
-                                            switch(opcao3){
-                                                case 1:{
-                                                    curtida_ID(ponteiro_postagem,num_postagens,posicao_usuario_logado,num_perfis,ponteiro_perfil);
-                                                    break;
+                                    case 7:
+                        {
+                             do{
+                                        printf("\t\tCURTIDAS\n");
+                                        printf("Oque voce deseja fazer?:\n");
+                                        printf("(1) <CURTIR>\n(0) <SAIR>\n");
+                                        printf("Digite sua opcao: ");
+                                        scanf("%d", &opcao3);
+                                        switch(opcao3){
+                                            case 1:{
+                                                curtida_ID(ponteiro_postagem,num_postagens,posicao_usuario_logado,num_perfis,ponteiro_perfil);
                                                 }
-                                                case 2:{
-                                                    break;
-                                                }
+                                                break;
                                             }
-                                        }while(opcao3 != 0);
+                                        }
+                                        while(opcao3 != 0);
                                         break;
                                     }
                                     case 8:{
