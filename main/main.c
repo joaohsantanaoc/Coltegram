@@ -281,7 +281,7 @@ int lerPostagensArquivo(posts_t ***ponteiro_postagem, int numeroPerfil, int tota
         util_removeQuebraLinhaFinal(postagens_Perfil[posicao_Da_Postagem].url[0]);
 
         fgets(postagens_Perfil[posicao_Da_Postagem].legenda, NUM_MAX_CARACTERES_LEGENDA, arquivoPostagem);
-        // util_removeQuebraLinhaFinal(postagens_Perfil[posicao_Da_Postagem].legenda);
+        //util_removeQuebraLinhaFinal(postagens_Perfil[posicao_Da_Postagem].legenda);
 
         postagens_Perfil[posicao_Da_Postagem].img = malloc(sizeof(asciiImg_t *));
 
@@ -356,12 +356,12 @@ int funcaoLerArquivo(perfil_t **ponteiro_perfil, int *num_perfis, posts_t ***pon
             break;
         }
 
-        //lerPostagensArquivo(ponteiro_postagem, (*num_perfis), VetorPerfil[*num_perfis].numeroDePostagens);
-
         numero_de_postagens += VetorPerfil[*num_perfis].numeroDePostagens;
 
         (*num_perfis)++;
         comecar_usuario_com_NULL(ponteiro_postagem,*num_perfis);
+
+        lerPostagensArquivo(ponteiro_postagem, (*num_perfis - 1), VetorPerfil[*num_perfis - 1].numeroDePostagens);
     }
 
     fclose(arquivo);
@@ -441,7 +441,7 @@ int funcaoEscreveArquivo(perfil_t *dadosNaMemoria, int num_perfis, posts_t **pon
         fprintf(arquivo, "%s\n", dadosNaMemoria[i].senha);
         fprintf(arquivo, "%d\n", dadosNaMemoria[i].numeroDePostagens);
 
-        //funcaoEscrevePostagem(ponteiro_postagem, i, vetorComNumeroPostagens[i]);
+        funcaoEscrevePostagem(ponteiro_postagem, i, vetorComNumeroPostagens[i]);
     }
 
     fclose(arquivo);
@@ -758,9 +758,10 @@ int imprime_posts_do_usuario_logado(posts_t **ponteiro_postagem, int * vetor_com
         printf("%s\n", ponteiro_postagem[posicao_usuario_logado][i].ID_post);
         printf("IMAGEM:\n");
 
-        for (j = 0; j < ponteiro_postagem[posicao_usuario_logado][i].num_imagens; j++){
+        for (j = 0; j <= ponteiro_postagem[posicao_usuario_logado][i].num_imagens; j++){
             // Mostra a imagem, o número de bytes e libera a memória
-            insta_imprimeImagem((ponteiro_postagem)[posicao_usuario_logado][i].img[j]);   
+            printf("%s\n", (ponteiro_postagem)[posicao_usuario_logado][i].url[j]);
+            insta_imprimeImagem((ponteiro_postagem)[posicao_usuario_logado][i].img[j]);
         }
 
         printf("Legenda:\n");
@@ -1172,7 +1173,6 @@ int main(int argc, char **argv){
     login_t login_info;
     int num_perfis = 0;
     int num_postagens = 0;
-    int num_postagens_anterior = 0;
     int num_total_postagens = 0;  //Variavel para alguem utilizar na funçao que lista todas as postagens
     int posicao_usuario_logado;
     int * vetor_Numero_Postagens_Usuarios = NULL;  //minha ideia aqui é ter um vetor que cada posição dele tem um numero representando a quantidade de postagens que um perfil tem.
