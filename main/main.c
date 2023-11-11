@@ -246,7 +246,7 @@ void alocarMatriz(posts_t ***ponteiro_postagem, int num_postagens, int posicao_u
     (*ponteiro_postagem)[posicao_usuario_logado] = (posts_t *)realloc((*ponteiro_postagem)[posicao_usuario_logado], (num_postagens + 1) * sizeof(posts_t));
 }
 
-int lerPostagensArquivo(posts_t ***ponteiro_postagem, int numeroPerfil, int totalDePostagens){
+int lerPostagensArquivo(posts_t ***ponteiro_postagem, int numeroPerfil, int num_postagens){
 
     FILE *arquivoPostagem;
 
@@ -265,33 +265,33 @@ int lerPostagensArquivo(posts_t ***ponteiro_postagem, int numeroPerfil, int tota
         return ERRO;
     }
 
-    if (totalDePostagens == 0){
+    if (num_postagens == 0){
         return Sem_Postagens;
     }
 
-    postagens_Perfil = (posts_t *)malloc(totalDePostagens * sizeof(posts_t));
+    postagens_Perfil = (posts_t *)malloc(num_postagens * sizeof(posts_t));
 
-    while (posicao_Da_Postagem <= totalDePostagens){
+    while (posicao_Da_Postagem <= num_postagens){
 
         fgets(postagens_Perfil[posicao_Da_Postagem].ID_post, NUM_MAX_CARACTERES_ID, arquivoPostagem);
         util_removeQuebraLinhaFinal(postagens_Perfil[posicao_Da_Postagem].ID_post);
 
-        fgets(postagens_Perfil[posicao_Da_Postagem].url[0], MAX_IMAGENS, arquivoPostagem);
-        util_removeQuebraLinhaFinal(postagens_Perfil[posicao_Da_Postagem].url[0]);
+        fgets(postagens_Perfil[posicao_Da_Postagem].url[ponteiro_postagem[numeroPerfil][posicao_Da_Postagem]->num_imagens], MAX_IMAGENS, arquivoPostagem);
+        util_removeQuebraLinhaFinal(postagens_Perfil[posicao_Da_Postagem].url[ponteiro_postagem[numeroPerfil][posicao_Da_Postagem]->num_imagens]);
 
         fgets(postagens_Perfil[posicao_Da_Postagem].legenda, NUM_MAX_CARACTERES_LEGENDA, arquivoPostagem);
         // util_removeQuebraLinhaFinal(postagens_Perfil[posicao_Da_Postagem].legenda);
 
         postagens_Perfil[posicao_Da_Postagem].img = malloc(sizeof(asciiImg_t *));
 
-        postagens_Perfil[posicao_Da_Postagem].img[0] = insta_carregaImagem(postagens_Perfil[posicao_Da_Postagem].url[0], MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
+        postagens_Perfil[posicao_Da_Postagem].img[ponteiro_postagem[numeroPerfil][posicao_Da_Postagem]->num_imagens] = insta_carregaImagem(postagens_Perfil[posicao_Da_Postagem].url[ponteiro_postagem[numeroPerfil][posicao_Da_Postagem]->num_imagens], MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
 
         posicao_Da_Postagem++;
     }
 
     *ponteiro_postagem = (posts_t **)realloc(*ponteiro_postagem, (numeroPerfil + 1) * sizeof(posts_t *));
 
-    (*ponteiro_postagem)[numeroPerfil] = (posts_t *)realloc((*ponteiro_postagem)[numeroPerfil], totalDePostagens * sizeof(posts_t));
+    (*ponteiro_postagem)[numeroPerfil] = (posts_t *)realloc((*ponteiro_postagem)[numeroPerfil], num_postagens * sizeof(posts_t));
 
     (*ponteiro_postagem)[numeroPerfil] = postagens_Perfil;
 
@@ -371,7 +371,7 @@ int funcaoLerArquivo(perfil_t **ponteiro_perfil, int *num_perfis, posts_t ***pon
     return numero_de_postagens;
 }
 
-int funcaoEscrevePostagem(posts_t **ponteiro_postagem, int numeroPerfil, int totalDePostagens){
+int funcaoEscrevePostagem(posts_t **ponteiro_postagem, int numeroPerfil, int num_posts){
 
     FILE * arquivoPostagem;
 
@@ -388,18 +388,18 @@ int funcaoEscrevePostagem(posts_t **ponteiro_postagem, int numeroPerfil, int tot
         return ERRO;
     }
 
-for(postagem = 0; postagem < totalDePostagens; postagem++){
+for(postagem = 0; postagem < num_posts; postagem++){
 
     util_removeQuebraLinhaFinal(ponteiro_postagem[numeroPerfil][postagem].ID_post);
-    util_removeQuebraLinhaFinal(ponteiro_postagem[numeroPerfil][postagem].url[0]);
+    util_removeQuebraLinhaFinal(ponteiro_postagem[numeroPerfil][postagem].url[ponteiro_postagem[numeroPerfil][postagem].num_imagens]);
     util_removeQuebraLinhaFinal(ponteiro_postagem[numeroPerfil][postagem].legenda);
 
 }
 
-for(postagem = 0; postagem < totalDePostagens; postagem++){
+for(postagem = 0; postagem < num_posts; postagem++){
 
     fprintf(arquivoPostagem, "%s\n", ponteiro_postagem[numeroPerfil][postagem].ID_post);
-    fprintf(arquivoPostagem, "%s\n", ponteiro_postagem[numeroPerfil][postagem].url[0]);
+    fprintf(arquivoPostagem, "%s\n", ponteiro_postagem[numeroPerfil][postagem].url[ponteiro_postagem[numeroPerfil][postagem].num_imagens]);
     fprintf(arquivoPostagem, "%s\n", ponteiro_postagem[numeroPerfil][postagem].legenda);
 
 }
@@ -411,7 +411,7 @@ return SUCESSO;
 
 }
 
-int funcaoEscreveArquivo(perfil_t *dadosNaMemoria, int num_perfis, posts_t **ponteiro_postagem, int *vetorComNumeroPostagens){
+int funcaoEscreveArquivo(perfil_t *dadosNaMemoria, int num_perfis, posts_t **ponteiro_postagem, int *num_posts){
 
     FILE *arquivo;
     int i;
@@ -439,7 +439,7 @@ int funcaoEscreveArquivo(perfil_t *dadosNaMemoria, int num_perfis, posts_t **pon
         fprintf(arquivo, "%s\n", dadosNaMemoria[i].senha);
         fprintf(arquivo, "%d\n", dadosNaMemoria[i].numeroDePostagens);
 
-        funcaoEscrevePostagem(ponteiro_postagem, i, vetorComNumeroPostagens[i]);
+        funcaoEscrevePostagem(ponteiro_postagem, i, num_posts[i]);
     }
 
     fclose(arquivo);
@@ -744,7 +744,7 @@ int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posi
 
 // Função para imprimir informações de posts
 int imprime_posts_do_usuario_logado(posts_t **ponteiro_postagem, int num_postagem, int posicao_usuario_logado){
-    int i = 0, j = 0;
+    int i, j;
 
     if (num_postagem < 1)
     {
@@ -759,11 +759,10 @@ int imprime_posts_do_usuario_logado(posts_t **ponteiro_postagem, int num_postage
         printf("%s\n", ponteiro_postagem[posicao_usuario_logado][i].ID_post);
         printf("IMAGEM:\n");
 
-        /*for (j = 0; j < ponteiro_postagem[posicao_usuario_logado][i].num_imagens; j++){
+        for (j = 0; j < ponteiro_postagem[posicao_usuario_logado][i].num_imagens; j++){
             // Mostra a imagem, o número de bytes e libera a memória
-            insta_imprimeImagem((ponteiro_postagem)[posicao_usuario_logado][i].img[j]);
-            
-        }*/
+            insta_imprimeImagem((ponteiro_postagem)[posicao_usuario_logado][i].img[j]);   
+        }
 
         insta_imprimeImagem((ponteiro_postagem)[posicao_usuario_logado][i].img[0]);
 
@@ -1177,17 +1176,17 @@ int main(int argc, char **argv){
     login_t login_info;
     int num_perfis = 0;
     int num_postagens = 0;
-    int num_postagens_anterior = 0;
     int num_total_postagens = 0;  //Variavel para alguem utilizar na funçao que lista todas as postagens
     int posicao_usuario_logado;
     int * vetor_Numero_Postagens_Usuarios = NULL;  //minha ideia aqui é ter um vetor que cada posição dele tem um numero representando a quantidade de postagens que um perfil tem.
     char busca[NUM_MAX_CARACTERES_ID];
+    int i;
 
     num_total_postagens = funcaoLerArquivo(&ponteiro_perfil, &num_perfis, &ponteiro_postagem);
 
     vetor_Numero_Postagens_Usuarios = (int *)calloc(num_perfis, sizeof(int));
 
-    for (int i = 0; i < num_perfis; i++){
+    for (i = 0; i < num_perfis; i++){
 
         vetor_Numero_Postagens_Usuarios[i] += ponteiro_perfil[i].numeroDePostagens;
     }
