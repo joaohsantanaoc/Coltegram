@@ -712,10 +712,10 @@ int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posi
     util_removeQuebraLinhaFinal(postagens.ID_post);
 
     printf("Digite quantas imagens voce deseja colocar em seu post:\n");
-    scanf("%d%*c", &postagens.num_imagens);
+    scanf("%d%*c", &postagens.Numero_De_Fotos);
 
     // Aloca espaço para as imagens
-    postagens.img = malloc(sizeof(asciiImg_t *) * postagens.num_imagens);
+    postagens.img = malloc(sizeof(asciiImg_t *) * postagens.Numero_De_Fotos);
 
     printf("Agora de upload na imagem de seu post:\n");
     printf("Para isso digite o url de sua imagem com o jpg no final\n");
@@ -724,7 +724,7 @@ int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posi
     //https://www.coltec.ufmg.br/coltec-ufmg/wp-content/uploads/2018/06/leandro.jpg
     //https://profrancis.com.br/wp-content/uploads/2021/10/WhatsApp-Image-2021-09-06-at-11.51.44-1-1000x1000.jpeg
 
-    for (i = 0; i < postagens.num_imagens; i++){
+    for (i = 0; i < postagens.Numero_De_Fotos; i++){
         printf("URL: ");
         fgets(postagens.url[i], NUM_MAX_IMAGEM, stdin);
         util_removeQuebraLinhaFinal(postagens.url[i]);
@@ -765,17 +765,29 @@ printf("\nAqui esta chegando: %d\n", vetor_com_numero_de_postagens_do_usuario[po
     printf("SEUS POSTS\n");
 
     for (i = 0; i < vetor_com_numero_de_postagens_do_usuario[posicao_usuario_logado]; i++){
+
+        if(ponteiro_postagem[posicao_usuario_logado][i].Numero_De_Fotos == 0){
+
+            ponteiro_postagem[posicao_usuario_logado][i].Numero_De_Fotos = 1;
+
+        }
+
         printf("Titulo\n");
         printf("%s\n", ponteiro_postagem[posicao_usuario_logado][i].ID_post);
         printf("IMAGEM:\n");
 
-        for (j = 0; j <= ponteiro_postagem[posicao_usuario_logado][i].num_imagens; j++){
+        printf("\n\nUMERO DE FOTOS NESSA POSTAGEM EH: %d\n\n", ponteiro_postagem[posicao_usuario_logado][i].Numero_De_Fotos);
+
+        for (j = 0; j < ponteiro_postagem[posicao_usuario_logado][i].Numero_De_Fotos; j++){
             // Mostra a imagem, o número de bytes e libera a memória
+            printf("\nAqui as variaveis são:\nposicao usuario locado: %d\ni : %d\nj : %d\nnumero de postagens do usuario: %d\n", posicao_usuario_logado, i, j, vetor_com_numero_de_postagens_do_usuario[posicao_usuario_logado]);
             printf("%s\n", (ponteiro_postagem)[posicao_usuario_logado][i].url[j]);
             insta_imprimeImagem((ponteiro_postagem)[posicao_usuario_logado][i].img[j]);
+            printf("\nAqui acabou a impressao desse post\n");
         }
 
-        printf("Legenda:\n");
+
+        printf("\nLegenda:\n");
         printf("%s\n", ponteiro_postagem[posicao_usuario_logado][i].legenda);
     }
     return SUCESSO;

@@ -7,3 +7,6 @@ basquete
 post 3
 https://static.todamateria.com.br/upload/ba/sq/basquetebol-og.jpg
 basquete
+post com carrossel
+https://www.coltec.ufmg.br/coltec-ufmg/wp-content/uploads/2018/06/leandro.jpg
+leandro duplicado
