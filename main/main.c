@@ -736,14 +736,8 @@ int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posi
     util_removeQuebraLinhaFinal(postagens.legenda);
 
     (*num_postagens)++;
-printf("Aqui vai alocar a matriz na funçao\n");
     alocarMatriz(ponteiro_postagem, *num_postagens, posicao_usuario_logado, numero_perfis);
-printf("Aqui foi alocado\n");
-printf("Numero de perfis: %d\n", numero_perfis);
-printf("Numero usuario logado: %d\n", posicao_usuario_logado);
-
     (*ponteiro_postagem)[posicao_usuario_logado][*num_postagens - 1] = postagens;
-    printf("Aqui foi atribuido\n");
 
     return SUCESSO;
 }
@@ -769,8 +763,6 @@ int imprime_posts_do_usuario_logado(posts_t **ponteiro_postagem, int num_postage
             // Mostra a imagem, o número de bytes e libera a memória
             insta_imprimeImagem((ponteiro_postagem)[posicao_usuario_logado][i].img[j]);   
         }
-
-        insta_imprimeImagem((ponteiro_postagem)[posicao_usuario_logado][i].img[0]);
 
         printf("Legenda:\n");
         printf("%s\n", ponteiro_postagem[posicao_usuario_logado][i].legenda);
