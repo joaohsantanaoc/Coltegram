@@ -130,14 +130,7 @@ typedef struct posts_s{
     comentario_t comentario;
     curtida_t curtidas;
     int num_imagens;
-    int Numero_De_Fotos;
 } posts_t;
-// Estrutura análoga para matriz de ponteiros
-typedef struct copia_post_s{
-    posts_t *ponteiro_post;
-    int n_posts;
-
-} copia_post_t;
 // Função para tirar o '\n' das strings
 void util_removeQuebraLinhaFinal(char dados[]){
     int tamanho;
@@ -754,9 +747,6 @@ int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posi
 int imprime_posts_do_usuario_logado(posts_t **ponteiro_postagem, int * vetor_com_numero_de_postagens_do_usuario, int posicao_usuario_logado){
     int i, j;
 
-printf("\nAqui esta chegando: %d\n", vetor_com_numero_de_postagens_do_usuario[posicao_usuario_logado]);
-
-
     if (vetor_com_numero_de_postagens_do_usuario[posicao_usuario_logado] < 1){
         printf("Voce nao postou posts ainda!\n");
         return ERRO;
@@ -769,9 +759,8 @@ printf("\nAqui esta chegando: %d\n", vetor_com_numero_de_postagens_do_usuario[po
         printf("%s\n", ponteiro_postagem[posicao_usuario_logado][i].ID_post);
         printf("IMAGEM:\n");
 
-        for (j = 0; j <= ponteiro_postagem[posicao_usuario_logado][i].num_imagens; j++){
+        for (j = 0; j < ponteiro_postagem[posicao_usuario_logado][i].num_imagens; j++){
             // Mostra a imagem, o número de bytes e libera a memória
-            printf("%s\n", (ponteiro_postagem)[posicao_usuario_logado][i].url[j]);
             insta_imprimeImagem((ponteiro_postagem)[posicao_usuario_logado][i].img[j]);
         }
 
@@ -1105,19 +1094,18 @@ int curtirPostagem(posts_t **ponteiro_postagem, int escolha_perfil, int escolha_
     
     //se for curtir, vai contar mais uma curtida
         if(c == 's' || c == 'S'){
-        ponteiro_postagem[escolha_perfil][escolha_postagem].curtidas.curtida = true;
-        ponteiro_postagem[escolha_perfil][escolha_postagem].curtidas.num_curtidas++;
-        num_curtidas = ponteiro_postagem[posicao_usuario_logado][escolha_postagem].curtidas.num_curtidas;
-        printf("Curtido por %s\n", ponteiro_perfil[posicao_usuario_logado].ID);
-        printf("Total de curtidas: %d\n", num_curtidas);
+            ponteiro_postagem[escolha_perfil][escolha_postagem].curtidas.curtida = true;
+            ponteiro_postagem[escolha_perfil][escolha_postagem].curtidas.num_curtidas++;
+            num_curtidas = ponteiro_postagem[posicao_usuario_logado][escolha_postagem].curtidas.num_curtidas;
+            printf("Curtido por %s\n", ponteiro_perfil[posicao_usuario_logado].ID);
+            printf("Total de curtidas: %d\n", num_curtidas);
     }else{
          ponteiro_postagem[escolha_perfil][escolha_postagem].curtidas.curtida = false;
     }
     return SUCESSO;
 }
 
-        //funcao das curtidas!
-
+//funcao das curtidas!
 int curtida_ID(posts_t ** ponteiro_postagem, int num_postagens, int posicao_usuario_logado,int num_perfis,perfil_t * ponteiro_perfil){
     int i, j;
     int escolha_perfil, escolha_postagem;
@@ -1231,10 +1219,9 @@ int buscar_perfis_email_ordenado(perfil_t *ponteiro_perfil, int num_perfis, char
     perfil_t tmp;
 
     printf("Resultados para a busca %s\n", busca);
-    // Listar Ids de forma ordenada
-    for (i = 0; i < (num_perfis); i++){
-        if (strstr(ponteiro_perfil[i].email, busca)){
-            for (j = 0; j < (num_perfis); j++){
+    if (strstr (ponteiro_perfil[num_perfis].email, busca)){
+        for (i = 0; i < (num_perfis - 1); i++){
+            for (j = 0; j < (num_perfis - i - 1); j++){
                 // Se estiver fora de ordem...
                 if (strcmp(ponteiro_perfil[j].email, ponteiro_perfil[j + 1].email) > 0){
                     // ... troca de posicao
@@ -1244,7 +1231,10 @@ int buscar_perfis_email_ordenado(perfil_t *ponteiro_perfil, int num_perfis, char
                 }
             }
         }
+
     }
+    // Listar Ids de forma ordenada
+    
     return SUCESSO;
 }
 
@@ -1257,12 +1247,12 @@ int main(int argc, char **argv){
     int num_perfis = 0;
     int num_postagens = 0;
     int num_total_postagens = 0;  //Variavel para alguem utilizar na funçao que lista todas as postagens
-    int posicao_usuario_logado = USUARIO_INVALIDO;
+    int posicao_usuario_logado;
     int * vetor_com_numero_de_postagens = NULL;
     int * vetor_Numero_Postagens_Usuarios = NULL;  //minha ideia aqui é ter um vetor que cada posição dele tem um numero representando a quantidade de postagens que um perfil tem.
     char busca[NUM_MAX_CARACTERES_ID];
     int i;
-//num_total_postagens = 
+
     funcaoLerArquivo(&ponteiro_perfil, &num_perfis, &ponteiro_postagem);
 
     vetor_Numero_Postagens_Usuarios = (int *)calloc(num_perfis, sizeof(int));
@@ -1282,7 +1272,6 @@ int main(int argc, char **argv){
         switch (opcao){
             case 1:{
                 cadastro_perfil(&ponteiro_perfil, &num_perfis, &ponteiro_postagem);
-
                 vetor_Numero_Postagens_Usuarios = (int *)realloc(vetor_Numero_Postagens_Usuarios, sizeof(int) * num_perfis);
                 vetor_Numero_Postagens_Usuarios[num_perfis - 1] = 0;
                 break;
@@ -1403,8 +1392,8 @@ int main(int argc, char **argv){
                                         break;
                                     }
                                     case 2:{
-                                        // Editar posts
-                                        //editar_posts(ponteiro_postagem,vetor_com_numero_de_postagens, posicao_usuario_logado);
+                                        //Editar posts
+                                        editar_posts(ponteiro_postagem,vetor_com_numero_de_postagens, posicao_usuario_logado);
                                         break;
                                     }
                                     case 3:{
@@ -1455,22 +1444,21 @@ int main(int argc, char **argv){
                                         } while (opcao2 != 0);
                                         break;
                                     }
-                                    case 7:
-                        {
-                             do{
-                                        printf("\t\tCURTIDAS\n");
-                                        printf("Oque voce deseja fazer?:\n");
-                                        printf("(1) <CURTIR>\n(0) <SAIR>\n");
-                                        printf("Digite sua opcao: ");
-                                        scanf("%d", &opcao3);
-                                        switch(opcao3){
-                                            case 1:{
-                                                curtida_ID(ponteiro_postagem,num_postagens,posicao_usuario_logado,num_perfis,ponteiro_perfil);
+                                    case 7:{
+                                        do{
+                                            printf("\t\tCURTIDAS\n");
+                                            printf("Oque voce deseja fazer?:\n");
+                                            printf("(1) <CURTIR>\n(0) <SAIR>\n");
+                                            printf("Digite sua opcao: ");
+                                            scanf("%d", &opcao3);
+                                            switch(opcao3){
+                                                case 1:{
+                                                    curtida_ID(ponteiro_postagem,num_postagens,posicao_usuario_logado,num_perfis,ponteiro_perfil);
+                                                    break;
                                                 }
-                                                break;
+                                                
                                             }
-                                        }
-                                        while(opcao3 != 0);
+                                        }while(opcao3 != 0);
                                         break;
                                     }
                                     case 8:{
