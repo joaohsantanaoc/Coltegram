@@ -743,18 +743,17 @@ int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posi
 }
 
 // Função para imprimir informações de posts
-int imprime_posts_do_usuario_logado(posts_t **ponteiro_postagem, int num_postagem, int posicao_usuario_logado){
+int imprime_posts_do_usuario_logado(posts_t **ponteiro_postagem, int * vetor_com_numero_de_postagens_do_usuario, int posicao_usuario_logado){
     int i, j;
 
-    if (num_postagem < 1)
-    {
+    if (vetor_com_numero_de_postagens_do_usuario[posicao_usuario_logado] < 1){
         printf("Voce nao postou posts ainda!\n");
         return ERRO;
     }
 
     printf("SEUS POSTS\n");
 
-    for (i = 0; i < num_postagem; i++){
+    for (i = 0; i < vetor_com_numero_de_postagens_do_usuario[posicao_usuario_logado]; i++){
         printf("Titulo\n");
         printf("%s\n", ponteiro_postagem[posicao_usuario_logado][i].ID_post);
         printf("IMAGEM:\n");
@@ -786,18 +785,18 @@ int imprime_posts_da_sua_escolha(posts_t **ponteiro_postagem, int numero_do_usua
     printf("%s\n", ponteiro_postagem[numero_do_usuario][numero_da_postagem].legenda);
     return SUCESSO;
 }
-int editar_posts(posts_t **ponteiro_postagem, int num_postagens, int posicao_usuario_logado){
+int editar_posts(posts_t **ponteiro_postagem, int * vetor_com_numero_de_postagens, int posicao_usuario_logado){
     int i;
     int opcao, index;
 
-    if (num_postagens < 1){
+    if (vetor_com_numero_de_postagens[posicao_usuario_logado] < 1){
         printf("Voce nao postou posts ainda!\n");
         return ERRO;
     }
     printf("\t\tSEUS POSTS:\n");
 
-    for (i = 0; i < num_postagens; i++){
-        printf("%d. %-30s\n", i + 1, ponteiro_postagem[posicao_usuario_logado][i].ID_post);
+    for (i = 0; i < vetor_com_numero_de_postagens[posicao_usuario_logado]; i++){
+        printf("%d. %s\n", i + 1, ponteiro_postagem[posicao_usuario_logado][i].ID_post);
     }
     do{
         printf("O que voce deseja editar no seu post?\n");
@@ -807,18 +806,18 @@ int editar_posts(posts_t **ponteiro_postagem, int num_postagens, int posicao_usu
         switch (opcao){
             case 1:{
                 printf("Qual titulo voce deseja mudar?\n");
-                for (i = 0; i < num_postagens; i++){
-                    printf("%d. %-30s\n", i + 1, ponteiro_postagem[posicao_usuario_logado][i].ID_post);
+                for (i = 0; i < vetor_com_numero_de_postagens[posicao_usuario_logado]; i++){
+                    printf("%d. %s\n", i + 1, ponteiro_postagem[posicao_usuario_logado][i].ID_post);
                 }
                 printf("Digite o numero do titulo correspondente ao post que voce quer alterar:\n");
                 scanf("%d%*c", &index);
                 index--;
-                if (index < 0 || index >= num_postagens){
+                if (index < 0 || index >= vetor_com_numero_de_postagens[posicao_usuario_logado]){
                     printf("Opcao invalida!\n");
                     return ERRO;
                 }
                 printf("Titulo do seu post:\n");
-                printf("%-30s\n", ponteiro_postagem[posicao_usuario_logado][index].ID_post);
+                printf("%s\n", ponteiro_postagem[posicao_usuario_logado][index].ID_post);
                 printf("Digite o que voce quer mudar no titulo:\n");
                 fgets(ponteiro_postagem[posicao_usuario_logado][index].ID_post, NUM_MAX_CARACTERES_ID, stdin);
                 util_removeQuebraLinhaFinal(ponteiro_postagem[posicao_usuario_logado][index].ID_post);
@@ -828,12 +827,12 @@ int editar_posts(posts_t **ponteiro_postagem, int num_postagens, int posicao_usu
             }
             case 2:{
                 printf("Digite o post que voce deseja acessar:\n");
-                for (i = 0; i < num_postagens; i++){
-                    printf("%d. %-30s\n", i + 1, ponteiro_postagem[posicao_usuario_logado][i].ID_post);
+                for (i = 0; i < vetor_com_numero_de_postagens[posicao_usuario_logado]; i++){
+                    printf("%d. %s\n", i + 1, ponteiro_postagem[posicao_usuario_logado][i].ID_post);
                 }
                 scanf("%d%*c", &index);
                 index--;
-                if (index < 0 || index >= num_postagens){
+                if (index < 0 || index >= vetor_com_numero_de_postagens[posicao_usuario_logado]){
                     printf("Opcao invalida!\n");
                     return ERRO;
                 }
@@ -868,12 +867,12 @@ int editar_posts(posts_t **ponteiro_postagem, int num_postagens, int posicao_usu
             }
             case 3:{
                 printf("Digite o post que voce deseja acessar:\n");
-                for (i = 0; i < num_postagens; i++){
-                    printf("%d. %-30s\n", i + 1, ponteiro_postagem[posicao_usuario_logado][i].ID_post);
+                for (i = 0; i < vetor_com_numero_de_postagens[posicao_usuario_logado]; i++){
+                    printf("%d. %s\n", i + 1, ponteiro_postagem[posicao_usuario_logado][i].ID_post);
                 }
                 scanf("%d%*c", &index);
                 index--;
-                if (index < 0 || index >= num_postagens){
+                if (index < 0 || index >= vetor_com_numero_de_postagens[posicao_usuario_logado]){
                     printf("Opcao invalida!\n");
                     return ERRO;
                 }
@@ -929,24 +928,23 @@ void excluir_posts(posts_t * ponteiro_postagem,int num_postagens){
     }
 }
 */
-int comentar_em_seu_propio_post(posts_t **ponteiro_postagem, int num_postagens, perfil_t *ponteiro_perfil, int posicao_usuario_logado){
+int comentar_em_seu_propio_post(posts_t **ponteiro_postagem, int * vetor_com_numero_de_postagens, perfil_t *ponteiro_perfil, int posicao_usuario_logado){
     int i, j, index;
-    if (num_postagens < 1){
+    if (vetor_com_numero_de_postagens[posicao_usuario_logado] < 1){
         printf("Voce nao postou posts!\n");
         return ERRO;
     }
 
-    for (j = 0; j < num_postagens; j++){
+    for (j = 0; j < vetor_com_numero_de_postagens[posicao_usuario_logado]; j++){
         printf("%d.%s\n", j + 1, ponteiro_postagem[posicao_usuario_logado][j].ID_post);
     }
     printf("Digite qual post voce deseja acessar e comentar:\n");
     scanf("%d%*c", &index);
     index--;
-    if (index < 0 || index >= num_postagens){
+    if (index < 0 || index >= vetor_com_numero_de_postagens[posicao_usuario_logado]){
         printf("Opcao invalida!\n");
         return ERRO;
     }
-    ponteiro_postagem[posicao_usuario_logado][index].comentario.mensagem = NULL;
     ponteiro_postagem[posicao_usuario_logado][index].comentario.numero_comentarios = 0;
 
     printf("O que voce deseja comentar no post %s?\n", ponteiro_postagem[posicao_usuario_logado][index].ID_post);
@@ -1179,16 +1177,16 @@ int main(int argc, char **argv){
     int posicao_usuario_logado;
     int * vetor_Numero_Postagens_Usuarios = NULL;  //minha ideia aqui é ter um vetor que cada posição dele tem um numero representando a quantidade de postagens que um perfil tem.
     char busca[NUM_MAX_CARACTERES_ID];
+    int i;
 //num_total_postagens = 
     funcaoLerArquivo(&ponteiro_perfil, &num_perfis, &ponteiro_postagem);
 
-    /*vetor_Numero_Postagens_Usuarios = (int *)calloc(num_perfis, sizeof(int));
+    vetor_Numero_Postagens_Usuarios = (int *)calloc(num_perfis, sizeof(int));
 
-    for (int i = 0; i < num_perfis; i++){
+    for (i = 0; i < num_perfis; i++){
 
         vetor_Numero_Postagens_Usuarios[i] += ponteiro_perfil[i].numeroDePostagens;
     }
-*/
 
     printf("Bem vindo ao Coltegram!\n");
     printf("Instagram feito por:\nIcaro Cardoso Nascimento\nJoao Henrique Santana Oliveira Campos\nMatheus Fernandes de Oliveira Brandemburg\n");
@@ -1204,7 +1202,7 @@ int main(int argc, char **argv){
             }
             case 2:{
                 posicao_usuario_logado = login(ponteiro_perfil, num_perfis, &login_info); // Aqui a variavel posicao_usuario_logado recebe o valor escolha, que deverá ser a posiçao do perfil.
-                //num_postagens = vetor_Numero_Postagens_Usuarios[posicao_usuario_logado];
+                num_postagens = vetor_Numero_Postagens_Usuarios[posicao_usuario_logado];
 
                 while (posicao_usuario_logado != USUARIO_INVALIDO){
                     printf("Quais acoes voce deseja executar:\n");
@@ -1312,9 +1310,9 @@ int main(int argc, char **argv){
                                     case 1:{
                                         // Postar posts
                                         cadastro_postagem(&ponteiro_postagem, &num_postagens, posicao_usuario_logado, num_perfis); // Aqui você vai incluir a variavel posicao_usuario_logado como parametro
-                                        /*vetor_Numero_Postagens_Usuarios[posicao_usuario_logado] ++;
+                                        vetor_Numero_Postagens_Usuarios[posicao_usuario_logado] ++;
                                         ponteiro_perfil[posicao_usuario_logado].numeroDePostagens ++;
-                                        num_total_postagens ++;*/
+                                        num_total_postagens ++;
                                         break;
                                     }
                                     case 2:{
@@ -1324,7 +1322,7 @@ int main(int argc, char **argv){
                                     }
                                     case 3:{
                                         // Listar posts
-                                        imprime_posts_do_usuario_logado(ponteiro_postagem, num_postagens, posicao_usuario_logado);
+                                        imprime_posts_do_usuario_logado(ponteiro_postagem, vetor_Numero_Postagens_Usuarios, posicao_usuario_logado);
                                         break;
                                     }
                                     case 4:{
