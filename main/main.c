@@ -1263,11 +1263,20 @@ int listar_emails_ordenado(perfil_t * ponteiro_perfil,int num_perfis,char busca[
     int i;
 
     buscar_perfis_email_ordenado(ponteiro_perfil,num_perfis,busca);
-    printf ("Ids:\n");
     for (i = 0;i < num_perfis;i++){
         printf ("Emails: %s\n", ponteiro_perfil[i].email);
     }
 
+    return SUCESSO;
+}
+int listar_ids_ordenado(perfil_t * ponteiro_perfil,int num_perfis,char busca[]){
+    int i;
+
+    buscar_perfis_ID_ordenado(ponteiro_perfil,num_perfis,busca);
+    for (i = 0;i < num_perfis;i++){
+        printf ("Ids: %s\n", ponteiro_perfil[i].ID);
+    }
+    
     return SUCESSO;
 }
 
@@ -1285,7 +1294,7 @@ int main(int argc, char **argv){
     int * vetor_Numero_Postagens_Usuarios = NULL;  //minha ideia aqui é ter um vetor que cada posição dele tem um numero representando a quantidade de postagens que um perfil tem.
     char busca[NUM_MAX_CARACTERES_ID];
     int i;
-//num_total_postagens = 
+ 
     funcaoLerArquivo(&ponteiro_perfil, &num_perfis, &ponteiro_postagem);
 
     vetor_Numero_Postagens_Usuarios = (int *)calloc(num_perfis, sizeof(int));
@@ -1348,7 +1357,7 @@ int main(int argc, char **argv){
                                         printf("Digite o ID:\n");
                                         fgets(busca, NUM_MAX_CARACTERES_ID, stdin);
                                         util_removeQuebraLinhaFinal(busca);
-                                        buscar_perfis_ID_ordenado(ponteiro_perfil, num_perfis, busca);
+                                        listar_ids_ordenado(ponteiro_perfil,num_perfis,busca);
                                         break;
                                     }
                                     case 4:{
