@@ -130,7 +130,14 @@ typedef struct posts_s{
     comentario_t comentario;
     curtida_t curtidas;
     int num_imagens;
+    int Numero_De_Fotos;
 } posts_t;
+// Estrutura análoga para matriz de ponteiros
+typedef struct copia_post_s{
+    posts_t *ponteiro_post;
+    int n_posts;
+
+} copia_post_t;
 // Função para tirar o '\n' das strings
 void util_removeQuebraLinhaFinal(char dados[]){
     int tamanho;
@@ -705,10 +712,10 @@ int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posi
     util_removeQuebraLinhaFinal(postagens.ID_post);
 
     printf("Digite quantas imagens voce deseja colocar em seu post:\n");
-    scanf("%d%*c", &postagens.num_imagens);
+    scanf("%d%*c", &postagens.Numero_De_Fotos);
 
     // Aloca espaço para as imagens
-    postagens.img = malloc(sizeof(asciiImg_t *) * postagens.num_imagens);
+    postagens.img = malloc(sizeof(asciiImg_t *) * postagens.Numero_De_Fotos);
 
     printf("Agora de upload na imagem de seu post:\n");
     printf("Para isso digite o url de sua imagem com o jpg no final\n");
@@ -717,7 +724,7 @@ int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posi
     //https://www.coltec.ufmg.br/coltec-ufmg/wp-content/uploads/2018/06/leandro.jpg
     //https://profrancis.com.br/wp-content/uploads/2021/10/WhatsApp-Image-2021-09-06-at-11.51.44-1-1000x1000.jpeg
 
-    for (i = 0; i < postagens.num_imagens; i++){
+    for (i = 0; i < postagens.Numero_De_Fotos; i++){
         printf("URL: ");
         fgets(postagens.url[i], NUM_MAX_IMAGEM, stdin);
         util_removeQuebraLinhaFinal(postagens.url[i]);
@@ -747,6 +754,9 @@ int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posi
 int imprime_posts_do_usuario_logado(posts_t **ponteiro_postagem, int * vetor_com_numero_de_postagens_do_usuario, int posicao_usuario_logado){
     int i, j;
 
+printf("\nAqui esta chegando: %d\n", vetor_com_numero_de_postagens_do_usuario[posicao_usuario_logado]);
+
+
     if (vetor_com_numero_de_postagens_do_usuario[posicao_usuario_logado] < 1){
         printf("Voce nao postou posts ainda!\n");
         return ERRO;
@@ -755,16 +765,29 @@ int imprime_posts_do_usuario_logado(posts_t **ponteiro_postagem, int * vetor_com
     printf("SEUS POSTS\n");
 
     for (i = 0; i < vetor_com_numero_de_postagens_do_usuario[posicao_usuario_logado]; i++){
+
+        if(ponteiro_postagem[posicao_usuario_logado][i].Numero_De_Fotos == 0){
+
+            ponteiro_postagem[posicao_usuario_logado][i].Numero_De_Fotos = 1;
+
+        }
+
         printf("Titulo\n");
         printf("%s\n", ponteiro_postagem[posicao_usuario_logado][i].ID_post);
         printf("IMAGEM:\n");
 
-        for (j = 0; j < ponteiro_postagem[posicao_usuario_logado][i].num_imagens; j++){
+        printf("\n\nUMERO DE FOTOS NESSA POSTAGEM EH: %d\n\n", ponteiro_postagem[posicao_usuario_logado][i].Numero_De_Fotos);
+
+        for (j = 0; j < ponteiro_postagem[posicao_usuario_logado][i].Numero_De_Fotos; j++){
             // Mostra a imagem, o número de bytes e libera a memória
+            printf("\nAqui as variaveis são:\nposicao usuario locado: %d\ni : %d\nj : %d\nnumero de postagens do usuario: %d\n", posicao_usuario_logado, i, j, vetor_com_numero_de_postagens_do_usuario[posicao_usuario_logado]);
+            printf("%s\n", (ponteiro_postagem)[posicao_usuario_logado][i].url[j]);
             insta_imprimeImagem((ponteiro_postagem)[posicao_usuario_logado][i].img[j]);
+            printf("\nAqui acabou a impressao desse post\n");
         }
 
-        printf("Legenda:\n");
+
+        printf("\nLegenda:\n");
         printf("%s\n", ponteiro_postagem[posicao_usuario_logado][i].legenda);
     }
     return SUCESSO;
@@ -777,7 +800,7 @@ int imprime_posts_da_sua_escolha(posts_t **ponteiro_postagem, int numero_do_usua
     printf("%s\n", ponteiro_postagem[numero_do_usuario][numero_da_postagem].ID_post);
     printf("IMAGEM:\n");
 
-    for (i = 0; i < ponteiro_postagem[numero_do_usuario][numero_da_postagem].num_imagens; i++){
+    for (i = 0; i < ponteiro_postagem[numero_do_usuario][numero_da_postagem].Numero_De_Fotos; i++){
         // Mostra a imagem, o número de bytes e libera a memória
         insta_imprimeImagem(ponteiro_postagem[numero_do_usuario][numero_da_postagem].img[i]);
     }
@@ -786,17 +809,17 @@ int imprime_posts_da_sua_escolha(posts_t **ponteiro_postagem, int numero_do_usua
     printf("%s\n", ponteiro_postagem[numero_do_usuario][numero_da_postagem].legenda);
     return SUCESSO;
 }
-int editar_posts(posts_t **ponteiro_postagem, int * vetor_com_numero_de_postagens, int posicao_usuario_logado){
+int editar_posts(posts_t **ponteiro_postagem, int * vetor_com_numero_de_postagens_do_usuario, int posicao_usuario_logado){
     int i;
     int opcao, index;
 
-    if (vetor_com_numero_de_postagens[posicao_usuario_logado] < 1){
+    if (vetor_com_numero_de_postagens_do_usuario[posicao_usuario_logado] < 1){
         printf("Voce nao postou posts ainda!\n");
         return ERRO;
     }
     printf("\t\tSEUS POSTS:\n");
 
-    for (i = 0; i < vetor_com_numero_de_postagens[posicao_usuario_logado]; i++){
+    for (i = 0; i < vetor_com_numero_de_postagens_do_usuario[posicao_usuario_logado]; i++){
         printf("%d. %s\n", i + 1, ponteiro_postagem[posicao_usuario_logado][i].ID_post);
     }
     do{
@@ -807,13 +830,13 @@ int editar_posts(posts_t **ponteiro_postagem, int * vetor_com_numero_de_postagen
         switch (opcao){
             case 1:{
                 printf("Qual titulo voce deseja mudar?\n");
-                for (i = 0; i < vetor_com_numero_de_postagens[posicao_usuario_logado]; i++){
+                for (i = 0; i < vetor_com_numero_de_postagens_do_usuario[posicao_usuario_logado]; i++){
                     printf("%d. %s\n", i + 1, ponteiro_postagem[posicao_usuario_logado][i].ID_post);
                 }
                 printf("Digite o numero do titulo correspondente ao post que voce quer alterar:\n");
                 scanf("%d%*c", &index);
                 index--;
-                if (index < 0 || index >= vetor_com_numero_de_postagens[posicao_usuario_logado]){
+                if (index < 0 || index >= vetor_com_numero_de_postagens_do_usuario[posicao_usuario_logado]){
                     printf("Opcao invalida!\n");
                     return ERRO;
                 }
@@ -828,17 +851,17 @@ int editar_posts(posts_t **ponteiro_postagem, int * vetor_com_numero_de_postagen
             }
             case 2:{
                 printf("Digite o post que voce deseja acessar:\n");
-                for (i = 0; i < vetor_com_numero_de_postagens[posicao_usuario_logado]; i++){
+                for (i = 0; i < vetor_com_numero_de_postagens_do_usuario[posicao_usuario_logado]; i++){
                     printf("%d. %s\n", i + 1, ponteiro_postagem[posicao_usuario_logado][i].ID_post);
                 }
                 scanf("%d%*c", &index);
                 index--;
-                if (index < 0 || index >= vetor_com_numero_de_postagens[posicao_usuario_logado]){
+                if (index < 0 || index >= vetor_com_numero_de_postagens_do_usuario[posicao_usuario_logado]){
                     printf("Opcao invalida!\n");
                     return ERRO;
                 }
                 printf("Imagem do seu post:\n");
-                for (i = 0; i < ponteiro_postagem[posicao_usuario_logado][index].num_imagens; i++){
+                for (i = 0; i < ponteiro_postagem[posicao_usuario_logado][index].Numero_De_Fotos; i++){
                     ponteiro_postagem[posicao_usuario_logado][index].img[i] = insta_carregaImagem(ponteiro_postagem[posicao_usuario_logado][index].url[i], MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
                     if (ponteiro_postagem[posicao_usuario_logado][index].img[i] == NULL){
                         // Falha ao carregar a imagem
@@ -849,9 +872,9 @@ int editar_posts(posts_t **ponteiro_postagem, int * vetor_com_numero_de_postagen
                     insta_imprimeImagem(ponteiro_postagem[posicao_usuario_logado][index].img[i]);
                 }
                 printf("Digite quantas imagens voce vai querer inserir:\n");
-                scanf("%d%*c", &ponteiro_postagem[posicao_usuario_logado][index].num_imagens);
+                scanf("%d%*c", &ponteiro_postagem[posicao_usuario_logado][index].Numero_De_Fotos);
 
-                for (i = 0; i < ponteiro_postagem[posicao_usuario_logado][index].num_imagens; i++){
+                for (i = 0; i < ponteiro_postagem[posicao_usuario_logado][index].Numero_De_Fotos; i++){
                     printf("Digite a nova url:\n");
                     fgets(ponteiro_postagem[posicao_usuario_logado][index].url[i], NUM_MAX_IMAGEM, stdin);
                     util_removeQuebraLinhaFinal(ponteiro_postagem[posicao_usuario_logado][index].url[i]);
@@ -868,12 +891,12 @@ int editar_posts(posts_t **ponteiro_postagem, int * vetor_com_numero_de_postagen
             }
             case 3:{
                 printf("Digite o post que voce deseja acessar:\n");
-                for (i = 0; i < vetor_com_numero_de_postagens[posicao_usuario_logado]; i++){
+                for (i = 0; i < vetor_com_numero_de_postagens_do_usuario[posicao_usuario_logado]; i++){
                     printf("%d. %s\n", i + 1, ponteiro_postagem[posicao_usuario_logado][i].ID_post);
                 }
                 scanf("%d%*c", &index);
                 index--;
-                if (index < 0 || index >= vetor_com_numero_de_postagens[posicao_usuario_logado]){
+                if (index < 0 || index >= vetor_com_numero_de_postagens_do_usuario[posicao_usuario_logado]){
                     printf("Opcao invalida!\n");
                     return ERRO;
                 }
@@ -1094,18 +1117,19 @@ int curtirPostagem(posts_t **ponteiro_postagem, int escolha_perfil, int escolha_
     
     //se for curtir, vai contar mais uma curtida
         if(c == 's' || c == 'S'){
-            ponteiro_postagem[escolha_perfil][escolha_postagem].curtidas.curtida = true;
-            ponteiro_postagem[escolha_perfil][escolha_postagem].curtidas.num_curtidas++;
-            num_curtidas = ponteiro_postagem[posicao_usuario_logado][escolha_postagem].curtidas.num_curtidas;
-            printf("Curtido por %s\n", ponteiro_perfil[posicao_usuario_logado].ID);
-            printf("Total de curtidas: %d\n", num_curtidas);
+        ponteiro_postagem[escolha_perfil][escolha_postagem].curtidas.curtida = true;
+        ponteiro_postagem[escolha_perfil][escolha_postagem].curtidas.num_curtidas++;
+        num_curtidas = ponteiro_postagem[posicao_usuario_logado][escolha_postagem].curtidas.num_curtidas;
+        printf("Curtido por %s\n", ponteiro_perfil[posicao_usuario_logado].ID);
+        printf("Total de curtidas: %d\n", num_curtidas);
     }else{
          ponteiro_postagem[escolha_perfil][escolha_postagem].curtidas.curtida = false;
     }
     return SUCESSO;
 }
 
-//funcao das curtidas!
+        //funcao das curtidas!
+
 int curtida_ID(posts_t ** ponteiro_postagem, int num_postagens, int posicao_usuario_logado,int num_perfis,perfil_t * ponteiro_perfil){
     int i, j;
     int escolha_perfil, escolha_postagem;
@@ -1219,9 +1243,10 @@ int buscar_perfis_email_ordenado(perfil_t *ponteiro_perfil, int num_perfis, char
     perfil_t tmp;
 
     printf("Resultados para a busca %s\n", busca);
-    if (strstr (ponteiro_perfil[num_perfis].email, busca)){
-        for (i = 0; i < (num_perfis - 1); i++){
-            for (j = 0; j < (num_perfis - i - 1); j++){
+    // Listar Ids de forma ordenada
+    for (i = 0; i < (num_perfis); i++){
+        if (strstr(ponteiro_perfil[i].email, busca)){
+            for (j = 0; j < (num_perfis); j++){
                 // Se estiver fora de ordem...
                 if (strcmp(ponteiro_perfil[j].email, ponteiro_perfil[j + 1].email) > 0){
                     // ... troca de posicao
@@ -1231,10 +1256,7 @@ int buscar_perfis_email_ordenado(perfil_t *ponteiro_perfil, int num_perfis, char
                 }
             }
         }
-
     }
-    // Listar Ids de forma ordenada
-    
     return SUCESSO;
 }
 
@@ -1247,12 +1269,11 @@ int main(int argc, char **argv){
     int num_perfis = 0;
     int num_postagens = 0;
     int num_total_postagens = 0;  //Variavel para alguem utilizar na funçao que lista todas as postagens
-    int posicao_usuario_logado;
-    int * vetor_com_numero_de_postagens = NULL;
+    int posicao_usuario_logado = USUARIO_INVALIDO;
     int * vetor_Numero_Postagens_Usuarios = NULL;  //minha ideia aqui é ter um vetor que cada posição dele tem um numero representando a quantidade de postagens que um perfil tem.
     char busca[NUM_MAX_CARACTERES_ID];
     int i;
-
+//num_total_postagens = 
     funcaoLerArquivo(&ponteiro_perfil, &num_perfis, &ponteiro_postagem);
 
     vetor_Numero_Postagens_Usuarios = (int *)calloc(num_perfis, sizeof(int));
@@ -1272,6 +1293,7 @@ int main(int argc, char **argv){
         switch (opcao){
             case 1:{
                 cadastro_perfil(&ponteiro_perfil, &num_perfis, &ponteiro_postagem);
+
                 vetor_Numero_Postagens_Usuarios = (int *)realloc(vetor_Numero_Postagens_Usuarios, sizeof(int) * num_perfis);
                 vetor_Numero_Postagens_Usuarios[num_perfis - 1] = 0;
                 break;
@@ -1392,8 +1414,8 @@ int main(int argc, char **argv){
                                         break;
                                     }
                                     case 2:{
-                                        //Editar posts
-                                        editar_posts(ponteiro_postagem,vetor_com_numero_de_postagens, posicao_usuario_logado);
+                                        // Editar posts
+                                        editar_posts(ponteiro_postagem,vetor_Numero_Postagens_Usuarios, posicao_usuario_logado);
                                         break;
                                     }
                                     case 3:{
@@ -1444,21 +1466,22 @@ int main(int argc, char **argv){
                                         } while (opcao2 != 0);
                                         break;
                                     }
-                                    case 7:{
-                                        do{
-                                            printf("\t\tCURTIDAS\n");
-                                            printf("Oque voce deseja fazer?:\n");
-                                            printf("(1) <CURTIR>\n(0) <SAIR>\n");
-                                            printf("Digite sua opcao: ");
-                                            scanf("%d", &opcao3);
-                                            switch(opcao3){
-                                                case 1:{
-                                                    curtida_ID(ponteiro_postagem,num_postagens,posicao_usuario_logado,num_perfis,ponteiro_perfil);
-                                                    break;
+                                    case 7:
+                        {
+                             do{
+                                        printf("\t\tCURTIDAS\n");
+                                        printf("Oque voce deseja fazer?:\n");
+                                        printf("(1) <CURTIR>\n(0) <SAIR>\n");
+                                        printf("Digite sua opcao: ");
+                                        scanf("%d", &opcao3);
+                                        switch(opcao3){
+                                            case 1:{
+                                                curtida_ID(ponteiro_postagem,num_postagens,posicao_usuario_logado,num_perfis,ponteiro_perfil);
                                                 }
-                                                
+                                                break;
                                             }
-                                        }while(opcao3 != 0);
+                                        }
+                                        while(opcao3 != 0);
                                         break;
                                     }
                                     case 8:{
