@@ -257,6 +257,7 @@ int lerPostagensArquivo(posts_t ***ponteiro_postagem, int numeroPerfil, int tota
     posts_t *postagens_Perfil = NULL;
 
     int posicao_Da_Postagem = 0;
+    int j;
 
     sprintf(nome_Do_Arquivo, "%d.txt", numeroPerfil);
 
@@ -273,26 +274,29 @@ int lerPostagensArquivo(posts_t ***ponteiro_postagem, int numeroPerfil, int tota
 
     postagens_Perfil = (posts_t *)malloc(totalDePostagens * sizeof(posts_t));
 
-    while (posicao_Da_Postagem <= totalDePostagens){
+    while (posicao_Da_Postagem <= totalDePostagens){  //Aqui a condiçao eh ler ate chegar no final do arquivo ex: 0.txt
 
-        fgets(postagens_Perfil[posicao_Da_Postagem].ID_post, NUM_MAX_CARACTERES_ID, arquivoPostagem);
+        fgets(postagens_Perfil[posicao_Da_Postagem].ID_post, NUM_MAX_CARACTERES_ID, arquivoPostagem);  //Pegou o id da postagem
         util_removeQuebraLinhaFinal(postagens_Perfil[posicao_Da_Postagem].ID_post);
 
-        /*if (fscanf(arquivoPostagem, "%d", &postagens_Perfil[posicao_Da_Postagem].Numero_De_Fotos) != true){
+        if (fscanf(arquivoPostagem, "%d", &postagens_Perfil[posicao_Da_Postagem].Numero_De_Fotos) != true){ //Pegou o numero de fotos da postagem
             break;
         };
         fgetc(arquivoPostagem);
-        */
+        
+        for (j = 0; j < postagens_Perfil[posicao_Da_Postagem].Numero_De_Fotos; j++){  //Condição esta dizendo, repita essa parada ate o numero de fotos -1
 
-        fgets(postagens_Perfil[posicao_Da_Postagem].url[0], MAX_IMAGENS, arquivoPostagem);
-        util_removeQuebraLinhaFinal(postagens_Perfil[posicao_Da_Postagem].url[0]);
+            fgets(postagens_Perfil[posicao_Da_Postagem].url[j], MAX_IMAGENS, arquivoPostagem);      //Pega o link logo abaixo do numero de fotos e joga na posiçao j que começa com 0
+            util_removeQuebraLinhaFinal(postagens_Perfil[posicao_Da_Postagem].url[j]);
 
+        postagens_Perfil[posicao_Da_Postagem].img = malloc(sizeof(asciiImg_t *) * postagens_Perfil[posicao_Da_Postagem].Numero_De_Fotos); //O problema deve estar aqui
+
+        postagens_Perfil[posicao_Da_Postagem].img[j] = insta_carregaImagem(postagens_Perfil[posicao_Da_Postagem].url[j], MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
+
+
+        }
+        
         fgets(postagens_Perfil[posicao_Da_Postagem].legenda, NUM_MAX_CARACTERES_LEGENDA, arquivoPostagem);
-        //util_removeQuebraLinhaFinal(postagens_Perfil[posicao_Da_Postagem].legenda);
-
-        postagens_Perfil[posicao_Da_Postagem].img = malloc(sizeof(asciiImg_t *));
-
-        postagens_Perfil[posicao_Da_Postagem].img[0] = insta_carregaImagem(postagens_Perfil[posicao_Da_Postagem].url[0], MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
 
         posicao_Da_Postagem++;
     }
@@ -386,6 +390,7 @@ int funcaoEscrevePostagem(posts_t **ponteiro_postagem, int numeroPerfil, int tot
 
     char nome_Arquivo[Tamanho_Maximo];
     int postagem = 0;
+    int i;
 
     sprintf(nome_Arquivo, "%d.txt", numeroPerfil);
 
@@ -408,9 +413,11 @@ for(postagem = 0; postagem < totalDePostagens; postagem++){
 for(postagem = 0; postagem < totalDePostagens; postagem++){
 
     fprintf(arquivoPostagem, "%s\n", ponteiro_postagem[numeroPerfil][postagem].ID_post);
-    fprintf(arquivoPostagem, "%s\n", ponteiro_postagem[numeroPerfil][postagem].url[0]);
+    fprintf(arquivoPostagem, "%d\n", ponteiro_postagem[numeroPerfil][postagem].Numero_De_Fotos);
+    for(i = 0; i < ponteiro_postagem[numeroPerfil][postagem].Numero_De_Fotos; i++){
+        fprintf(arquivoPostagem, "%s\n", ponteiro_postagem[numeroPerfil][postagem].url[i]);
+    }
     fprintf(arquivoPostagem, "%s\n", ponteiro_postagem[numeroPerfil][postagem].legenda);
-
 }
 
 
@@ -754,9 +761,6 @@ int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posi
 int imprime_posts_do_usuario_logado(posts_t **ponteiro_postagem, int * vetor_com_numero_de_postagens_do_usuario, int posicao_usuario_logado){
     int i, j;
 
-printf("\nAqui esta chegando: %d\n", vetor_com_numero_de_postagens_do_usuario[posicao_usuario_logado]);
-
-
     if (vetor_com_numero_de_postagens_do_usuario[posicao_usuario_logado] < 1){
         printf("Voce nao postou posts ainda!\n");
         return ERRO;
@@ -776,14 +780,10 @@ printf("\nAqui esta chegando: %d\n", vetor_com_numero_de_postagens_do_usuario[po
         printf("%s\n", ponteiro_postagem[posicao_usuario_logado][i].ID_post);
         printf("IMAGEM:\n");
 
-        printf("\n\nUMERO DE FOTOS NESSA POSTAGEM EH: %d\n\n", ponteiro_postagem[posicao_usuario_logado][i].Numero_De_Fotos);
-
         for (j = 0; j < ponteiro_postagem[posicao_usuario_logado][i].Numero_De_Fotos; j++){
             // Mostra a imagem, o número de bytes e libera a memória
-            printf("\nAqui as variaveis são:\nposicao usuario locado: %d\ni : %d\nj : %d\nnumero de postagens do usuario: %d\n", posicao_usuario_logado, i, j, vetor_com_numero_de_postagens_do_usuario[posicao_usuario_logado]);
             printf("%s\n", (ponteiro_postagem)[posicao_usuario_logado][i].url[j]);
             insta_imprimeImagem((ponteiro_postagem)[posicao_usuario_logado][i].img[j]);
-            printf("\nAqui acabou a impressao desse post\n");
         }
 
 
@@ -1028,8 +1028,7 @@ int comentar_no_post_dos_outros(posts_t **ponteiro_postagem, int num_postagens, 
     ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.numero_comentarios++;
     printf("Comentario feito!\n");
     printf("SEU COMENTARIO:\n");
-    for (i = 0; i < ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.numero_comentarios; i++)
-    {
+    for (i = 0; i < ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.numero_comentarios; i++){
         printf("%s: %s\n", ponteiro_perfil[posicao_usuario_logado].ID, ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.mensagem[i]);
     }
 
@@ -1238,15 +1237,16 @@ int buscar_perfis_ID_ordenado(perfil_t *ponteiro_perfil, int num_perfis, char bu
     }
     return SUCESSO;
 }
+
 int buscar_perfis_email_ordenado(perfil_t *ponteiro_perfil, int num_perfis, char busca[]){
     int i, j;
     perfil_t tmp;
+    perfil_t * tmpvetor;
 
     printf("Resultados para a busca %s\n", busca);
-    // Listar Ids de forma ordenada
-    for (i = 0; i < (num_perfis); i++){
+    for (i = 0; i < (num_perfis - 1); i++){
         if (strstr(ponteiro_perfil[i].email, busca)){
-            for (j = 0; j < (num_perfis); j++){
+            for (j = 0; j < (num_perfis - 1); j++){
                 // Se estiver fora de ordem...
                 if (strcmp(ponteiro_perfil[j].email, ponteiro_perfil[j + 1].email) > 0){
                     // ... troca de posicao
@@ -1256,9 +1256,21 @@ int buscar_perfis_email_ordenado(perfil_t *ponteiro_perfil, int num_perfis, char
                 }
             }
         }
-    }
+    }            
     return SUCESSO;
 }
+int listar_emails_ordenado(perfil_t * ponteiro_perfil,int num_perfis,char busca[]){
+    int i;
+
+    buscar_perfis_email_ordenado(ponteiro_perfil,num_perfis,busca);
+    printf ("Ids:\n");
+    for (i = 0;i < num_perfis;i++){
+        printf ("Emails: %s\n", ponteiro_perfil[i].email);
+    }
+
+    return SUCESSO;
+}
+
 
 // Função principal
 int main(int argc, char **argv){
@@ -1343,7 +1355,7 @@ int main(int argc, char **argv){
                                         printf("Digite o email:\n");
                                         fgets(busca, NUM_MAX_CARACTERES_ID, stdin);
                                         util_removeQuebraLinhaFinal(busca);
-                                        buscar_perfis_email_ordenado(ponteiro_perfil, num_perfis, busca);
+                                        listar_emails_ordenado(ponteiro_perfil,num_perfis,busca);
                                         break;
                                     }
                                     case 0:{
@@ -1444,7 +1456,7 @@ int main(int argc, char **argv){
 
                                             switch (opcao2){
                                                 case 1:{
-                                                    //comentar_em_seu_propio_post(ponteiro_postagem,vetor_com_numero_de_postagens, ponteiro_perfil, posicao_usuario_logado);
+                                                    comentar_em_seu_propio_post(ponteiro_postagem,vetor_Numero_Postagens_Usuarios, ponteiro_perfil, posicao_usuario_logado);
                                                     break;
                                                 }
                                                 case 2:{
