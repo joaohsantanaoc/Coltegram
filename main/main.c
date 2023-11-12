@@ -568,7 +568,6 @@ void cadastro_perfil(perfil_t **ponteiro_perfil, int *num_perfis, posts_t ***pon
         util_removeQuebraLinhaFinal(perfis.senha_confirmada);
     }
     (*num_perfis)++;
-    printf("Numero de perfis = %d", (*num_perfis));
     *ponteiro_perfil = realloc(*ponteiro_perfil, (*num_perfis) * sizeof(perfil_t));
     (*ponteiro_perfil)[*num_perfis - 1] = perfis;
     comecar_usuario_com_NULL(ponteiro_postagem, *num_perfis);
@@ -730,6 +729,12 @@ int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posi
     // https://static.todamateria.com.br/upload/ba/sq/basquetebol-og.jpg
     //https://www.coltec.ufmg.br/coltec-ufmg/wp-content/uploads/2018/06/leandro.jpg
     //https://profrancis.com.br/wp-content/uploads/2021/10/WhatsApp-Image-2021-09-06-at-11.51.44-1-1000x1000.jpeg
+    //https://pbs.twimg.com/profile_images/1070325082143248385/_bFgPMyu_400x400.jpg
+    //https://i1.rgstatic.net/ii/profile.image/278000563179523-1443291907950_Q512/Dener-Brandao.jpg
+    //https://devday.github.io/2018/assets/img/speakers/virginia-mota.jpg
+    //https://www.ufmg.br/boletim/bol1649/img/5_marcio_fantini.jpg
+    //https://ufmg.br/thumbor/qFWA3ci0G6Kos3IqvoW0epIDyeM=/42x0:2007x3010/352x540/https://ufmg.br/storage/8/6/f/9/86f9e52e4836a3631e1fadfbc281530a_15362519523862_572083660.jpg
+
 
     for (i = 0; i < postagens.Numero_De_Fotos; i++){
         printf("URL: ");
