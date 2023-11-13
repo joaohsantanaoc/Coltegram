@@ -283,13 +283,13 @@ int lerPostagensArquivo(posts_t ***ponteiro_postagem, int numeroPerfil, int tota
             break;
         };
         fgetc(arquivoPostagem);
+
+        postagens_Perfil[posicao_Da_Postagem].img = malloc(sizeof(asciiImg_t *) * postagens_Perfil[posicao_Da_Postagem].Numero_De_Fotos);
         
         for (j = 0; j < postagens_Perfil[posicao_Da_Postagem].Numero_De_Fotos; j++){  //Condição esta dizendo, repita essa parada ate o numero de fotos -1
 
             fgets(postagens_Perfil[posicao_Da_Postagem].url[j], MAX_IMAGENS, arquivoPostagem);      //Pega o link logo abaixo do numero de fotos e joga na posiçao j que começa com 0
             util_removeQuebraLinhaFinal(postagens_Perfil[posicao_Da_Postagem].url[j]);
-
-        postagens_Perfil[posicao_Da_Postagem].img = malloc(sizeof(asciiImg_t *) * postagens_Perfil[posicao_Da_Postagem].Numero_De_Fotos); //O problema deve estar aqui
 
         postagens_Perfil[posicao_Da_Postagem].img[j] = insta_carregaImagem(postagens_Perfil[posicao_Da_Postagem].url[j], MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
 
@@ -725,7 +725,7 @@ int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posi
 
     printf("Agora de upload na imagem de seu post:\n");
     printf("Para isso digite o url de sua imagem com o jpg no final\n");
-    printf("Exemplo: https://img.freepik.com/fotos-premium/fundo-de-rosas-bonitas_534373-220.jpg\n");
+    printf("Exemplo: 2\n");
     // https://static.todamateria.com.br/upload/ba/sq/basquetebol-og.jpg
     //https://www.coltec.ufmg.br/coltec-ufmg/wp-content/uploads/2018/06/leandro.jpg
     //https://profrancis.com.br/wp-content/uploads/2021/10/WhatsApp-Image-2021-09-06-at-11.51.44-1-1000x1000.jpeg
@@ -780,7 +780,6 @@ int imprime_posts_do_usuario_logado(posts_t **ponteiro_postagem, int * vetor_com
             ponteiro_postagem[posicao_usuario_logado][i].Numero_De_Fotos = 1;
 
         }
-
         printf("Titulo\n");
         printf("%s\n", ponteiro_postagem[posicao_usuario_logado][i].ID_post);
         printf("IMAGEM:\n");
@@ -788,7 +787,9 @@ int imprime_posts_do_usuario_logado(posts_t **ponteiro_postagem, int * vetor_com
         for (j = 0; j < ponteiro_postagem[posicao_usuario_logado][i].Numero_De_Fotos; j++){
             // Mostra a imagem, o número de bytes e libera a memória
             printf("%s\n", (ponteiro_postagem)[posicao_usuario_logado][i].url[j]);
+            printf("\n");
             insta_imprimeImagem((ponteiro_postagem)[posicao_usuario_logado][i].img[j]);
+            printf("\n");
         }
 
 
