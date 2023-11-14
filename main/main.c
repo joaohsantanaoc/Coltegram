@@ -796,7 +796,6 @@ int imprime_posts_do_usuario_logado(posts_t **ponteiro_postagem, int * vetor_com
             insta_imprimeImagem((ponteiro_postagem)[posicao_usuario_logado][i].img[j]);
             printf ("\n");
         }
-        printf ("\n");
 
 
         printf("\nLegenda:\n");
