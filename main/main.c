@@ -283,20 +283,23 @@ int lerPostagensArquivo(posts_t ***ponteiro_postagem, int numeroPerfil, int tota
             break;
         };
         fgetc(arquivoPostagem);
-
-        postagens_Perfil[posicao_Da_Postagem].img = malloc(sizeof(asciiImg_t *) * postagens_Perfil[posicao_Da_Postagem].Numero_De_Fotos);
         
+        if (postagens_Perfil[posicao_Da_Postagem].Numero_De_Fotos > 0) {
+            postagens_Perfil[posicao_Da_Postagem].img = malloc(sizeof(asciiImg_t *) * postagens_Perfil[posicao_Da_Postagem].Numero_De_Fotos); //O problema deve estar aqui
+        } else {
+            postagens_Perfil[posicao_Da_Postagem].img = NULL;
+        }
+
+
         for (j = 0; j < postagens_Perfil[posicao_Da_Postagem].Numero_De_Fotos; j++){  //Condição esta dizendo, repita essa parada ate o numero de fotos -1
 
             fgets(postagens_Perfil[posicao_Da_Postagem].url[j], MAX_IMAGENS, arquivoPostagem);      //Pega o link logo abaixo do numero de fotos e joga na posiçao j que começa com 0
             util_removeQuebraLinhaFinal(postagens_Perfil[posicao_Da_Postagem].url[j]);
-
-        postagens_Perfil[posicao_Da_Postagem].img[j] = insta_carregaImagem(postagens_Perfil[posicao_Da_Postagem].url[j], MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
-
-
+            postagens_Perfil[posicao_Da_Postagem].img[j] = insta_carregaImagem(postagens_Perfil[posicao_Da_Postagem].url[j], MODO_IMAGEM, IMAGEM_NUMERO_COLUNAS);
         }
         
         fgets(postagens_Perfil[posicao_Da_Postagem].legenda, NUM_MAX_CARACTERES_LEGENDA, arquivoPostagem);
+        util_removeQuebraLinhaFinal(postagens_Perfil[posicao_Da_Postagem].legenda);
 
         posicao_Da_Postagem++;
     }
@@ -725,7 +728,7 @@ int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posi
 
     printf("Agora de upload na imagem de seu post:\n");
     printf("Para isso digite o url de sua imagem com o jpg no final\n");
-    printf("Exemplo: 2\n");
+    printf("Exemplo: https://img.freepik.com/fotos-premium/fundo-de-rosas-bonitas_534373-220.jpg\n");
     // https://static.todamateria.com.br/upload/ba/sq/basquetebol-og.jpg
     //https://www.coltec.ufmg.br/coltec-ufmg/wp-content/uploads/2018/06/leandro.jpg
     //https://profrancis.com.br/wp-content/uploads/2021/10/WhatsApp-Image-2021-09-06-at-11.51.44-1-1000x1000.jpeg
@@ -759,6 +762,9 @@ int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posi
     alocarMatriz(ponteiro_postagem, *num_postagens, posicao_usuario_logado, numero_perfis);
     (*ponteiro_postagem)[posicao_usuario_logado][*num_postagens - 1] = postagens;
 
+    (*ponteiro_postagem)[posicao_usuario_logado][*num_postagens - 1].comentario.numero_comentarios = 0;
+    (*ponteiro_postagem)[posicao_usuario_logado][*num_postagens - 1].comentario.mensagem = NULL;
+
     return SUCESSO;
 }
 
@@ -780,17 +786,17 @@ int imprime_posts_do_usuario_logado(posts_t **ponteiro_postagem, int * vetor_com
             ponteiro_postagem[posicao_usuario_logado][i].Numero_De_Fotos = 1;
 
         }
+
         printf("Titulo\n");
         printf("%s\n", ponteiro_postagem[posicao_usuario_logado][i].ID_post);
         printf("IMAGEM:\n");
-
+        
         for (j = 0; j < ponteiro_postagem[posicao_usuario_logado][i].Numero_De_Fotos; j++){
             // Mostra a imagem, o número de bytes e libera a memória
-            printf("%s\n", (ponteiro_postagem)[posicao_usuario_logado][i].url[j]);
-            printf("\n");
             insta_imprimeImagem((ponteiro_postagem)[posicao_usuario_logado][i].img[j]);
-            printf("\n");
+            printf ("\n");
         }
+        printf ("\n");
 
 
         printf("\nLegenda:\n");
@@ -975,20 +981,18 @@ int comentar_em_seu_propio_post(posts_t **ponteiro_postagem, int * vetor_com_num
         printf("Opcao invalida!\n");
         return ERRO;
     }
-    ponteiro_postagem[posicao_usuario_logado][index].comentario.numero_comentarios = 0;
 
-    printf("O que voce deseja comentar no post %s?\n", ponteiro_postagem[posicao_usuario_logado][index].ID_post);
-    fgets(ponteiro_postagem[posicao_usuario_logado][index].comentario.mensagem[ponteiro_postagem[posicao_usuario_logado][index].comentario.numero_comentarios], NUM_MAX_CARACTERES_COMENTARIO, stdin);
-    util_removeQuebraLinhaFinal(ponteiro_postagem[posicao_usuario_logado][index].comentario.mensagem[ponteiro_postagem[posicao_usuario_logado][index].comentario.numero_comentarios]);
+    posts_t * postagemAtual = &(ponteiro_postagem[posicao_usuario_logado][index]);
+
+    postagemAtual->comentario.mensagem = realloc(postagemAtual->comentario.mensagem, sizeof(char *) * (postagemAtual->comentario.numero_comentarios + 1));
+    postagemAtual->comentario.mensagem[postagemAtual->comentario.numero_comentarios] = malloc(sizeof(char) * NUM_MAX_CARACTERES_COMENTARIO);
+
+    printf("O que voce deseja comentar no post %s?\n", postagemAtual->ID_post);
+    fgets(postagemAtual->comentario.mensagem[postagemAtual->comentario.numero_comentarios], NUM_MAX_CARACTERES_COMENTARIO, stdin);
+    util_removeQuebraLinhaFinal(postagemAtual->comentario.mensagem[postagemAtual->comentario.numero_comentarios]);
 
     printf("Comentario feito!\n");
-    printf("SEU COMENTARIO:\n");
-    for (i = 0; i < ponteiro_postagem[posicao_usuario_logado][index].comentario.numero_comentarios; i++){
-        printf("%s: %s\n", ponteiro_perfil[posicao_usuario_logado].ID, ponteiro_postagem[posicao_usuario_logado][index].comentario.mensagem[i]);
-    }
-
-    ponteiro_postagem[posicao_usuario_logado][index].comentario.mensagem[ponteiro_postagem[posicao_usuario_logado][index].comentario.numero_comentarios] = realloc (ponteiro_postagem[posicao_usuario_logado][index].comentario.mensagem[ponteiro_postagem[posicao_usuario_logado][index].comentario.numero_comentarios] , (ponteiro_postagem[posicao_usuario_logado][index].comentario.numero_comentarios + 1) * sizeof (char *));
-    ponteiro_postagem[posicao_usuario_logado][index].comentario.numero_comentarios++;
+    postagemAtual->comentario.numero_comentarios++;
 
     return SUCESSO;
 }
@@ -1028,15 +1032,17 @@ int comentar_no_post_dos_outros(posts_t **ponteiro_postagem, int num_postagens, 
 
     imprime_posts_da_sua_escolha(ponteiro_postagem, escolha_perfil, escolha_postagem);
 
-    printf("O que voce deseja comentar no post %s?\n", ponteiro_postagem[escolha_perfil][escolha_postagem].ID_post);
-    fgets(ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.mensagem[ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.numero_comentarios], NUM_MAX_CARACTERES_COMENTARIO, stdin);
-    util_removeQuebraLinhaFinal(ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.mensagem[ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.numero_comentarios]);
-    ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.numero_comentarios++;
+    posts_t * postagemAtual = &(ponteiro_postagem[escolha_perfil][escolha_postagem]);
+
+    postagemAtual->comentario.mensagem = realloc(postagemAtual->comentario.mensagem, sizeof(char *) * (postagemAtual->comentario.numero_comentarios + 1));
+    postagemAtual->comentario.mensagem[postagemAtual->comentario.numero_comentarios] = malloc(sizeof(char) * NUM_MAX_CARACTERES_COMENTARIO);
+
+    printf("O que voce deseja comentar no post %s?\n", postagemAtual->ID_post);
+    fgets(postagemAtual->comentario.mensagem[postagemAtual->comentario.numero_comentarios], NUM_MAX_CARACTERES_COMENTARIO, stdin);
+    util_removeQuebraLinhaFinal(postagemAtual->comentario.mensagem[postagemAtual->comentario.numero_comentarios]);
+    
+    postagemAtual->comentario.numero_comentarios++;
     printf("Comentario feito!\n");
-    printf("SEU COMENTARIO:\n");
-    for (i = 0; i < ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.numero_comentarios; i++){
-        printf("%s: %s\n", ponteiro_perfil[posicao_usuario_logado].ID, ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.mensagem[i]);
-    }
 
     return SUCESSO;
 }
@@ -1073,8 +1079,8 @@ int listar_comentario(posts_t **ponteiro_postagem, int num_postagens, perfil_t *
 
     imprime_posts_da_sua_escolha(ponteiro_postagem, escolha_perfil, escolha_postagem);
     printf("Comentarios:\n");
+    printf("Numero de comentarios: %d\n", ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.numero_comentarios);
     for (i = 0; i < ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.numero_comentarios; i++){
-        printf("Numero de comentarios: %d\n", ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.numero_comentarios);
         printf("%d.%s: %s\n", i + 1, ponteiro_perfil[escolha_perfil].ID, ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.mensagem[i]);
     }
 
