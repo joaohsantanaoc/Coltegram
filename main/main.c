@@ -815,6 +815,7 @@ int imprime_posts_da_sua_escolha(posts_t **ponteiro_postagem, int numero_do_usua
     for (i = 0; i < ponteiro_postagem[numero_do_usuario][numero_da_postagem].Numero_De_Fotos; i++){
         // Mostra a imagem, o número de bytes e libera a memória
         insta_imprimeImagem(ponteiro_postagem[numero_do_usuario][numero_da_postagem].img[i]);
+        printf ("\n");
     }
 
     printf("Legenda:\n");
