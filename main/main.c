@@ -112,6 +112,7 @@ typedef struct login_s{
 typedef struct comentario_s{
     char ** mensagem;
     int numero_comentarios;
+    char ** perfil_que_comentou;
 } comentario_t;
 
 // Estrutura para curtidas
@@ -132,12 +133,6 @@ typedef struct posts_s{
     int num_imagens;
     int Numero_De_Fotos;
 } posts_t;
-// Estrutura análoga para matriz de ponteiros
-typedef struct copia_post_s{
-    posts_t *ponteiro_post;
-    int n_posts;
-
-} copia_post_t;
 // Função para tirar o '\n' das strings
 void util_removeQuebraLinhaFinal(char dados[]){
     int tamanho;
@@ -764,6 +759,7 @@ int cadastro_postagem(posts_t ***ponteiro_postagem, int *num_postagens, int posi
 
     (*ponteiro_postagem)[posicao_usuario_logado][*num_postagens - 1].comentario.numero_comentarios = 0;
     (*ponteiro_postagem)[posicao_usuario_logado][*num_postagens - 1].comentario.mensagem = NULL;
+    (*ponteiro_postagem)[posicao_usuario_logado][*num_postagens - 1].comentario.perfil_que_comentou = NULL;
 
     return SUCESSO;
 }
@@ -964,7 +960,7 @@ void excluir_posts(posts_t * ponteiro_postagem,int num_postagens){
     }
 }
 */
-int comentar_em_seu_propio_post(posts_t **ponteiro_postagem, int * vetor_com_numero_de_postagens,  int posicao_usuario_logado){
+int comentar_em_seu_propio_post(posts_t **ponteiro_postagem, int * vetor_com_numero_de_postagens,  int posicao_usuario_logado, perfil_t * ponteiro_perfil){
     int i, index;
     if (vetor_com_numero_de_postagens[posicao_usuario_logado] < 1){
         printf("Voce nao postou posts!\n");
@@ -987,6 +983,11 @@ int comentar_em_seu_propio_post(posts_t **ponteiro_postagem, int * vetor_com_num
     postagemAtual->comentario.mensagem = realloc(postagemAtual->comentario.mensagem, sizeof(char *) * (postagemAtual->comentario.numero_comentarios + 1));
     postagemAtual->comentario.mensagem[postagemAtual->comentario.numero_comentarios] = malloc(sizeof(char) * NUM_MAX_CARACTERES_COMENTARIO);
 
+    postagemAtual->comentario.perfil_que_comentou = realloc(postagemAtual->comentario.perfil_que_comentou, sizeof (char *) * (postagemAtual->comentario.numero_comentarios + 1));
+    postagemAtual->comentario.perfil_que_comentou[postagemAtual->comentario.numero_comentarios] = malloc (sizeof (char *) * NUM_MAX_CARACTERES_ID);
+
+    strcpy (postagemAtual->comentario.perfil_que_comentou[postagemAtual->comentario.numero_comentarios],ponteiro_perfil[posicao_usuario_logado].ID);
+
     printf("O que voce deseja comentar no post %s?\n", postagemAtual->ID_post);
     fgets(postagemAtual->comentario.mensagem[postagemAtual->comentario.numero_comentarios], NUM_MAX_CARACTERES_COMENTARIO, stdin);
     util_removeQuebraLinhaFinal(postagemAtual->comentario.mensagem[postagemAtual->comentario.numero_comentarios]);
@@ -994,9 +995,10 @@ int comentar_em_seu_propio_post(posts_t **ponteiro_postagem, int * vetor_com_num
     printf("Comentario feito!\n");
     postagemAtual->comentario.numero_comentarios++;
 
+
     return SUCESSO;
 }
-int comentar_no_post_dos_outros(posts_t **ponteiro_postagem, int num_postagens, perfil_t *ponteiro_perfil, int num_perfis){
+int comentar_no_post_dos_outros(posts_t **ponteiro_postagem, int num_postagens, perfil_t *ponteiro_perfil, int num_perfis,int posicao_usuario_logado){
     int i;
     int escolha_perfil, escolha_postagem;
     if (num_postagens < 1){
@@ -1036,6 +1038,10 @@ int comentar_no_post_dos_outros(posts_t **ponteiro_postagem, int num_postagens, 
 
     postagemAtual->comentario.mensagem = realloc(postagemAtual->comentario.mensagem, sizeof(char *) * (postagemAtual->comentario.numero_comentarios + 1));
     postagemAtual->comentario.mensagem[postagemAtual->comentario.numero_comentarios] = malloc(sizeof(char) * NUM_MAX_CARACTERES_COMENTARIO);
+
+    postagemAtual->comentario.perfil_que_comentou = realloc(postagemAtual->comentario.perfil_que_comentou, sizeof (char *) * (postagemAtual->comentario.numero_comentarios + 1));
+    postagemAtual->comentario.perfil_que_comentou[postagemAtual->comentario.numero_comentarios] = malloc (sizeof (char *) * NUM_MAX_CARACTERES_ID);
+    strcpy (postagemAtual->comentario.perfil_que_comentou[postagemAtual->comentario.numero_comentarios],ponteiro_perfil[posicao_usuario_logado].ID);
 
     printf("O que voce deseja comentar no post %s?\n", postagemAtual->ID_post);
     fgets(postagemAtual->comentario.mensagem[postagemAtual->comentario.numero_comentarios], NUM_MAX_CARACTERES_COMENTARIO, stdin);
@@ -1081,7 +1087,7 @@ int listar_comentario(posts_t **ponteiro_postagem, int num_postagens, perfil_t *
     printf("Comentarios:\n");
     printf("Numero de comentarios: %d\n", ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.numero_comentarios);
     for (i = 0; i < ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.numero_comentarios; i++){
-        printf("%d.%s: %s\n", i + 1, ponteiro_perfil[posicao_usuario_logado].ID, ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.mensagem[i]);
+        printf("%d.%s: %s\n", i + 1, ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.perfil_que_comentou[ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.numero_comentarios], ponteiro_postagem[escolha_perfil][escolha_postagem].comentario.mensagem[i]);
     }
 
     return SUCESSO;
@@ -1476,11 +1482,11 @@ int main(int argc, char **argv){
 
                                             switch (opcao2){
                                                 case 1:{
-                                                    comentar_em_seu_propio_post(ponteiro_postagem,vetor_Numero_Postagens_Usuarios,  posicao_usuario_logado);
+                                                    comentar_em_seu_propio_post(ponteiro_postagem,vetor_Numero_Postagens_Usuarios,  posicao_usuario_logado,ponteiro_perfil);
                                                     break;
                                                 }
                                                 case 2:{
-                                                    comentar_no_post_dos_outros(ponteiro_postagem, num_postagens,  ponteiro_perfil, num_perfis);
+                                                    comentar_no_post_dos_outros(ponteiro_postagem, num_postagens,  ponteiro_perfil, num_perfis,posicao_usuario_logado);
                                                     break;
                                                 }
                                                 case 3:{
@@ -1498,22 +1504,21 @@ int main(int argc, char **argv){
                                         } while (opcao2 != 0);
                                         break;
                                     }
-                                    case 7:
-                        {
-                             do{
-                                        printf("\t\tCURTIDAS\n");
-                                        printf("Oque voce deseja fazer?:\n");
-                                        printf("(1) <CURTIR>\n(0) <SAIR>\n");
-                                        printf("Digite sua opcao: ");
-                                        scanf("%d", &opcao3);
-                                        switch(opcao3){
-                                            case 1:{
-                                                curtida_ID(ponteiro_postagem,num_postagens,posicao_usuario_logado,num_perfis,ponteiro_perfil);
+                                    case 7:{
+                                        do{
+                                            printf("\t\tCURTIDAS\n");
+                                            printf("Oque voce deseja fazer?:\n");
+                                            printf("(1) <CURTIR>\n(0) <SAIR>\n");
+                                            printf("Digite sua opcao: ");
+                                            scanf("%d%*c", &opcao3);
+                                            switch(opcao3){
+                                                case 1:{
+                                                    curtida_ID(ponteiro_postagem,num_postagens,posicao_usuario_logado,num_perfis,ponteiro_perfil);
+                                                    break;
                                                 }
-                                                break;
+                                                    
                                             }
-                                        }
-                                        while(opcao3 != 0);
+                                        }while(opcao3 != 0);
                                         break;
                                     }
                                     case 8:{
